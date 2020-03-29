@@ -24,5 +24,6 @@ urlpatterns = [
     # path('trainwell/', include('trainWellApp.urls', 'trainWellApp')),
     path('accounts/login/', auth_views.LoginView.as_view(), name="login"),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name="logout"),
+    path('trainwell/', include('trainWellApp.urls')),
     path('', RedirectView.as_view(url=''))
 ]

@@ -6,8 +6,8 @@ from django.db import models
 
 class Planner(models.Model):
     over_18 = models.BooleanField()
-    last_modified = models.DateTimeField()
-    created = models.DateTimeField()
+    last_modified = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
     user = models.OneToOneField(User, blank=True, null=True, on_delete=models.PROTECT)
 
     def __str__(self):
