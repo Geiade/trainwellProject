@@ -17,3 +17,5 @@ Including another URLconf
 """
 
 app_name = "trainWellApp"
+
+urlpatterns = []
