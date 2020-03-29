@@ -19,6 +19,10 @@ from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from django.views.generic import RedirectView
 
+from django.conf.urls.static import static
+
+from trainwell import settings
+
 urlpatterns = [
     path('', RedirectView.as_view(pattern_name='trainwell:index'), name='index'),
     path('admin/', admin.site.urls),
@@ -27,4 +31,4 @@ urlpatterns = [
     path('accounts/logout/', auth_views.LogoutView.as_view(), name="logout"),
     path('trainwell/', include(('trainWellApp.urls', 'trainWellApp'), namespace='trainwell')),
 
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
