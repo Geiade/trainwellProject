@@ -1,5 +1,7 @@
 from django.conf.urls import url
 
+from trainWellApp.views import booking_view
+
 """trainwell URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -17,3 +19,7 @@ Including another URLconf
 """
 
 app_name = "trainWellApp"
+
+urlpatterns = [
+    url(r'^booking_view', booking_view, name='booking_view'),
+]
