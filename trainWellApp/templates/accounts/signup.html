@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body_block %}
+
+    <div class="container my-5">
+
+        <div class="row justify-content-center">
+            <div class="col col-md-8 p-3 rounded">
+
+                <h4 class="font-weight-bold py-3">Sign Up</h4>
+
+                <form method="post">
+
+                    <div class="form-group" id="username">
+                        <label class="font-weight-bold" for="user">Username*</label>
+                        <input name="username" type="text" class="form-control" id="user">
+                        <small id="user_help" class="form-text text-muted">You will use this to Sign In.</small>
+
+                        {% if user_form.username.errors %}
+                            {% for error in user_form.username.errors %}
+                                <small class="text-danger">{{ error|escape }}</small>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="form-row" id="name">
+                        <div class="form-group col-sm-6" id="fname">
+                            <label class="font-weight-bold" for="fname">First name*</label>
+                            <input name="first_name" type="text" class="form-control" id="fname">
+
+                            {% if user_form.first_name.errors %}
+                                {% for error in user_form.first_name.errors %}
+                                    <small class="text-danger">{{ error|escape }}</small>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="form-group col-sm-6" id="lname">
+
+                            <label class="font-weight-bold" for="lname">Last name*</label>
+                            <input name="last_name" type="text" class="form-control" id="lname">
+
+                            {% if user_form.last_name.errors %}
+                                {% for error in user_form.last_name.errors %}
+                                    <small class="text-danger">{{ error|escape }}</small>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="font-weight-bold" for="email_addr">Email address*</label>
+                        <input name="email" type="email" class="form-control" id="email_addr">
+                        <small id="email_help" class="form-text text-muted">trainwell@account.com.</small>
+
+                        {% if user_form.email.errors %}
+                            {% for error in user_form.email.errors %}
+                                <small class="text-danger">{{ error|escape }}</small>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="form-row" id="passwds">
+                        <div class="form-group col-sm-6" id="password1">
+                            <label class="font-weight-bold" for="passwd1">Create Password*</label>
+                            <input name="password1" type="password" class="form-control" id="passwd1">
+                            <small id="passwd_help" class="form-text text-muted">Your password must contain at least 8
+                                characters.</small>
+
+                            {% if user_form.password1.errors %}
+                                {% for error in user_form.password1.errors %}
+                                    <small class="text-danger">{{ error|escape }}</small>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group col-sm-6" id="password2">
+                            <label class="font-weight-bold" for="passwd2">Confirm Password*</label>
+                            <input name="password2" type="password" class="form-control" id="passwd2">
+
+                            {% if user_form.password2.errors %}
+                                {% for error in user_form.password2.errors %}
+                                    <small class="text-danger">{{ error|escape }}</small>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group custom-control custom-checkbox">
+                        <input name="over_18" type="checkbox" class="custom-control-input" id="over18">
+                        <label class="custom-control-label" for="over18">*I'm over 18.</label>
+
+                        {% if planner_form.over_18.errors %}
+                            {% for error in planner_form.over_18.errors %}
+                                <small class="text-danger">{{ error|escape }}</small>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="my-5">
+                        <input type="submit" onclick="return confirm('Are you sure?')"
+                               class="btn btn-secondary btn-lg btn-block" value="Sign Up"/>
+                    </div>
+
+                    {% csrf_token %}
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
