@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body_block %}
+    <div class="container my-5">
+
+        <div class="row justify-content-center">
+            <div class="col col-md-5 p-3">
+
+                <h4 class="font-weight-bold py-3">Sign In</h4>
+
+                <form method="post">
+                    <div class="form-group" id="username">
+                        <label class="font-weight-bold text-muted" for="username">Username</label>
+                        <input name="username" type="text" class="form-control" id="username">
+
+                        {% if form.username.errors %}
+                            {% for error in form.username.errors %}
+                                <small class="text-danger">{{ error|escape }}</small>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group" id="password">
+                        <label class="font-weight-bold text-muted" for="passwd">Password</label>
+                        <input name="password" type="password" class="form-control" id="passwd">
+
+                        {% if form.password.errors %}
+                            {% for error in form.password.errors %}
+                                <small class="text-danger">{{ error|escape }}</small>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="my-5">
+                        <input type="submit" onclick="return confirm('Are you sure?')"
+                               class="btn btn-secondary btn-lg btn-block" value="Sign In"/>
+                    </div>
+                    {% csrf_token %}
+                </form>
+                {% if form.errors %}
+                    <small class="text-danger">* username or password not correct</small>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

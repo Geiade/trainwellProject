@@ -22,4 +22,3 @@ app_name = "trainWellApp"
 
 urlpatterns = [
     path('booking/<int:pk>/', BookingDetail.as_view(), name='booking-detail'),
-]
