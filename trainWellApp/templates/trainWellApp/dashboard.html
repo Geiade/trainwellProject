@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block body_block %}
+    <body>
+    <h1>Bookings</h1>
+    <ul>
+        {% for booking in object_list %}
+            <li>{{ booking.name }} {{ booking.datetime_init }} {{ booking.datetime_end }} </li>
+        {% empty %}
+            <li>No bookings yet</li>
+        {% endfor %}
+    </ul>
+    </body>
+{% endblock %}
+

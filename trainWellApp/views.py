@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 
 # Create your views here.
 from django.urls import reverse
-from django.views.generic.detail import DetailView
+from django.views.generic import ListView, DetailView
 from trainWellApp.models import Booking
 
 
@@ -38,3 +38,18 @@ class BookingDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+
+class Dashboard(ListView):
+    model = Booking
+    PAGINATE_BY = 20
+    template_name = 'trainWellApp/dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def get_queryset(self):
+        queryset = super(Dashboard, self).get_queryset()
+        qs = self.model.objects.all()
+        return qs
