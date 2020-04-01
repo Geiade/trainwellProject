@@ -1,4 +1,3 @@
-
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as do_login
 from django.contrib.auth.forms import AuthenticationForm
@@ -6,6 +5,9 @@ from django.shortcuts import render, redirect
 
 # Create your views here.
 from django.urls import reverse
+from django.views.generic.detail import DetailView
+from trainWellApp.models import Booking
+
 
 def signin(request):
     '''signed = is_signed(request)
@@ -28,15 +30,11 @@ def signin(request):
         form = AuthenticationForm()
 
     return render(request, 'accounts/signin.html', {'form': form})
-  
-from django.views.generic.detail import DetailView
-
-from trainWellApp.models import Booking
 
 
 class BookingDetail(DetailView):
-model = Booking
+    model = Booking
 
-def get_context_data(self, **kwargs):
-    context = super().get_context_data(**kwargs)
-    return context
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context

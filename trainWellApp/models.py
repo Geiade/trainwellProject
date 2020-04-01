@@ -60,7 +60,8 @@ class Booking(models.Model):
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return str(self.event) + " - " + str(self.planner) + " - " + str(self.event.places) + ": " + str(self.datetime_init)
+        return str(self.event) + " - " + str(self.planner) + " - " + str(self.event.places) + ": " + str(
+            self.datetime_init)
 
 
 class Invoice(models.Model):
@@ -77,6 +78,6 @@ class Invoice(models.Model):
     modified_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     is_deleted = models.BooleanField(default=False)
 
-
     def __str__(self):
-        return str(self.booking) + " - " + str(self.booking.planner) + ":" + str(self.price) + " by " + self.payment_method
+        return str(self.booking) + " - " + str(self.booking.planner) + ":" + str(
+            self.price) + " by " + self.payment_method
