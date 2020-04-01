@@ -50,6 +50,5 @@ class Dashboard(ListView):
         return context
 
     def get_queryset(self):
-        queryset = super(Dashboard, self).get_queryset()
         qs = self.model.objects.all()
         return qs

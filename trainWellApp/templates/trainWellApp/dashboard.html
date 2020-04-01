@@ -18,18 +18,23 @@
     </style>
 
     <body>
-    <h1>Bookings</h1>
-    {% for booking in object_list %}
-        <div class="card col-3">
-            <div class="container">
-                <h4>{{ booking.event }}</h4>
-                <p>{{ booking.planner }}</p>
-                <p>{{ booking.name }}</p>
-            </div>
+    <div class="container">
+        <h1>Bookings</h1>
+        <a class="btn btn-primary"><span class="fas fa-plus"></span> Add a booking</a>
+        <a class="btn btn-primary"><span class="fas fa-clock"></span> Check Availability</a>
+        <div class="row">
+            {% for booking in object_list %}
+                <div class="card" onclick="location.href='{% url 'trainWellApp:booking-detail' pk=booking.pk %}';"
+                     style="cursor: pointer;">
+                    <h5><b>{{ booking.name }} - {{ booking.event.name }} </b></h5>
+                    <a>Day: {{ booking.datetime_init.date }}</a>
+                    <a>From: {{ booking.datetime_init.time }} to {{ booking.datetime_end.time }}</a>
+                </div>
+            {% empty %}
+                <h2>No bookings yet</h2>
+            {% endfor %}
         </div>
-    {% empty %}
-        <li>No bookings yet</li>
-    {% endfor %}
+    </div>
     </body>
 {% endblock %}
 
