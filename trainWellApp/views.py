@@ -3,7 +3,6 @@ from django.contrib.auth import login as do_login
 from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
 
-# Create your views here.
 from django.urls import reverse
 from django.views.generic import ListView, DetailView
 from trainWellApp.models import Booking

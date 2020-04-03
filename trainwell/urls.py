@@ -18,7 +18,6 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from django.views.generic import RedirectView
-
 from django.conf.urls.static import static
 from trainWellApp import views
 from trainwell import settings
