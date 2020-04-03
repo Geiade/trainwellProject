@@ -9,12 +9,8 @@
                 <td>{{ object.planner }}</td>
             </tr>
             <tr>
-                <td>Places</td>
-                <td>
-                    {% for place in object.event.places.all %}
-                        {{ place }} -
-                    {% endfor %}
-                </td>
+                <td>Place</td>
+                <td> {{ object.place.name }} </td>
             </tr>
             <tr>
                 <td> Phone</td>
