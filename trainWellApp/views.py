@@ -49,7 +49,7 @@ def signup(request):
     args = {'user_form': user_form, 'planner_form': planner_form}
     return render(request, 'accounts/signup.html', args)
 
-  
+
 def signin(request):
     '''signed = is_signed(request)
 
@@ -66,7 +66,7 @@ def signin(request):
 
             if user is not None:
                 do_login(request, user)
-                redirect(reverse('index'))
+                redirect(reverse('trainWellApp:dashboard'))
     else:
         form = AuthenticationForm()
 
