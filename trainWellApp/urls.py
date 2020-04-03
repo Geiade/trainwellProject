@@ -1,7 +1,7 @@
 from django.conf.urls import url
 from django.urls import path
-
 from trainWellApp import views
+from trainWellApp.views import *
 
 """trainwell URL Configuration
 
@@ -22,6 +22,7 @@ Including another URLconf
 app_name = "trainWellApp"
 
 urlpatterns = [
-    # Index Page
     path('', views.index, name='index'),
+    path('booking/<int:pk>/', BookingDetail.as_view(), name='booking-detail'),
+    path('dashboard/', Dashboard.as_view(), name='dashboard')
 ]
