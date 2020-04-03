@@ -28,5 +28,6 @@ urlpatterns = [
                   path('accounts/signin/', views.signin, name="signin"),
                   path('accounts/signout/', auth_views.LogoutView.as_view(), name="signout"),
                   path('trainwell/', include(('trainWellApp.urls', 'trainWellApp'), namespace='trainwell')),
+                  path('accounts/signup/', views.signup, name="signup"),
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
