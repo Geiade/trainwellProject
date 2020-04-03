@@ -20,15 +20,17 @@
     <body>
     <div class="container">
         <h1>Bookings</h1>
-        <a class="btn btn-primary"><span class="fas fa-plus"></span> Add a booking</a>
-        <a class="btn btn-primary"><span class="fas fa-clock"></span> Check Availability</a>
+        <a class="btn btn-primary" href="{% url 'trainWellApp:dashboard' %}"><span class="fas fa-plus"></span> Add a
+            booking</a>
+        <a class="btn btn-primary" href="{% url 'trainWellApp:dashboard' %}"><span class="fas fa-clock"></span> Check
+            Availability</a>
         <div class="row">
             {% for booking in object_list %}
-                <div class="card" onclick="location.href='{% url 'trainWellApp:booking-detail' pk=booking.pk %}';"
+                <div class="card col-4" onclick="location.href='{% url 'trainWellApp:booking-detail' pk=booking.pk %}';"
                      style="cursor: pointer;">
                     <h5><b>{{ booking.name }} - {{ booking.event.name }} </b></h5>
                     <a>Day: {{ booking.datetime_init.date }}</a>
-                    <a>From: {{ booking.datetime_init.time }} to {{ booking.datetime_end.time }}</a>
+                    <a>From: {{ booking.datetime_init.time.hour }} to {{ booking.datetime_end.time.hour }}</a>
                 </div>
             {% empty %}
                 <h2>No bookings yet</h2>

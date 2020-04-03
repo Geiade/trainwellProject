@@ -1,12 +1,39 @@
-<h1>{{ object.name }} - {{ object.event.name }}</h1>
-<p>Planner --- {{ object.planner }}</p>
-<p>Place --- {{ object.place }}</p>
-<p>Name --- {{ object.name }}</p>
-<p>Phone --- {{ object.phone_number }}</p>
-<p>Date init --- {{ object.datetime_init }}</p>
-<p>Date end --- {{ object.datetime_end }}</p>
-<br>
-<p>{{ object.created }}</p>
-<p>{{ object.last_modified }}</p>
-<p>{{ object.modified_by }}</p>
-<p>{{ object.is_deleted }}</p>
+{% extends 'base.html' %}
+{% block body_block %}
+    <div class="container">
+        <h1>{{ object.name }} - {{ object.event.name }}</h1>
+        <table class="table">
+            <tbody>
+            <tr>
+                <td>Planner</td>
+                <td>{{ object.planner }}</td>
+            </tr>
+            <tr>
+                <td>Places</td>
+                <td>
+                    {% for place in object.event.places.all %}
+                        {{ place }} -
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <td> Phone</td>
+                <td>{{ object.phone_number }}</td>
+            </tr>
+            <tr>
+                <td> Date init</td>
+                <td> {{ object.datetime_init }}</td>
+            </tr>
+            <tr>
+                <td>Date end</td>
+                <td>{{ object.datetime_end }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <a class="btn btn-primary" href="{% url 'trainWellApp:dashboard' %}"><span class="fas fa-arrow-left"></span> Go
+            to Dashboard</a>
+        <a class="btn btn-danger" href="{% url 'trainWellApp:dashboard' %}"><span class="fas fa-trash"></span> Cancel
+            booking</a>
+    </div>
+{% endblock %}
