@@ -1,22 +1,26 @@
 {% extends isajax|yesno:"ajax_base.html,base.html" %}
+{% load app_filters %}
 {% load static %}
-
 
 {% block body_block %}
 
-
     <section id="schedule" class="container-fluid d-none d-lg-block">
 
+        <button id="pw" type="button" class="btn btn-success"
+                onclick="swipeWeek('{% url 'trainwell:available' %}','{{ previous_week }}')">
+            Previous week
+        </button>
         <button id="nw" type="button" class="btn btn-success"
                 onclick="swipeWeek('{% url 'trainwell:available' %}','{{ next_week }}')">
             Next week
         </button>
 
-        <p>{{ weekdays.0|date:"d M" }}-{{ weekdays.6|date:"d M" }}</p>
+        <p>{{ weekdays.0|date:"d M" }}-{{ weekdays.6|date:"d M Y" }}</p>
+
         <div class="row bg-primary text-center">
             {% for day in weekdays %}
 
-                <div class="col">
+                <div class="col border">
                     <b id="{{ forloop.counter0 }}">{{ day|date:"d" }}</b>
                     <br>{{ day|date:"l" }}
                 </div>
@@ -24,32 +28,48 @@
             {% endfor %}
         </div>
 
+        <div class="row">
 
-        {% for hour in hours %}
-            <div class="row">
-                {% for day in weekdays %}
+            {% for list_hours,day in hours|zip:weekdays %}
 
-                    <div id="{{ day|date:"l"|add:hour|add:":00:00" }}" class="col border">
-                        <sub class="text-right">{{ hour }}:00</sub>
-                        <br>
-                    </div>
+                <div class="col selectable-content">
 
-                {% endfor %}
-            </div>
-        {% endfor %}
+                    {% for hour in list_hours %}
 
+                        {% define day|date:"d/m/Y"|add:","|add:hour as datatime %}
+
+                        {% if week_avail|get_item:datatime is True %}
+
+                            <div id="{{ day|date:"d/m/Y," }}{{ hour }}" class="row border selectable"
+                                 style="background: lightgrey">
+                                <small>{{ hour }}</small>
+                            </div>
+
+                        {% else %}
+
+                            <div id="{{ day|date:"d/m/Y," }}{{ hour }}" class="row border">
+                                <small>{{ hour }}</small>
+                            </div>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+                </div>
+
+            {% endfor %}
+        </div>
+
+
+        <div id="result"></div>
     </section>
 
     <script type="text/javascript">
-        var dict = {{ booked_dates|safe }};
 
-        for (const [key, value] of Object.entries(dict)) {
-            document.getElementById(value[0]).innerHTML=key;
-        }
-    </script>
-
-    <script type="text/javascript">
         function swipeWeek(url, week) {
+
+            if (canSwipe(week) === false) return;
+
             $.ajax({
                     url: url,
                     data: {
@@ -64,6 +84,68 @@
                 }
             );
         }
+
+        function canSwipe(week) {
+            const date = new Date(); //Today
+            var diff = date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1);
+            const curr_monday = new Date(date.setDate(diff)).setHours(0, 0, 0, 0);
+
+            var dateArr = week.toString().split("/");
+            const req_date = new Date(parseInt(dateArr[2]),parseInt(dateArr[1]) - 1, parseInt(dateArr[0]));
+
+            // Can't swipe before current week
+            return req_date >= curr_monday;
+
+        }
+
     </script>
+
+    <script type="text/javascript">
+
+
+        $(function () {
+
+            let selected_hours = [];
+            $('.selectable-content').selectable({
+                filter:".selectable", // Exclude booked_dates and holidays.
+                tolerance: "touch",
+                selecting: function (event, ui) {
+                    $(ui.selecting).css('background', 'magenta');
+                    var result = $("#result").empty();
+                    $(".ui-selecting", this).each(function () {
+                        result.append($(this).text());
+                    })
+                },
+                selected: function (event, ui) {
+                    $(ui.selected).css('background', 'red');
+                },
+                unselecting: function (event, ui) {
+                    $(ui.unselecting).css('background', 'white');
+                },
+                unselected: function (event, ui) {
+                    $(ui.unselected).css('background', 'white');
+                },
+                stop: function (event, ui) {
+                    selected_hours = [];
+                    $(".ui-selected", this).each(function () {
+                        let curr = $(this).attr("id").split(",");
+                        selected_hours.push(curr);
+                    });
+
+                    if (selected_hours.length)
+                        checkFieldAvailability(selected_hours);
+                }
+            });
+
+
+        });
+
+        function checkFieldAvailability(hours) {
+
+            let week_avail = {{ week_avail|safe }};
+            console.table(hours);
+        }
+    </script>
+
 
 {% endblock %}
