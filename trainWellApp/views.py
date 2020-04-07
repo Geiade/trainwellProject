@@ -12,3 +12,10 @@ class BookingDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+def bookingcancelation(request, bookingid):
+    #Make booking deleted and turn availability on
+    booking = Booking.objects.get(id=bookingid)
+    booking.is_deleted = True
+
+    return render(request, 'trainWellApp/bookingcancelation.html', )
