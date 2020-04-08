@@ -1,4 +1,7 @@
 from django.conf.urls import url
+from django.urls import path
+from trainWellApp import views
+from trainWellApp.views import *
 
 from trainWellApp.views import booking_view
 
@@ -21,5 +24,8 @@ Including another URLconf
 app_name = "trainWellApp"
 
 urlpatterns = [
-    url(r'^addBooking', booking_view, name='addBooking'),
+    path('', views.index, name='index'),
+    path('booking/<int:pk>/', BookingDetail.as_view(), name='booking-detail'),
+    path('dashboard/', Dashboard.as_view(), name='dashboard'),
+    url(r'^add_booking', booking_view, name='addBooking'),
 ]
