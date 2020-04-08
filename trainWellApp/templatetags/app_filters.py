@@ -22,6 +22,11 @@ def get_item(data_as_json, args):
     return None
 
 
+@register.filter
+def get_value(dictionary, key):
+    return dictionary.get(key)
+
+
 @register.simple_tag
 def define(val=None):
     return val

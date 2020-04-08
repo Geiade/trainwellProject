@@ -1,3 +1,29 @@
-.custom-bg {
-    background: orangered;
+.v-middle {
+    vertical-align: middle;
+}
+
+.bg-red {
+    background-color: #e74a3b;
+}
+
+.bg-grey{
+    background-color: #858796;
+}
+
+.ui-selecting {
+    background: #cc73e1;
+    color: white;
+}
+
+.ui-selected {
+    background: #cc73e1;
+    color: white;
+}
+
+.ui-unselecting {
+    background: initial;
+}
+
+.ui-unselected {
+    background: initial;
 }

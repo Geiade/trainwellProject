@@ -31,7 +31,7 @@ def book(request):
     ajax_data = request.GET.get('week')  # If ajax request, sends week.
     week = _handle_ajax(ajax_data) if ajax_data else _get_week(datetime.now())
 
-    week_avail, open_hours = _get_availability(event, week)
+    week_avail, open_hours, public_days = _get_availability(event, week)
     weekdays = week.days()
 
     context = {'week_avail': week_avail,
@@ -39,13 +39,14 @@ def book(request):
                'hours': open_hours,
                'next_week': (weekdays[0] + timedelta(days=7)).strftime("%d/%m/%Y"),
                'previous_week': (weekdays[0] - timedelta(days=7)).strftime("%d/%m/%Y"),
+               'public_days': public_days,
                'isajax': isajax_req(request),
                }
 
     return render(request, "dummy.html", context)
 
 
-def _get_availability(event, week,):
+def _get_availability(event, week):
 
     # Get event associated places
     all_places = event.places.all()
@@ -73,7 +74,7 @@ def _get_availability(event, week,):
                 curr_rng = ranges.get(rng)
 
         # No availability for holidays.
-        if d in public_days:
+        if d in public_days.keys():
             [week_avail.update({d.strftime("%d/%m/%Y") + ',' + f.name: []}) for f in all_places]
             continue
 
@@ -86,6 +87,7 @@ def _get_availability(event, week,):
                                              bdate[3].strftime("%H:%M"),
                                              freq='H').strftime("%H:%M").tolist()
 
+                booked_hours.pop()  # Notice is available since datetime_end.
                 key = d.strftime("%d/%m/%Y") + ',' + f.name  # To serialize as JSON
                 # Substract from range booked hours
                 week_avail[key] = list(set(curr_rng) - set(booked_hours))
@@ -96,7 +98,7 @@ def _get_availability(event, week,):
         if len(week_avail) is complete_week: break
 
 
-    return json.dumps(week_avail), open_hours
+    return json.dumps(week_avail), open_hours, public_days
 
 
 
@@ -135,7 +137,9 @@ def _get_places_ranges(event):
 def _get_public_days(week):
     # Holidays not available (Catalunya).
     public_days = holidays.ES(years=week.year, prov="CAT")
-    return [k for k, v in public_days.items() if _get_week(k) == week]
+    week_pd = {}
+    [week_pd.update({k: v}) for k, v in public_days.items() if _get_week(k) == week]
+    return week_pd
 
 
 def _handle_ajax(data):

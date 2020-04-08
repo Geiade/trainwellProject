@@ -6,33 +6,80 @@
 
     <section id="schedule" class="container-fluid d-none d-lg-block">
 
-        <button id="pw" type="button" class="btn btn-success"
-                onclick="swipeWeek('{% url 'trainwell:available' %}','{{ previous_week }}')">
-            Previous week
-        </button>
-        <button id="nw" type="button" class="btn btn-success"
-                onclick="swipeWeek('{% url 'trainwell:available' %}','{{ next_week }}')">
-            Next week
-        </button>
+        <div class="row p-4">
 
-        <p>{{ weekdays.0|date:"d M" }}-{{ weekdays.6|date:"d M Y" }}</p>
+            <div class="col">
+                <div class="btn-group" role="group">
+                    <button id="pw" type="button" class="btn btn-secondary btn-sm d-inline"
+                            onclick="swipeWeek('{% url 'trainwell:available' %}','{{ previous_week }}')">
+                        <i class="fas fa-chevron-left"> </i>
+                    </button>
+                    <button id="nw" type="button" class="btn btn-secondary btn-sm d-inline"
+                            onclick="swipeWeek('{% url 'trainwell:available' %}','{{ next_week }}')">
+                        <i class="fas fa-chevron-right"> </i>
+                    </button>
+                </div>
+                <button id="today" type="button" class="btn btn-secondary btn-sm mr-3"
+                        onclick="swipeWeek('{% url 'trainwell:available' %}','{% now "d/m/Y" %}')">
+                    Today
+                </button>
+                {% if weekdays.0|date:"F" == weekdays.6|date:"F" %}
+                    <h4 class="d-inline v-middle">{{ weekdays.0|date:"F Y" }}</h4>
+                {% else %}
+                    <h4 class="d-inline v-middle">{{ weekdays.0|date:"F" }}-{{ weekdays.6|date:"F Y" }}</h4>
+                {% endif %}
+            </div>
 
-        <div class="row bg-primary text-center">
+            <div class="col text-right">
+                <button id="info" type="button" class="btn btn-primary btn-sm" data-toggle="popover"
+                title="Help" data-content="Drag the mouse over the different hours while holding it down.
+                For multiple selection hold down Ctrl key and drag the mouse over different elements.">
+                    Help <i class="far fa-question-circle"></i>
+                </button>
+
+            </div>
+
+        </div>
+
+        {% now "d/m/Y" as today%}
+
+        <div class="row text-center px-5">
             {% for day in weekdays %}
 
-                <div class="col border">
-                    <b id="{{ forloop.counter0 }}">{{ day|date:"d" }}</b>
-                    <br>{{ day|date:"l" }}
+                {% define day|date:"d/m/Y" as curr%}
+
+                {% if today == curr %}
+
+                    <div id="{{ day|date:"d/m/Y" }}" class="col border-bottom text-dark p-3">
+                        {{ day|date:"D" }}
+                        <h5 class="text-white mt-2"><b class="bg-primary rounded-circle p-2">{{ day|date:"d" }}</b></h5>
+                        {% if public_days|get_value:day %}
+                            <small class="badge badge-pill badge-success">{{ public_days|get_value:day }}</small>
+                        {% endif %}
+                    </div>
+
+                {% else %}
+
+                    <div id="{{ day }}" class="col border-bottom text-dark p-3">
+                    {{ day|date:"D" }}
+                    <h5 class="bold mt-2"><b>{{ day|date:"d" }}</b></h5>
+                    {% if public_days|get_value:day %}
+                        <small class="badge badge-pill badge-success">{{ public_days|get_value:day }}</small>
+                    {% endif %}
+
                 </div>
+
+                {% endif %}
 
             {% endfor %}
         </div>
 
-        <div class="row">
+
+        <div class="row px-5 pb-5">
 
             {% for list_hours,day in hours|zip:weekdays %}
 
-                <div class="col selectable-content">
+                <div id="selectable-content{{ forloop.counter0 }}" class="col">
 
                     {% for hour in list_hours %}
 
@@ -40,16 +87,20 @@
 
                         {% if week_avail|get_item:datatime is True %}
 
-                            <div id="{{ day|date:"d/m/Y," }}{{ hour }}" class="row border selectable"
-                                 style="background: lightgrey">
+                            <div id="{{ day|date:"d/m/Y," }}{{ hour }}" class="row border selectable p-3">
                                 <small>{{ hour }}</small>
                             </div>
 
                         {% else %}
-
-                            <div id="{{ day|date:"d/m/Y," }}{{ hour }}" class="row border">
-                                <small>{{ hour }}</small>
-                            </div>
+                            {% if public_days|get_value:day %}
+                                <div class="row border bg-grey  rounded p-3">
+                                    <small class="text-white">{{ hour }}</small>
+                                </div>
+                            {% else %}
+                                <div id="{{ day|date:"d/m/Y," }}{{ hour }}" class="row border bg-red rounded p-3">
+                                    <small class="text-white">{{ hour }} All booked</small>
+                                </div>
+                            {% endif %}
 
                         {% endif %}
 
@@ -60,71 +111,55 @@
             {% endfor %}
         </div>
 
+        <div class="modal fade" id="fieldsModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content p-3">
 
-        <div id="result"></div>
+                    <div class="modal-header">
+                        <h5 class="modal-title"> </h5>
+                    </div>
+
+                    <div class="modal-body">
+                        <!--TO-DO errors-->
+                    </div>
+
+                    <small class="text-muted p-3">*Make sure you have selected and hour in only a field.</small>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary">Confirm</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
     </section>
 
-    <script type="text/javascript">
 
-        function swipeWeek(url, week) {
-
-            if (canSwipe(week) === false) return;
-
-            $.ajax({
-                    url: url,
-                    data: {
-                        'week': week,
-                    },
-                    headers: {
-                        "X-Requested-With": "XMLHttpRequest"
-                    },
-                    success: function (html) {
-                        $('#schedule').replaceWith(html);
-                    }
-                }
-            );
-        }
-
-        function canSwipe(week) {
-            const date = new Date(); //Today
-            var diff = date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1);
-            const curr_monday = new Date(date.setDate(diff)).setHours(0, 0, 0, 0);
-
-            var dateArr = week.toString().split("/");
-            const req_date = new Date(parseInt(dateArr[2]),parseInt(dateArr[1]) - 1, parseInt(dateArr[0]));
-
-            // Can't swipe before current week
-            return req_date >= curr_monday;
-
-        }
-
+    <script id="popover_script" type="text/javascript">
+        $(document).ready(function () {
+            $('[data-toggle="popover"]').popover();
+        });
     </script>
 
     <script type="text/javascript">
 
-
         $(function () {
 
             let selected_hours = [];
-            $('.selectable-content').selectable({
+            $('[id^=selectable-content]').selectable({
                 filter:".selectable", // Exclude booked_dates and holidays.
-                tolerance: "touch",
-                selecting: function (event, ui) {
-                    $(ui.selecting).css('background', 'magenta');
-                    var result = $("#result").empty();
-                    $(".ui-selecting", this).each(function () {
-                        result.append($(this).text());
-                    })
+
+                selecting: function(event, ui) {
+                    let curr_selectable = $(this).attr('id');
+                    for (const x of Array(7).keys()) {
+                        let qs = $('#selectable-content' + x);
+                        if (curr_selectable !== ('selectable-content' + x)){
+                            // Refresh other selectables, except me.
+                            qs.selectable("widget").children().removeClass('ui-selected');
+                        }
+                    }
                 },
-                selected: function (event, ui) {
-                    $(ui.selected).css('background', 'red');
-                },
-                unselecting: function (event, ui) {
-                    $(ui.unselecting).css('background', 'white');
-                },
-                unselected: function (event, ui) {
-                    $(ui.unselected).css('background', 'white');
-                },
+
                 stop: function (event, ui) {
                     selected_hours = [];
                     $(".ui-selected", this).each(function () {
@@ -132,19 +167,90 @@
                         selected_hours.push(curr);
                     });
 
-                    if (selected_hours.length)
+                    // Check availability for each field in selected hours.
+                    if (selected_hours.length > 1)
                         checkFieldAvailability(selected_hours);
                 }
             });
 
 
+
+
         });
 
-        function checkFieldAvailability(hours) {
+        function checkFieldAvailability(date) {
 
             let week_avail = {{ week_avail|safe }};
-            console.table(hours);
+            let booked_date = date[0][0];
+            let desired_hours = [];
+            let field_avail = {};
+            let book_avail = {};
+
+            date.forEach(element => desired_hours.push(element[1]));
+            let last = desired_hours.pop(); //Unnecessary to check last.
+
+            for (const [key, value] of Object.entries(week_avail)) {
+                let curr = key.split(',');
+                if (booked_date === curr[0]){
+                    field_avail[key] = value;
+                }
+            }
+
+            for (const x in desired_hours) {
+                for (const [key, value] of Object.entries(field_avail)) {
+                    if (value.includes(desired_hours[x])){
+                        let curr = key.split(',')[1];
+
+                        if (curr in book_avail)
+                            book_avail[curr].push(desired_hours[x]);
+                        else
+                            book_avail[curr] = [desired_hours[x]];
+                    }
+                }
+            }
+
+            launchModal(date, book_avail, last);
         }
+
+        function launchModal(date, availability, last) {
+
+            $('#fieldsModal').on("show.bs.modal", function () {
+                let modal = $(this);
+                // Parsed to avoid conflicts between django vars an JS.
+                let dateArr = date[0][0].toString().split("/");
+                const req_date = new Date(parseInt(dateArr[2]), parseInt(dateArr[1]) - 1, parseInt(dateArr[0]));
+
+                let month_name = function (dt) {
+                    mlist = ["January", "February", "March", "April", "May", "June",
+                                "July", "August", "September", "October", "November", "December"];
+                    return mlist[dt.getMonth()];
+                };
+
+                modal.find('.modal-title').html('<i class="far fa-calendar-alt mr-3"></i>' +
+                    month_name(req_date) + " " + req_date.getDate() + ", " + req_date.getFullYear() +
+                    '<br>' + '<small>' + date[0][1] + '-' + date[date.length - 1][1] + '</small>');
+
+                modal.find('.modal-body').empty();
+                for (const [key, value] of Object.entries(availability)) {
+                    modal.find('.modal-body').append('<label class="mb-2" for="'+ key +'">'+ key + '</label>');
+
+                    let curr_opts = "";
+                    for (const v in value){
+                        curr_opts += '<option>'+value[v]+'</option>';
+                    }
+                    curr_opts += '<option>'+last+'</option>';
+
+                    modal.find('.modal-body').append('<select multiple data-actions-box="true" ' +
+                        'class="form-control selectpicker mb-2"' + 'id="' + key + '">' + curr_opts + '</select>');
+
+                    $('.selectpicker').selectpicker('render');
+
+                }
+
+
+            }).modal('show');
+        }
+
     </script>
 
 
