@@ -21,5 +21,5 @@ Including another URLconf
 app_name = "trainWellApp"
 
 urlpatterns = [
-    url(r'^booking_view', booking_view, name='booking_view'),
+    url(r'^addBooking', booking_view, name='addBooking'),
 ]

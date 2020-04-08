@@ -19,4 +19,4 @@ def booking_view(request):
             return redirect('trainwell:index')
     else:
         form = BookingForm()
-    return render(request, 'trainWellApp/add_book.html', context={'form': form})
+    return render(request, 'add_book.html', context={'BookingForm': form})
