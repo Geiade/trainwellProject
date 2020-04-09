@@ -1,5 +1,6 @@
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
+from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 
 from django.contrib.auth.forms import AuthenticationForm
@@ -16,6 +17,31 @@ class UserForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2',)
+
+    def clean_password2(self):
+        error_messages = {
+            'password_mismatch': 'The two password fields did not match!',
+            'duplicated_email': 'A user exits with the same email',
+        }
+
+        password1 = self.cleaned_data.get("password1")
+        password2 = self.cleaned_data.get("password2")
+
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError(
+                error_messages['password_mismatch'],
+                code='password_mismatch',
+            )
+
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            err = forms.ValidationError(
+                error_messages['duplicated_email'],
+                code='duplicated_email',
+            )
+            self.add_error('email', err)
+
+        return password2
 
 
 class PlannerForm(ModelForm):
