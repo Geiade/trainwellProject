@@ -13,6 +13,8 @@ from django.urls import reverse
 from django.views.generic import ListView, DetailView
 from trainWellApp.models import Booking
 
+from trainWellApp.forms import OwnAuthenticationForm
+
 
 def index(request):
     return render(request, 'index.html')
@@ -57,12 +59,12 @@ def signin(request):
         return signed'''
 
     if request.method == "POST":
-        form = AuthenticationForm(data=request.POST)
+        form = OwnAuthenticationForm(data=request.POST)
 
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
-            user = authenticate(username=username, password=password)
+            user = form.authenticate(username=username, password=password)
 
             if user is not None:
                 do_login(request, user)
