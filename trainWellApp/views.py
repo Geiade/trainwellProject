@@ -1,12 +1,12 @@
 import json
 from datetime import timedelta, date, datetime
-import numpy
 import holidays
 import pandas as pd
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
 
 # Create your views here.
+from django.utils import timezone
 from django.views.generic.detail import DetailView
 from isoweek import Week
 
@@ -47,7 +47,6 @@ def book(request):
 
 
 def _get_availability(event, week):
-
     # Get event associated places
     all_places = event.places.all()
 
@@ -61,8 +60,7 @@ def _get_availability(event, week):
     ranges = _get_places_ranges(event)
     dates_rng = ranges.keys()
 
-    # We consider default opening hours from 9h to 21h
-    def_rng = pd.date_range("9:00", "21:00", freq="H").strftime("%H:%M").tolist()
+    def_rng = _generate_range()
 
     # TO-DO incidències
     for d in weekdays:
@@ -73,42 +71,46 @@ def _get_availability(event, week):
                 open_hours.append(ranges.get(rng))
                 curr_rng = ranges.get(rng)
 
-        # No availability for holidays.
-        if d in public_days.keys():
+        # No availability for holidays and weekdays lower today.
+        now = datetime.now()
+        hour_plus2 = (now + timedelta(hours=2)).replace(minute=00)
+        if d in public_days.keys() or d < hour_plus2.date():
             [week_avail.update({d.strftime("%d/%m/%Y") + ',' + f.name: []}) for f in all_places]
             continue
+
+        # Can book from now + 2 hours minimum.
+        if d == now.date():
+            _tonow = _generate_range(datetime(2020, 1, 1, int(curr_rng.pop(0).split(":")[0]), 00), hour_plus2)
+            curr_rng = list(set(curr_rng) - set(_tonow))
 
         for f in all_places:
             bdate = booked_dates.get((f, d), None)
 
             if bdate:
                 # Checked bookings to substract from availability
-                booked_hours = pd.date_range(bdate[2].strftime("%H:%M"),
-                                             bdate[3].strftime("%H:%M"),
-                                             freq='H').strftime("%H:%M").tolist()
-
+                booked_hours = _generate_range(bdate[2], bdate[3])
                 booked_hours.pop()  # Notice is available since datetime_end.
+
                 key = d.strftime("%d/%m/%Y") + ',' + f.name  # To serialize as JSON
-                # Substract from range booked hours
-                week_avail[key] = list(set(curr_rng) - set(booked_hours))
+                week_avail[key] = list(set(curr_rng) - set(booked_hours))  # Substract booked hours
             else:
                 key = d.strftime("%d/%m/%Y") + ',' + f.name
                 week_avail[key] = curr_rng
 
         if len(week_avail) is complete_week: break
 
-
     return json.dumps(week_avail), open_hours, public_days
 
 
-
 def _get_week_bookings(week):
-    bookings = Booking.objects.filter(is_deleted=False)
+    end_week_date = week.days().pop()
+    end_week_datetime = datetime(end_week_date.year, end_week_date.month, end_week_date.day)
+    bookings = Booking.objects.filter(is_deleted=False, datetime_init__range=[timezone.now(),
+                                                                              end_week_datetime])
     data = {}
 
     for b in bookings:
-        if _get_week(b.datetime_init) == week:
-            data[(b.place, b.datetime_init.date())] = b.name, b.place, b.datetime_init, b.datetime_end
+        data[(b.place, b.datetime_init.date())] = b.name, b.place, b.datetime_init, b.datetime_end
 
     return data
 
@@ -126,10 +128,7 @@ def _get_places_ranges(event):
 
         # If already in dict, ignore
         if ranges.get((a_from.date(), a_until.date())): continue
-
-        ranges[(a_from.date(), a_until.date())] = pd.date_range(a_from.strftime("%H:%M"),
-                                                                a_until.strftime("%H:%M"),
-                                                                freq='H').strftime("%H:%M").tolist()
+        ranges[(a_from.date(), a_until.date())] = _generate_range(a_from, a_until)
 
     return ranges
 
@@ -140,6 +139,13 @@ def _get_public_days(week):
     week_pd = {}
     [week_pd.update({k: v}) for k, v in public_days.items() if _get_week(k) == week]
     return week_pd
+
+
+def _generate_range(fromm=datetime(2020, 1, 1, 9, 00), to=datetime(2020, 1, 1, 21, 00)):
+    # Default date is dummy interested in hours.
+    # We consider default opening hours from 9h to 21h.
+    return pd.date_range(fromm.strftime("%H:%M"), to.strftime("%H:%M"),
+                         freq='H').strftime("%H:%M").tolist()
 
 
 def _handle_ajax(data):

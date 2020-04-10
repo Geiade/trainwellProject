@@ -6,7 +6,7 @@
 
     <section id="schedule" class="container-fluid d-none d-lg-block">
 
-        <div class="row p-4">
+        <div class="row p-5">
 
             <div class="col">
                 <div class="btn-group" role="group">
@@ -43,7 +43,7 @@
 
         {% now "d/m/Y" as today%}
 
-        <div class="row text-center px-5">
+        <div class="row text-center px-5 animated">
             {% for day in weekdays %}
 
                 {% define day|date:"d/m/Y" as curr%}
@@ -75,7 +75,7 @@
         </div>
 
 
-        <div class="row px-5 pb-5">
+        <div class="row px-5 pb-5 animated slideInRight">
 
             {% for list_hours,day in hours|zip:weekdays %}
 
@@ -93,12 +93,12 @@
 
                         {% else %}
                             {% if public_days|get_value:day %}
-                                <div class="row border bg-grey  rounded p-3">
+                                <div class="row border bg-grey p-3">
                                     <small class="text-white">{{ hour }}</small>
                                 </div>
                             {% else %}
-                                <div id="{{ day|date:"d/m/Y," }}{{ hour }}" class="row border bg-red rounded p-3">
-                                    <small class="text-white">{{ hour }} All booked</small>
+                                <div id="{{ day|date:"d/m/Y," }}{{ hour }}" class="row border p-3">
+                                    <small class="text-muted">{{ hour }} </small>
                                 </div>
                             {% endif %}
 
