@@ -1,17 +1,19 @@
 from django.urls import reverse
 
 from django.db import transaction
-from django.shortcuts import render, redirect
-from trainWellApp.forms import PlannerForm, UserForm
+from django.db.models import Q
+from django.shortcuts import render, redirect, get_object_or_404
+from trainWellApp.forms import PlannerForm, UserForm, BookingForm
 
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as do_login
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
 
 from django.urls import reverse
 from django.views.generic import ListView, DetailView
-from trainWellApp.models import Booking
+from trainWellApp.models import Booking, Planner
 
 from trainWellApp.forms import OwnAuthenticationForm
 
@@ -73,6 +75,21 @@ def signin(request):
         form = AuthenticationForm()
 
     return render(request, 'accounts/signin.html', {'form': form})
+  
+  
+@login_required(login_url="/login/")
+def booking_view(request):
+    if request.method == 'POST':
+        form = BookingForm(request.POST)
+        if form.is_valid():
+            book = form.save(commit=False)
+            user = get_object_or_404(Planner, Q(id=request.user.id))
+            book.user = user
+            book.save()
+            return redirect('trainwell:index')
+    else:
+        form = BookingForm()
+    return render(request, 'add_book.html', context={'BookingForm': form})
 
 
 class BookingDetail(DetailView):
