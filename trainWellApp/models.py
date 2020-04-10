@@ -49,7 +49,6 @@ class Event(models.Model):
 class Booking(models.Model):
     event = models.ForeignKey(Event, blank=True, null=True, on_delete=models.PROTECT)
     planner = models.ForeignKey(Planner, blank=True, null=True, on_delete=models.PROTECT)
-    place = models.ForeignKey(Place, blank=True, null=True, on_delete=models.PROTECT)
     name = models.CharField(max_length=80)
     phone_number = models.CharField(max_length=10)  # TODO django-phonenumber-field
     datetime_init = models.DateTimeField()
