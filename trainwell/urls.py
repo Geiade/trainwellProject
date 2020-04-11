@@ -18,17 +18,16 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from django.views.generic import RedirectView
-
 from django.conf.urls.static import static
-
+from trainWellApp import views
 from trainwell import settings
 
 urlpatterns = [
-    path('', RedirectView.as_view(pattern_name='trainwell:index'), name='index'),
-    path('admin/', admin.site.urls),
+                  path('', RedirectView.as_view(pattern_name='trainwell:index'), name='index'),
+                  path('admin/', admin.site.urls),
+                  path('accounts/signin/', views.signin, name="signin"),
+                  path('accounts/signout/', auth_views.LogoutView.as_view(), name="signout"),
+                  path('trainwell/', include(('trainWellApp.urls', 'trainWellApp'), namespace='trainwell')),
+                  path('accounts/signup/', views.signup, name="signup"),
 
-    path('accounts/login/', auth_views.LoginView.as_view(), name="login"),
-    path('accounts/logout/', auth_views.LogoutView.as_view(), name="logout"),
-    path('trainwell/', include(('trainWellApp.urls', 'trainWellApp'), namespace='trainwell')),
-
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
