@@ -1,21 +1,16 @@
-from django.urls import reverse
-
 from django.db import transaction
 from django.db.models import Q
-from django.shortcuts import render, redirect, get_object_or_404
-from trainWellApp.forms import PlannerForm, UserForm, BookingForm
-
-from django.contrib.auth import authenticate
+from django.shortcuts import get_object_or_404
 from django.contrib.auth import login as do_login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
-
 from django.urls import reverse
 from django.views.generic import ListView, DetailView
-from trainWellApp.models import Booking, Planner
 
+from trainWellApp.models import Booking, Planner
 from trainWellApp.forms import OwnAuthenticationForm
+from trainWellApp.forms import PlannerForm, UserForm, BookingForm
 
 
 def index(request):
@@ -75,8 +70,8 @@ def signin(request):
         form = AuthenticationForm()
 
     return render(request, 'accounts/signin.html', {'form': form})
-  
-  
+
+
 @login_required(login_url="/login/")
 def booking_view(request):
     if request.method == 'POST':
@@ -99,15 +94,15 @@ class BookingDetail(DetailView):
         context = super().get_context_data(**kwargs)
         return context
 
-      
+
 def bookingcancelation(request, bookingpk):
     # Make booking deleted and turn availability on
 
     booking = Booking.objects.filter(pk=bookingpk, planner__user_id=request.user.id)
     booking.is_deleted = True
     return render(request, 'trainWellApp/dashboard.html', )
-  
-  
+
+
 class Dashboard(ListView):
     model = Booking
     PAGINATE_BY = 20

@@ -1,16 +1,10 @@
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
-from django import forms
-from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 from django import forms
-from django.core.exceptions import ValidationError
-from trainWellApp.models import Booking, Event, Planner
-
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 
-from trainWellApp.models import Planner
+from trainWellApp.models import Booking, Planner
 
 
 class UserForm(UserCreationForm):
@@ -57,11 +51,9 @@ class PlannerForm(ModelForm):
 
 
 class BookingForm(ModelForm):
-
     class Meta:
         model = Booking
-        fields = ['name', 'phone_number', 'event','datetime_init', 'datetime_end']
-
+        fields = ['name', 'phone_number', 'event', 'datetime_init', 'datetime_end']
 
 
 class OwnAuthenticationForm(AuthenticationForm):
