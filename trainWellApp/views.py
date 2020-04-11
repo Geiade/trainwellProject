@@ -97,7 +97,15 @@ class BookingDetail(DetailView):
         context = super().get_context_data(**kwargs)
         return context
 
+      
+def bookingcancelation(request, bookingpk):
+    # Make booking deleted and turn availability on
 
+    booking = Booking.objects.filter(pk=bookingpk, planner__user_id=request.user.id)
+    booking.is_deleted = True
+    return render(request, 'trainWellApp/dashboard.html', )
+  
+  
 class Dashboard(ListView):
     model = Booking
     PAGINATE_BY = 20

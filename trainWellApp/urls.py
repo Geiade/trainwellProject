@@ -26,6 +26,7 @@ app_name = "trainWellApp"
 urlpatterns = [
     path('', views.index, name='index'),
     path('booking/<int:pk>/', BookingDetail.as_view(), name='booking-detail'),
+    path('booking/<int:pk>/bookingcancelation/', views.bookingcancelation, name='booking_cancelation')
     path('dashboard/', Dashboard.as_view(), name='dashboard'),
     url(r'^add_booking', booking_view, name='addBooking'),
 ]
