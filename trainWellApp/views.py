@@ -2,23 +2,24 @@ import json
 from datetime import timedelta, date, datetime
 import holidays
 import pandas as pd
+import pytz
 
 from django.db import transaction
 from django.db.models import Q
-from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse
-from trainWellApp.forms import PlannerForm, UserForm, BookingForm
+from django.forms import formset_factory
+from django.views.generic import ListView
+from formtools.wizard.views import NamedUrlSessionWizardView
+
+from trainWellApp.forms import PlannerForm, UserForm, BookingForm1, BookingForm2
 
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as do_login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
 from django.urls import reverse
-from django.views.generic import ListView, DetailView
-from trainWellApp.models import Booking, Planner
-
+from trainWellApp.models import Booking, Planner, Selection, Place
 
 # Create your views here.
 from django.utils import timezone
@@ -27,6 +28,8 @@ from isoweek import Week
 
 from trainWellApp.models import Booking, Event
 
+# Global var
+tz = pytz.timezone('Europe/Madrid')
 
 def index(request):
     return render(request, 'index.html')
@@ -87,19 +90,86 @@ def signin(request):
     return render(request, 'accounts/signin.html', {'form': form})
 
 
-@login_required(login_url="/login/")
-def booking_view(request):
-    if request.method == 'POST':
-        form = BookingForm(request.POST)
-        if form.is_valid():
-            book = form.save(commit=False)
-            user = get_object_or_404(Planner, Q(id=request.user.id))
-            book.user = user
-            book.save()
-            return redirect('trainwell:index')
-    else:
-        form = BookingForm()
-    return render(request, 'add_book.html', context={'BookingForm': form})
+# WizardView data
+SelectionFormSet = formset_factory(BookingForm2, extra=15)
+BOOK_FORMS = [("0", BookingForm1), ("1", SelectionFormSet)]
+BOOK_TEMPLATES = {"0": 'trainWellApp/add_book.html',
+                  "1": 'trainWellApp/availability.html'}
+
+
+class BookingFormWizardView(NamedUrlSessionWizardView):
+
+    def get_template_names(self):
+        return [BOOK_TEMPLATES[self.steps.current]]
+
+
+    def get_context_data(self, form, **kwargs):
+        context = super().get_context_data(form=form, **kwargs)
+
+        if self.steps.current == "1":
+            event = self.get_cleaned_data_for_step('0')['event']
+
+            ajax_data = self.request.GET.get('week')  # If ajax request, sends week.
+            week = _handle_ajax(ajax_data) if ajax_data else _get_week(datetime.now())
+            week_avail, open_hours, public_days = _get_availability(event, week)
+            weekdays = week.days()
+
+            print(_get_week_bookings1(week))
+            context.update({'week_avail': week_avail,
+                            'weekdays': weekdays,
+                            'hours': open_hours,
+                            'next_week': (weekdays[0] + timedelta(days=7)).strftime("%d/%m/%Y"),
+                            'previous_week': (weekdays[0] - timedelta(days=7)).strftime("%d/%m/%Y"),
+                            'public_days': public_days,
+                            'isajax': isajax_req(self.request)})
+
+        return context
+
+
+    def get_form_step_data(self, form):
+        form.data._mutable = True
+
+        if self.steps.current == '0':
+            planner = get_object_or_404(Planner, user_id=self.request.user.id)
+            form.data['0-planner'] = planner.id
+
+        elif self.steps.current == '1':
+            json_data = self.request.POST['json_selection']
+            selection = json.loads(json_data)
+            i = 0
+
+            for k, v in selection.items():
+                for hour in v[0]:
+                    form.data['1-' + str(i) + '-datetime_init'] = v[1] + ' ' + hour
+                    form.data['1-' + str(i) + '-place'] = (get_object_or_404(Place, name=k)).id
+                    i += 1
+
+            form.data.pop('json_selection')
+
+        return form.data
+
+
+    def done(self, form_list, **kwargs):
+
+        booking = None
+
+        for i, form in enumerate(form_list):
+            if i == 0:
+                booking = form.save(commit=False)
+                booking.datetime_init = datetime.now()
+                booking.datetime_end = datetime.now()
+                booking.save()
+                continue
+
+            for selection in form:
+                if selection.cleaned_data:
+                    instance = selection.save(commit=False)
+                    instance.booking = booking
+                    instance.save()
+
+        return render(self.request, 'index.html', {
+            'form_data': [form.cleaned_data for form in form_list]
+        })
 
 
 class BookingDetail(DetailView):
@@ -126,27 +196,6 @@ class Dashboard(ListView):
 
 def isajax_req(request):
     return request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-
-
-def book(request):
-    event = get_object_or_404(Event, Q(id=1))
-
-    ajax_data = request.GET.get('week')  # If ajax request, sends week.
-    week = _handle_ajax(ajax_data) if ajax_data else _get_week(datetime.now())
-
-    week_avail, open_hours, public_days = _get_availability(event, week)
-    weekdays = week.days()
-
-    context = {'week_avail': week_avail,
-               'weekdays': weekdays,
-               'hours': open_hours,
-               'next_week': (weekdays[0] + timedelta(days=7)).strftime("%d/%m/%Y"),
-               'previous_week': (weekdays[0] - timedelta(days=7)).strftime("%d/%m/%Y"),
-               'public_days': public_days,
-               'isajax': isajax_req(request),
-               }
-
-    return render(request, "dummy.html", context)
 
 
 def _get_availability(event, week):
@@ -216,6 +265,19 @@ def _get_week_bookings(week):
         data[(b.place, b.datetime_init.date())] = b.name, b.place, b.datetime_init, b.datetime_end
 
     return data
+
+
+def _get_week_bookings1(week):
+    end_week_date, begin_week_date = week.days().pop(), week.days().pop(0)
+    begin_week_datetime = datetime(begin_week_date.year, begin_week_date.month,
+                                   begin_week_date.day, 00, 1, 00, tzinfo=tz)
+    end_week_datetime = datetime(end_week_date.year, end_week_date.month,
+                                 end_week_date.day, 23, 59, 00, tzinfo=tz)
+
+    # selections = Selection.objects.filter(datetime_init__range=[begin_week_datetime, end_week_datetime])
+    selections = Selection.objects.all()
+    print(selections)
+    print(end_week_datetime)
 
 
 def _get_week(day):

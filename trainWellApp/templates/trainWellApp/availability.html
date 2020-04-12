@@ -1,8 +1,9 @@
-{% extends isajax|yesno:"ajax_base.html,base.html" %}
+{% extends "base_wizard.html" %}
+
 {% load app_filters %}
 {% load static %}
 
-{% block body_block %}
+{% block additional %}
 
     <section id="schedule" class="container-fluid d-none d-lg-block">
 
@@ -11,16 +12,16 @@
             <div class="col">
                 <div class="btn-group" role="group">
                     <button id="pw" type="button" class="btn btn-secondary btn-sm d-inline"
-                            onclick="swipeWeek('{% url 'trainwell:available' %}','{{ previous_week }}')">
+                            onclick="swipeWeek('{% url 'trainwell:book_step' wizard.steps.current %}','{{ previous_week }}')">
                         <i class="fas fa-chevron-left"> </i>
                     </button>
                     <button id="nw" type="button" class="btn btn-secondary btn-sm d-inline"
-                            onclick="swipeWeek('{% url 'trainwell:available' %}','{{ next_week }}')">
+                            onclick="swipeWeek('{% url 'trainwell:book_step' wizard.steps.current %}','{{ next_week }}')">
                         <i class="fas fa-chevron-right"> </i>
                     </button>
                 </div>
                 <button id="today" type="button" class="btn btn-secondary btn-sm mr-3"
-                        onclick="swipeWeek('{% url 'trainwell:available' %}','{% now "d/m/Y" %}')">
+                        onclick="swipeWeek('{% url 'trainwell:book_step' wizard.steps.current %}','{% now "d/m/Y" %}')">
                     Today
                 </button>
                 {% if weekdays.0|date:"F" == weekdays.6|date:"F" %}
@@ -125,15 +126,16 @@
 
                     <small class="text-muted p-3">*Make sure you have selected and hour in only a field.</small>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary">Confirm</button>
+                        <button type="button" onclick="generateSelection()" class="btn btn-primary">Confirm</button>
                     </div>
 
                 </div>
             </div>
         </div>
+        <input style="display: none" name="json_selection" id="json_data">
+
 
     </section>
-
 
     <script id="popover_script" type="text/javascript">
         $(document).ready(function () {
@@ -172,8 +174,6 @@
                         checkFieldAvailability(selected_hours);
                 }
             });
-
-
 
 
         });
@@ -226,6 +226,7 @@
                     return mlist[dt.getMonth()];
                 };
 
+                modal.find('.modal-title').attr('id', date[0][0])
                 modal.find('.modal-title').html('<i class="far fa-calendar-alt mr-3"></i>' +
                     month_name(req_date) + " " + req_date.getDate() + ", " + req_date.getFullYear() +
                     '<br>' + '<small>' + date[0][1] + '-' + date[date.length - 1][1] + '</small>');
@@ -246,12 +247,23 @@
                     $('.selectpicker').selectpicker('render');
 
                 }
-
-
             }).modal('show');
         }
 
     </script>
 
+    <script type="text/javascript">
+        function generateSelection() {
+            let selection = {}
+
+
+            $('.selectpicker').each(function (index) {
+                selection[$(this).attr('id')] = [$(this).val(), $('.modal-title').attr('id')]
+            })
+            $('#json_data').val(JSON.stringify(selection)).appendTo('#book_form');
+            $("#book_form").submit();
+
+        }
+    </script>
 
 {% endblock %}

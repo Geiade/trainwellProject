@@ -1,5 +1,6 @@
 function swipeWeek(url, week) {
-
+    console.log("ESTIIC")
+    console.log(url, week)
     if (canSwipe(week) === false) return;
 
     $.ajax({

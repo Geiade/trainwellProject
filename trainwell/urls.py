@@ -23,11 +23,11 @@ from trainWellApp import views
 from trainwell import settings
 
 urlpatterns = [
-                  path('', RedirectView.as_view(pattern_name='trainwell:index'), name='index'),
-                  path('admin/', admin.site.urls),
-                  path('accounts/signin/', views.signin, name="signin"),
-                  path('accounts/signout/', auth_views.LogoutView.as_view(), name="signout"),
-                  path('trainwell/', include(('trainWellApp.urls', 'trainWellApp'), namespace='trainwell')),
-                  path('accounts/signup/', views.signup, name="signup"),
+    path('', RedirectView.as_view(pattern_name='trainwell:index'), name='index'),
+    path('trainwell/', include(('trainWellApp.urls', 'trainWellApp'), namespace='trainwell')),
+    path('admin/', admin.site.urls),
+    path('accounts/signin/', views.signin, name="signin"),
+    path('accounts/signup/', views.signup, name="signup"),
+    path('accounts/signout/', auth_views.LogoutView.as_view(), name="signout"),
 
-              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -2,8 +2,6 @@ from django.conf.urls import url
 from django.urls import path
 from trainWellApp.views import *
 
-from trainWellApp.views import booking_view
-
 """trainwell URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -22,10 +20,13 @@ Including another URLconf
 
 app_name = "trainWellApp"
 
+
+booking_wizard = BookingFormWizardView.as_view(BOOK_FORMS, url_name='trainWellApp:book_step',)
+
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', index, name='index'),
     path('booking/<int:pk>/', BookingDetail.as_view(), name='booking-detail'),
-    path('availability/', views.book, name='available'),
+    url(r'^add_booking/(?P<step>.+)/$', booking_wizard, name='book_step'),
+    url(r'^add_booking/$', booking_wizard, name='book'),
     path('dashboard/', Dashboard.as_view(), name='dashboard'),
-    url(r'^add_booking', booking_view, name='addBooking'),
 ]

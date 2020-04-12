@@ -2,8 +2,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.forms import ModelForm
 from django import forms
-from django.core.exceptions import ValidationError
-from trainWellApp.models import Booking, Event, Planner
+from trainWellApp.models import Booking, Event, Planner, Selection
 
 
 class UserForm(UserCreationForm):
@@ -23,9 +22,18 @@ class PlannerForm(ModelForm):
         model = Planner
         fields = ('over_18',)
         
-        
-class BookingForm(ModelForm):
+
+# Creation of a booking made in two steps.
+class BookingForm1(ModelForm):
 
     class Meta:
         model = Booking
-        fields = ['name', 'phone_number', 'event','datetime_init', 'datetime_end']
+        fields = ['name', 'phone_number', 'event', 'planner']
+
+
+class BookingForm2(ModelForm):
+    datetime_init = forms.DateTimeField(required=False)
+
+    class Meta:
+        model = Selection
+        fields = ['booking', 'place', 'datetime_init']
