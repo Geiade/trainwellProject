@@ -1,5 +1,6 @@
 from django.db import transaction
 from django.db.models import Q
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import login as do_login
 from django.contrib.auth.decorators import login_required
@@ -95,12 +96,18 @@ class BookingDetail(DetailView):
         return context
 
 
-def bookingcancelation(request, bookingpk):
+def bookingcancelation(request, pk):
     # Make booking deleted and turn availability on
 
-    booking = Booking.objects.filter(pk=bookingpk, planner__user_id=request.user.id)
-    booking.is_deleted = True
-    return render(request, 'trainWellApp/dashboard.html', )
+    booking_query = Booking.objects.filter(pk=pk, planner__user_id=request.user.id)
+    if booking_query.exists():
+        booking = booking_query.first()
+        booking.is_deleted = True
+        booking.save()
+    else:
+        return Http404
+
+    return redirect(reverse('trainWellApp:dashboard'))
 
 
 class Dashboard(ListView):
@@ -113,5 +120,5 @@ class Dashboard(ListView):
         return context
 
     def get_queryset(self):
-        qs = self.model.objects.all()
+        qs = self.model.objects.filter(is_deleted=False)
         return qs
