@@ -24,12 +24,12 @@
             booking</a>
         <a class="btn btn-primary" href="{% url 'trainWellApp:dashboard' %}"><span class="fas fa-clock"></span> Show Schedule</a>
         <div class="row">
-            {% for booking in object_list %}
-                <div class="card col-4" onclick="location.href='{% url 'trainWellApp:booking-detail' pk=booking.pk %}';"
+            {% for selection in object_list %}
+                <div class="card col-4" onclick="location.href='{% url 'trainWellApp:booking-detail' pk=selection.pk %}';"
                      style="cursor: pointer;">
-                    <h5><b>{{ booking.name }} - {{ booking.event.name }} </b></h5>
-                    <a>Day: {{ booking.datetime_init.date }}</a>
-                    <a>From: {{ booking.datetime_init.time.hour }} to {{ booking.datetime_end.time.hour }}</a>
+                    <h5><b>{{ selection.booking.name }} - {{ selection.booking.event.name }} </b></h5>
+                    <a>Day: {{ selection.datetime_init.date }}</a>
+                    <a>Hour: {{ selection.datetime_init.time }}</a>
                 </div>
             {% empty %}
                 <h2>No bookings yet</h2>
