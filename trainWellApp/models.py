@@ -49,11 +49,8 @@ class Event(models.Model):
 class Booking(models.Model):
     event = models.ForeignKey(Event, blank=True, null=True, on_delete=models.PROTECT)
     planner = models.ForeignKey(Planner, blank=True, null=True, on_delete=models.PROTECT)
-    place = models.ForeignKey(Place, blank=True, null=True, on_delete=models.PROTECT)
     name = models.CharField(max_length=80)
     phone_number = models.CharField(max_length=10)  # TODO django-phonenumber-field
-    datetime_init = models.DateTimeField()
-    datetime_end = models.DateTimeField()
 
     created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
@@ -61,12 +58,12 @@ class Booking(models.Model):
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return str(self.event) + " - " + str(self.name) + " - " + str(self.planner) + " - " + ": " + str(self.datetime_init)
+        return str(self.event) + " - " + str(self.name) + " - " + str(self.planner)
 
 
 class Selection(models.Model):
-    booking = models.ForeignKey(Booking, blank=True, null=True, on_delete=models.PROTECT)
-    place = models.ForeignKey(Place, blank=True, null=True, on_delete=models.PROTECT)
+    booking = models.ForeignKey(Booking, blank=True, null=True, on_delete=models.CASCADE)
+    place = models.ForeignKey(Place, blank=True, null=True, on_delete=models.CASCADE)
     datetime_init = models.DateTimeField()
 
     def __str__(self):

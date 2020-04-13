@@ -1,47 +1,54 @@
 {% extends "base_wizard.html" %}
 
 {% block form_if %}{% block form_else %}
-    <h1>Booking</h1>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col col-md-5 p-3">
+                <h4 class="font-weight-bold py-3">Booking</h4>
 
-    <div class="form-group col-sm-6" id="name">
-        <label class="font-weight-bold" for="name">Booking name*</label>
-        <input name="{{ form.name.html_name }}" type="text" class="form-control" id="name">
+                <div class="form-group" id="name">
+                    <label class="font-weight-bold" for="name">Booking name*</label>
+                    <input name="{{ form.name.html_name }}" type="text" class="form-control" id="name">
 
-        {% if form.name.errors %}
-            {% for error in form.name.errors %}
-                <small class="text-danger">{{ error|escape }}</small>
-            {% endfor %}
-        {% endif %}
+                    {% if form.name.errors %}
+                        {% for error in form.name.errors %}
+                            <small class="text-danger">{{ error|escape }}</small>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+
+                <div class="form-group" id="telf">
+                    <label class="font-weight-bold" for="telf">Telephone Number*</label>
+                    <input name="{{ form.phone_number.html_name }}" type="tel" class="form-control" id="telf">
+
+                    {% if form.phone_number.errors %}
+                        {% for error in form.phone_number.errors %}
+                            <small class="text-danger">{{ error|escape }}</small>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+
+                <div class="form-group" id="event">
+                    <label class="font-weight-bold" for="event">Event</label>
+                    <select class="form-control" name="{{ form.event.html_name }}" id="event">
+                        {% for e in form.event %}
+                            <option style="display:none">{{ e }}</option>
+                        {% endfor %}
+
+                    </select>
+
+                    {% if BookinForm.event.errors %}
+                        {% for error in form.event.errors %}
+                            <small class="text-danger">{{ error|escape }}</small>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 
-
-    <div class="form-group col-sm-6" id="telf">
-        <label class="font-weight-bold" for="telf">Telephone Number*</label>
-        <input name="{{ form.phone_number.html_name }}" type="tel" class="form-control" id="telf">
-
-        {% if form.phone_number.errors %}
-            {% for error in form.phone_number.errors %}
-                <small class="text-danger">{{ error|escape }}</small>
-            {% endfor %}
-        {% endif %}
-    </div>
-
-
-    <div class="form-group col-sm-6" id="event">
-        <label class="font-weight-bold" for="event">Event</label>
-        <select class="form-control" name="{{ form.event.html_name }}" id="event">
-            {% for e in form.event %}
-                <option>{{ e }}</option>
-            {% endfor %}
-
-        </select>
-
-        {% if BookinForm.event.errors %}
-            {% for error in form.event.errors %}
-                <small class="text-danger">{{ error|escape }}</small>
-            {% endfor %}
-        {% endif %}
-    </div>
 
 {% endblock %}{% endblock %}
 

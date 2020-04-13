@@ -2,10 +2,8 @@ import json
 from datetime import timedelta, date, datetime
 import holidays
 import pandas as pd
-import pytz
 
 from django.db import transaction
-from django.db.models import Q
 from django.forms import formset_factory
 from django.views.generic import ListView
 from formtools.wizard.views import NamedUrlSessionWizardView
@@ -14,7 +12,6 @@ from trainWellApp.forms import PlannerForm, UserForm, BookingForm1, BookingForm2
 
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as do_login
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect, get_object_or_404
 
@@ -22,14 +19,9 @@ from django.urls import reverse
 from trainWellApp.models import Booking, Planner, Selection, Place
 
 # Create your views here.
-from django.utils import timezone
 from django.views.generic.detail import DetailView
 from isoweek import Week
 
-from trainWellApp.models import Booking, Event
-
-# Global var
-tz = pytz.timezone('Europe/Madrid')
 
 def index(request):
     return render(request, 'index.html')
@@ -114,7 +106,6 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
             week_avail, open_hours, public_days = _get_availability(event, week)
             weekdays = week.days()
 
-            print(_get_week_bookings1(week))
             context.update({'week_avail': week_avail,
                             'weekdays': weekdays,
                             'hours': open_hours,
@@ -140,7 +131,8 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
 
             for k, v in selection.items():
                 for hour in v[0]:
-                    form.data['1-' + str(i) + '-datetime_init'] = v[1] + ' ' + hour
+                    d, m, y = v[1].split('/')
+                    form.data['1-' + str(i) + '-datetime_init'] = y + '-' + m + '-' + d + ' ' + hour + ':00'
                     form.data['1-' + str(i) + '-place'] = (get_object_or_404(Place, name=k)).id
                     i += 1
 
@@ -155,10 +147,7 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
 
         for i, form in enumerate(form_list):
             if i == 0:
-                booking = form.save(commit=False)
-                booking.datetime_init = datetime.now()
-                booking.datetime_end = datetime.now()
-                booking.save()
+                booking = form.save()
                 continue
 
             for selection in form:
@@ -167,9 +156,7 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
                     instance.booking = booking
                     instance.save()
 
-        return render(self.request, 'index.html', {
-            'form_data': [form.cleaned_data for form in form_list]
-        })
+        return redirect(reverse('trainwell:dashboard'))
 
 
 class BookingDetail(DetailView):
@@ -213,7 +200,6 @@ def _get_availability(event, week):
     dates_rng = ranges.keys()
 
     def_rng = _generate_range()
-
     # TO-DO incidències
     for d in weekdays:
 
@@ -236,18 +222,15 @@ def _get_availability(event, week):
             curr_rng = list(set(curr_rng) - set(_tonow))
 
         for f in all_places:
-            bdate = booked_dates.get((f, d), None)
+            key = d.strftime("%d/%m/%Y") + ',' + f.name   # To serialize as JSON
+            week_avail[key], booked_hours = curr_rng, []
 
-            if bdate:
-                # Checked bookings to substract from availability
-                booked_hours = _generate_range(bdate[2], bdate[3])
-                booked_hours.pop()  # Notice is available since datetime_end.
+            for h in curr_rng:
+                bdate = booked_dates.get((f, d, h), None)
+                if bdate: booked_hours.append(bdate[2].strftime('%H:%M'))
 
-                key = d.strftime("%d/%m/%Y") + ',' + f.name  # To serialize as JSON
-                week_avail[key] = list(set(curr_rng) - set(booked_hours))  # Substract booked hours
-            else:
-                key = d.strftime("%d/%m/%Y") + ',' + f.name
-                week_avail[key] = curr_rng
+            # Substract booked_hours
+            week_avail[key] = list(set(week_avail[key]) - set(booked_hours))
 
         if len(week_avail) is complete_week: break
 
@@ -255,29 +238,19 @@ def _get_availability(event, week):
 
 
 def _get_week_bookings(week):
-    end_week_date = week.days().pop()
-    end_week_datetime = datetime(end_week_date.year, end_week_date.month, end_week_date.day)
-    bookings = Booking.objects.filter(is_deleted=False, datetime_init__range=[timezone.now(),
-                                                                              end_week_datetime])
-    data = {}
-
-    for b in bookings:
-        data[(b.place, b.datetime_init.date())] = b.name, b.place, b.datetime_init, b.datetime_end
-
-    return data
-
-
-def _get_week_bookings1(week):
     end_week_date, begin_week_date = week.days().pop(), week.days().pop(0)
     begin_week_datetime = datetime(begin_week_date.year, begin_week_date.month,
-                                   begin_week_date.day, 00, 1, 00, tzinfo=tz)
+                                   begin_week_date.day, 00, 1, 00)
     end_week_datetime = datetime(end_week_date.year, end_week_date.month,
-                                 end_week_date.day, 23, 59, 00, tzinfo=tz)
+                                 end_week_date.day, 23, 59, 00)
 
-    # selections = Selection.objects.filter(datetime_init__range=[begin_week_datetime, end_week_datetime])
-    selections = Selection.objects.all()
-    print(selections)
-    print(end_week_datetime)
+    selections = Selection.objects.filter(datetime_init__range=[begin_week_datetime, end_week_datetime],
+                                          booking__is_deleted=False)
+    data = {}
+    for s in selections: data[(s.place, s.datetime_init.date(), s.datetime_init.
+                               strftime("%H:%M"))] = s.booking.name, s.place, s.datetime_init
+
+    return data
 
 
 def _get_week(day):
