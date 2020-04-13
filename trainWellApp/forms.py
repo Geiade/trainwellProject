@@ -50,12 +50,6 @@ class PlannerForm(ModelForm):
         fields = ('over_18',)
 
 
-class BookingForm(ModelForm):
-    class Meta:
-        model = Booking
-        fields = ['name', 'phone_number', 'event', 'datetime_init', 'datetime_end']
-
-
 # Creation of a booking made in two steps.
 class BookingForm1(ModelForm):
     class Meta:

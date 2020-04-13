@@ -18,7 +18,7 @@ from django.urls import reverse
 from django.views.generic import ListView, DetailView
 
 from trainWellApp.models import Booking, Planner, Selection, Place
-from trainWellApp.forms import OwnAuthenticationForm, BookingForm, PlannerForm, UserForm, BookingForm1, BookingForm2
+from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2
 
 
 def index(request):
