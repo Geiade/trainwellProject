@@ -3,32 +3,22 @@ from datetime import timedelta, date, datetime
 import holidays
 import pandas as pd
 
+from formtools.wizard.views import NamedUrlSessionWizardView
+from isoweek import Week
+
+from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.forms import formset_factory
-from django.views.generic import ListView
-from formtools.wizard.views import NamedUrlSessionWizardView
-
-from trainWellApp.forms import PlannerForm, UserForm, BookingForm1, BookingForm2
-
-from django.contrib.auth import authenticate
 from django.db.models import Q
 from django.http import Http404
-from django.shortcuts import get_object_or_404
 from django.contrib.auth import login as do_login
 from django.contrib.auth.forms import AuthenticationForm
-from django.shortcuts import render, redirect, get_object_or_404
-
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
-from trainWellApp.models import Booking, Planner, Selection, Place
-
-from django.views.generic.detail import DetailView
-from isoweek import Week
 from django.views.generic import ListView, DetailView
 
-from trainWellApp.models import Booking, Planner
-from trainWellApp.forms import OwnAuthenticationForm
-from trainWellApp.forms import PlannerForm, UserForm, BookingForm
+from trainWellApp.models import Booking, Planner, Selection, Place
+from trainWellApp.forms import OwnAuthenticationForm, BookingForm, PlannerForm, UserForm, BookingForm1, BookingForm2
 
 
 def index(request):
@@ -105,7 +95,6 @@ def booking_view(request):
     return render(request, 'add_book.html', context={'BookingForm': form})
 
 
-
 # WizardView data
 SelectionFormSet = formset_factory(BookingForm2, extra=15)
 BOOK_FORMS = [("0", BookingForm1), ("1", SelectionFormSet)]
@@ -117,7 +106,6 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
 
     def get_template_names(self):
         return [BOOK_TEMPLATES[self.steps.current]]
-
 
     def get_context_data(self, form, **kwargs):
         context = super().get_context_data(form=form, **kwargs)
@@ -139,7 +127,6 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
                             'isajax': isajax_req(self.request)})
 
         return context
-
 
     def get_form_step_data(self, form):
         form.data._mutable = True
@@ -163,7 +150,6 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
             form.data.pop('json_selection')
 
         return form.data
-
 
     def done(self, form_list, **kwargs):
 
@@ -260,7 +246,7 @@ def _get_availability(event, week):
             curr_rng = list(set(curr_rng) - set(_tonow))
 
         for f in all_places:
-            key = d.strftime("%d/%m/%Y") + ',' + f.name   # To serialize as JSON
+            key = d.strftime("%d/%m/%Y") + ',' + f.name  # To serialize as JSON
             week_avail[key], booked_hours = curr_rng, []
 
             for h in curr_rng:
@@ -327,4 +313,3 @@ def _generate_range(fromm=datetime(2020, 1, 1, 9, 00), to=datetime(2020, 1, 1, 2
 def _handle_ajax(data):
     day_list = data.split('/')
     return _get_week(date(int(day_list[2]), int(day_list[1]), int(day_list[0])))
-

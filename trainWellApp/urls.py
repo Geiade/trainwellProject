@@ -3,7 +3,6 @@ from django.urls import path
 
 from trainWellApp import views
 from trainWellApp.views import *
-from trainWellApp.views import booking_view
 
 """trainwell URL Configuration
 
