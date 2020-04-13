@@ -20,10 +20,9 @@
     <body>
     <div class="container">
         <h1>Bookings</h1>
-        <a class="btn btn-primary" href="{% url 'trainwell:book' %}"><span class="fas fa-plus"></span> Add a
+        <a class="btn btn-primary" href="{% url 'trainWellApp:addBooking' %}"><span class="fas fa-plus"></span> Add a
             booking</a>
-        <a class="btn btn-primary" href="{% url 'trainWellApp:dashboard' %}"><span class="fas fa-clock"></span> Check
-            Availability</a>
+        <a class="btn btn-primary" href="{% url 'trainWellApp:dashboard' %}"><span class="fas fa-clock"></span> Show Schedule</a>
         <div class="row">
             {% for booking in object_list %}
                 <div class="card col-4" onclick="location.href='{% url 'trainWellApp:booking-detail' pk=booking.pk %}';"

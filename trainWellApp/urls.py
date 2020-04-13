@@ -1,6 +1,9 @@
 from django.conf.urls import url
 from django.urls import path
+
+from trainWellApp import views
 from trainWellApp.views import *
+from trainWellApp.views import booking_view
 
 """trainwell URL Configuration
 
@@ -26,6 +29,7 @@ booking_wizard = BookingFormWizardView.as_view(BOOK_FORMS, url_name='trainWellAp
 urlpatterns = [
     path('', index, name='index'),
     path('booking/<int:pk>/', BookingDetail.as_view(), name='booking-detail'),
+    path('booking/<int:pk>/bookingcancelation/', views.bookingcancelation, name='booking_cancelation'),
     url(r'^add_booking/(?P<step>.+)/$', booking_wizard, name='book_step'),
     url(r'^add_booking/$', booking_wizard, name='book'),
     path('dashboard/', Dashboard.as_view(), name='dashboard'),
