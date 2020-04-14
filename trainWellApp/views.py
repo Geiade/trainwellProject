@@ -71,7 +71,7 @@ def signin(request):
 
             if user is not None:
                 do_login(request, user)
-                redirect(reverse('trainWellApp:dashboard'))
+                return redirect(reverse('trainwell:dashboard'))
     else:
         form = AuthenticationForm()
 

@@ -6,7 +6,7 @@
     background-color: #e74a3b;
 }
 
-.bg-grey{
+.bg-grey {
     background-color: #858796;
 }
 
@@ -26,4 +26,9 @@
 
 .ui-unselected {
     background: initial;
+}
+
+.underline-warn:hover:before {
+    visibility: visible;
+    transform: scaleX(1);
 }

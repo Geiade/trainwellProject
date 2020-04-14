@@ -48,20 +48,41 @@
     <script type="text/javascript" src="{% static 'JS/swipeWeek.js' %}"></script>
 
 <body>
-    {% block header %}
-        <div id="header" class="page-header bg-primary">
-            <h1>Train Well</h1>
-            <h3 style="text-align: right; padding-right: 5%;">
-                {% if user.is_authenticated %}
-                    Logged as {{ user }}
-                {% else %}
-                    Not logged in
-                {% endif %}
-            </h3>
-        </div>
-    {% endblock %}
+{% block header %}
 
-    {% block body_block %}
-    {% endblock %}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary p-3">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#twNavBar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse mx-5" id="twNavBar">
+            <a class="navbar-brand font-weight-bold" href="{% url 'index' %}">TrainingWell</a>
+            <ul class="navbar-nav ml-auto">
+                {% if user.is_authenticated %}
+                    <li class="nav-item text-white align-self-center mr-4">
+                        {{ user }}
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link btn-sm btn-primary"
+                           href="{% url 'signout' %}"><i class="fas fa-power-off"></i></a>
+                    </li>
+                {% else %}
+                    <li class="nav-item active mr-3">
+                        <a class="nav-link btn-sm  btn-primary"
+                           href="{% url 'signin' %}">Sign In</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link btn-sm btn-primary"
+                           href="{% url 'signout' %}">Sign Up</a></a>
+                    </li>
+                {% endif %}
+            </ul>
+
+        </div>
+    </nav>
+
+{% endblock %}
+
+{% block body_block %}
+{% endblock %}
 </body>
 </html>
