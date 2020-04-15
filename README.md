@@ -4,7 +4,7 @@
 
 *[Ariño, Raul](github.com/raularino)
 
-*[Gòdia, Pol],(github.com/polgodia)
+*[Gòdia, Pol](github.com/polgodia)
 
 *[Castells, Arnau](github.com/acastells)
 
