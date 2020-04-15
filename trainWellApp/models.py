@@ -60,6 +60,11 @@ class Booking(models.Model):
     def __str__(self):
         return str(self.event) + " - " + str(self.name) + " - " + str(self.planner)
 
+    def get_selection(self):
+        query = Selection.objects.filter(booking=self)
+        if query.exists():
+            return query.first()
+
 
 class Selection(models.Model):
     booking = models.ForeignKey(Booking, blank=True, null=True, on_delete=models.CASCADE)

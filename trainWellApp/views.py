@@ -153,8 +153,7 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
 
 
 class BookingDetail(DetailView):
-    template_name = "trainWellApp/booking_detail.html"
-    model = Selection
+    model = Booking
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -176,7 +175,7 @@ def bookingcancelation(request, pk):
 
 
 class Dashboard(ListView):
-    model = Selection
+    model = Booking
     PAGINATE_BY = 20
     template_name = 'trainWellApp/dashboard.html'
 
@@ -185,7 +184,7 @@ class Dashboard(ListView):
         return context
 
     def get_queryset(self):
-        qs = self.model.objects.filter(booking__is_deleted=False)
+        qs = self.model.objects.filter(is_deleted=False)
         return qs
 
 

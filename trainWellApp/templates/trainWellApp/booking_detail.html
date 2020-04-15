@@ -1,31 +1,31 @@
 {% extends 'base.html' %}
 {% block body_block %}
     <div class="container">
-        <h1>{{ object.booking.name }} - {{ object.booking.event.name }}</h1>
+        <h1>{{ object.name }} - {{ object.event.name }}</h1>
         <table class="table">
             <tbody>
             <tr>
                 <td>Planner</td>
-                <td>{{ object.booking.planner }}</td>
+                <td>{{ object.planner }}</td>
             </tr>
             <tr>
                 <td>Place</td>
-                <td> {{ object.place.name }} </td>
+                <td> {{ object.get_selection.place.name }} </td>
             </tr>
             <tr>
                 <td> Phone</td>
-                <td>{{ object.booking.phone_number }}</td>
+                <td>{{ object.phone_number }}</td>
             </tr>
             <tr>
                 <td> Date init</td>
-                <td> {{ object.datetime_init }}</td>
+                <td> {{ object.get_selection.datetime_init }}</td>
             </tr>
             </tbody>
         </table>
 
         <a class="btn btn-primary" href="{% url 'trainWellApp:dashboard' %}"><span class="fas fa-arrow-left"></span> Go
             to Dashboard</a>
-        <a class="btn btn-danger" href="{% url 'trainWellApp:booking_cancelation' pk=object.booking.pk %}"><span
+        <a class="btn btn-danger" href="{% url 'trainWellApp:booking_cancelation' pk=object.pk %}"><span
                 class="fas fa-trash"></span> Cancel booking</a>
     </div>
 {% endblock %}
