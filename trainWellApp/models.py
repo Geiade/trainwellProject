@@ -92,3 +92,17 @@ class Invoice(models.Model):
     def __str__(self):
         return str(self.booking) + " - " + str(self.booking.planner) + ":" + str(
             self.price) + " by " + self.payment_method
+
+
+class Incidence(models.Model):
+    name = models.CharField(max_length=30)
+    description = models.CharField(max_length=1000)
+    limit_date = models.DateTimeField()
+    disabled = models.BooleanField(default=False)
+    done = models.BooleanField(default=False)
+    last_modified = models.DateTimeField(auto_now=True)
+    modified_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
+    is_deleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return str(self.name) + " - " + str(self.limit_date)
