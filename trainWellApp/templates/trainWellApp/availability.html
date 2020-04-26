@@ -33,7 +33,7 @@
             </div>
 
             <div class="col text-right">
-                <button id="info" type="button" class="btn btn-primary btn-sm" data-toggle="popover"
+                <button id="info" type="button" style="background: rgb(121, 134, 203); color: white" class="btn btn-light btn-sm" data-toggle="popover"
                 title="Help" data-content="Drag the mouse over the different hours while holding it down.
                 For multiple selection hold down Ctrl key and drag the mouse over different elements.">
                     Help <i class="far fa-question-circle"></i>
@@ -54,7 +54,7 @@
 
                     <div id="{{ day|date:"d/m/Y" }}" class="col border-bottom text-dark p-3">
                         {{ day|date:"D" }}
-                        <h5 class="text-white mt-2"><b class="bg-primary rounded-circle p-2">{{ day|date:"d" }}</b></h5>
+                        <h5 class="text-white mt-2"><b style="background: #f6c23e" class="rounded-circle p-2">{{ day|date:"d" }}</b></h5>
                         {% if public_days|get_value:day %}
                             <small class="badge badge-pill badge-success">{{ public_days|get_value:day }}</small>
                         {% endif %}

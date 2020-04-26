@@ -54,7 +54,7 @@ function checkFieldAvailability(date, last) {
     for (const x in desired_hours) {
         for (const [key, value] of Object.entries(field_avail)) {
             if (value.includes(desired_hours[x])) {
-                let curr = key.split(',')[1];
+                let curr = key.split(',')[1] + ',' + key.split(',')[2];
 
                 if (curr in book_avail)
                     book_avail[curr].push(desired_hours[x]);
@@ -89,7 +89,10 @@ function launchModal(date, availability, last) {
 
         modal.find('.modal-body').empty();
         for (const [key, value] of Object.entries(availability)) {
-            modal.find('.modal-body').append('<label class="mb-2" for="' + key + '">' + key + '</label>');
+            let curr = key.split(',')[0];
+            let curr_id = key.split(',')[1];
+
+            modal.find('.modal-body').append('<label class="mb-2" for="' + curr + '">' + curr + '</label>');
 
             let curr_opts = "";
             for (const v in value) {
@@ -98,7 +101,7 @@ function launchModal(date, availability, last) {
             // curr_opts += '<option>'+last+'</option>';
 
             modal.find('.modal-body').append('<select multiple data-actions-box="true" ' +
-                'class="form-control selectpicker mb-2"' + 'id="' + key + '">' + curr_opts + '</select>');
+                'class="form-control selectpicker mb-2"' + 'id="' + curr_id + '">' + curr_opts + '</select>');
 
             $('.selectpicker').selectpicker('render');
 
@@ -113,6 +116,7 @@ function generateSelection() {
     $('.selectpicker').each(function (index) {
         selection[$(this).attr('id')] = [$(this).val(), $('.modal-title').attr('id')]
     })
+
     let hours = []
     const _arr = Object.values(selection).reduce((k, v) => k.concat(v[0]), [])
     selected_hours.forEach(e => hours.push(e[1]))
