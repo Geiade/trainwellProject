@@ -157,6 +157,15 @@ class BookingDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        curr_booking = context.get('booking')
+        qs = Selection.objects.filter(booking_id=curr_booking.id).values('place_id', 'datetime_init')
+        selections = {}
+
+        for s in qs:
+            place = Place.objects.get(id=s.get('place_id'))
+            selections.setdefault(place, []).append(s.get('datetime_init'))
+
+        context.update({'selections': selections})
         return context
 
 
