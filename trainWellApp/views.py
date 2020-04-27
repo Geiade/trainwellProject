@@ -8,12 +8,13 @@ from isoweek import Week
 
 from django.db import transaction
 from django.forms import formset_factory
-from django.http import Http404
+from django.http import Http404, HttpResponseForbidden
 from django.contrib.auth import login as do_login
 from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views.generic import ListView, DetailView
+from django.conf import settings
 
 from trainWellApp.models import Booking, Planner, Selection, Place
 from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2
@@ -41,11 +42,20 @@ def signup(request):
         planner_form = PlannerForm(request.POST)
 
         if user_form.is_valid() and planner_form.is_valid():
+            is_staff = False
+            if planner_form.cleaned_data['is_staff'] is True:
+                if planner_form.cleaned_data['staff_code'] == settings.STAFF_CODE:
+                    is_staff = True
+                else:
+                    return redirect(reverse('index'))
+
             user = user_form.save()
-            instance = planner_form.save(commit=False)
-            instance.user = user
-            instance.save()
-            return redirect(reverse('index'))
+            planner = planner_form.save(commit=False)
+            planner.is_staff = is_staff
+            planner.user = user
+            planner.save()
+
+        return redirect(reverse('index'))
 
     else:
         user_form = UserForm()
