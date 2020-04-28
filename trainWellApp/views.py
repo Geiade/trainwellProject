@@ -296,3 +296,11 @@ def _generate_range(fromm=datetime(2020, 1, 1, 9, 00), to=datetime(2020, 1, 1, 2
 def _handle_ajax(data):
     day_list = data.split('/')
     return _get_week(date(int(day_list[2]), int(day_list[1]), int(day_list[0])))
+
+def _get_affected_bookings(datainici, datafi):
+    selection = Selection.objects.filter(datetime_init__range=[datainici, datafi],
+                                          booking__is_deleted=False)
+    bookingslist={}
+    for s in selection: bookingslist[(s.place, s.datetime_init.date(), s.datetime_init.
+                               strftime("%H:%M"))] = s.booking.name, s.place, s.datetime_init
+    return bookingslist
