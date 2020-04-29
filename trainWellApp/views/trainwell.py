@@ -171,7 +171,7 @@ def bookingcancelation(request, pk):
     else:
         return Http404
 
-    return redirect(reverse('trainWellApp:dashboard'))
+    return redirect(reverse('trainwell:dashboard'))
 
 
 class Dashboard(ListView):
