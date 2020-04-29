@@ -300,7 +300,11 @@ def _handle_ajax(data):
 def _get_affected_bookings(datainici, datafi):
     selection = Selection.objects.filter(datetime_init__range=[datainici, datafi],
                                           booking__is_deleted=False)
-    bookinglist= dict()
-    for s in selection: bookinglist [s.booking:s]
+    bookinglist= {}
+    for s in selection:
+        if s.booking in bookinglist:
+            bookinglist[s.booking].append(s)
+        else:
+            bookinglist[s.booking] = [s]
 
     return bookinglist
