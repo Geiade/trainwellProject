@@ -16,7 +16,7 @@ from django.urls import reverse
 from django.views.generic import ListView, DetailView
 
 from trainWellApp.models import Booking, Planner, Selection, Place
-from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2
+from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2, IncidenceForm
 
 
 def index(request):
@@ -76,6 +76,19 @@ def signin(request):
         form = AuthenticationForm()
 
     return render(request, 'accounts/signin.html', {'form': form})
+
+
+def createIncidence(request):
+    if request.method == "POST":
+        form = IncidenceForm(data=request.POST)
+
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('trainwell:incidence'))
+        else:
+            form = IncidenceForm()
+
+        return render(request, 'staff/addIncidence.html', {'form': form})
 
 
 # WizardView data

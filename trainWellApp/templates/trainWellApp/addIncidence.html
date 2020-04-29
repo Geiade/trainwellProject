@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block body_block %}
+    <div class="container">
+
+        <h1>Add Incidence</h1>
+        <form method="post">
+
+            <div class="form-group col-sm-6" id="name">
+                <label class="font-weight-bold" for="name">Name*</label>
+                <input name="name" type="text" class="form-control" id="name">
+
+                {% if IncidenceForm.name.errors %}
+                    {% for error in IncidenceForm.name.errors %}
+                        <small class="text-danger">{{ error|escape }}</small>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+
+            <div class="form-group col-sm-6" id="description">
+                <label class="font-weight-bold" for="description">Description*</label>
+                <input name="description" type="text" class="form-control" id="description">
+
+                {% if IncidenceForm.description.errors %}
+                    {% for error in IncidenceForm.description.errors %}
+                        <small class="text-danger">{{ error|escape }}</small>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+
+            <div class="form-group col-sm-6" id="limit_date">
+                <label class="font-weight-bold" for="limit_date">Limit Date</label>
+               <input name="limit_date" type="date" class="form-control" id="limit_date">
+
+                {% if Incidence.limit_date.errors %}
+                    {% for error in IncidenceForm.event.errors %}
+                        <small class="text-danger">{{ error|escape }}</small>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="my-5">
+                <a class="btn btn-primary" href="{% url 'trainWellApp:dashboard' %}"><span
+                        class="fas fa-arrow-left"></span> Go to Dashboard</a>
+                <input type="submit" onclick="return confirm('Are you sure?')"
+                       class="btn btn-secondary btn-lg" value="AddIncidence"/>
+            </div>
+
+            {% csrf_token %}
+        </form>
+    </div>
+{% endblock %}
+
+

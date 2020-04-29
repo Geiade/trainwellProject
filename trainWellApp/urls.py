@@ -30,5 +30,6 @@ urlpatterns = [
     path('booking/<int:pk>/bookingcancelation/', views.bookingcancelation, name='booking_cancelation'),
     url(r'^add_booking/(?P<step>.+)/$', booking_wizard, name='book_step'),
     url(r'^add_booking/$', booking_wizard, name='book'),
+    url(r'^add_incidence/$', booking_wizard, name='incidence'),
     path('dashboard/', Dashboard.as_view(), name='dashboard'),
 ]
