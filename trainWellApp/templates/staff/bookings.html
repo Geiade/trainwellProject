@@ -1,0 +1,61 @@
+{% extends isajax|yesno:"ajax_base.html,base.html" %}
+{% load app_filters %}
+{% load static %}
+
+{% block body_block %}
+
+    <section id="day_schedule" class="container-fluid">
+
+        <div id="header" class="row px-5 pt-5 pb-3">
+            <div class="col">
+                <div class="btn-group" role="group">
+                    <button id="pw" type="button" class="btn btn-secondary btn-sm d-inline"
+                            onclick="swipeDay('{% url 'staff:booking_list' %}','{{ prev_day }}')">
+                        <i class="fas fa-chevron-left"> </i>
+                    </button>
+                    <button id="nw" type="button" class="btn btn-secondary btn-sm d-inline"
+                            onclick="swipeDay('{% url 'staff:booking_list' %}','{{ next_day }}')">
+                        <i class="fas fa-chevron-right"> </i>
+                    </button>
+                </div>
+                <button id="today" type="button" class="btn btn-secondary btn-sm mr-3"
+                    onclick="swipeDay('{% url 'staff:booking_list' %}','{% now "d/m/Y" %}')">Today</button>
+            </div>
+            <h5 class="text-secondary">{{ day|date:"D, d F Y" }}</h5>
+        </div>
+
+        <div class="row p-5 animated slideInRight">
+            {% for h in hours %}
+                <div style="min-height: 100vh" id="{{ h }}" class="col border-left">
+                    <p class="text-muted mb-5">{{ h }}</p>
+                </div>
+            {% endfor %}
+        </div>
+
+    </section>
+
+    <script type="text/javascript">
+        let open_hours = {{ hours|safe }};
+        var bookings = {{ object_list|safe }};
+
+
+        for (const [key, value] of Object.entries(bookings)){
+            let booked_hours = {};
+            value.forEach(e => booked_hours[e[1]]=e[0]);
+
+            for(let h in open_hours) {
+                let selector = ("#"+open_hours[h]).replace(":","\\:")
+
+                if(Object.keys(booked_hours).includes(open_hours[h])){
+                    $(selector).append('<div style="color: white;" class="row bg-red p-3 mb-4">' +
+                        '<small>' + booked_hours[open_hours[h]] + '</small>' + '</div>')
+                }
+                else{
+                    $(selector).append('<div class="row p-3 mb-4"><small> &nbsp </small></div>')
+                }
+            }
+        }
+    </script>
+
+{% endblock %}
+

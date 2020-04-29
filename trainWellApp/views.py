@@ -15,7 +15,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views.generic import ListView, DetailView
 
-from trainWellApp.models import Booking, Planner, Selection, Place
+from trainWellApp.models import Booking, Planner, Selection, Place, Event
 from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2
 
 
@@ -97,8 +97,13 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
             event = self.get_cleaned_data_for_step('0')['event']
 
             ajax_data = self.request.GET.get('week')  # If ajax request, sends week.
-            week = _handle_ajax(ajax_data) if ajax_data else _get_week(datetime.now())
-            week_avail, open_hours, public_days = _get_availability(event, week)
+            if ajax_data:
+                day_list = ajax_data.split('/')
+                week = _get_week(date(int(day_list[2]), int(day_list[1]), int(day_list[0])))
+
+            else: week = _get_week(datetime.now())
+
+            week_avail, open_hours = _get_availability(event, week)
             weekdays = week.days()
 
             context.update({'week_avail': week_avail,
@@ -106,7 +111,7 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
                             'hours': open_hours,
                             'next_week': (weekdays[0] + timedelta(days=7)).strftime("%d/%m/%Y"),
                             'previous_week': (weekdays[0] - timedelta(days=7)).strftime("%d/%m/%Y"),
-                            'public_days': public_days,
+                            'public_days': _get_public_days(week),
                             'isajax': isajax_req(self.request)})
 
         return context
@@ -171,7 +176,7 @@ def bookingcancelation(request, pk):
     else:
         return Http404
 
-    return redirect(reverse('trainWellApp:dashboard'))
+    return redirect(reverse('trainwell:dashboard'))
 
 
 class Dashboard(ListView):
@@ -186,6 +191,60 @@ class Dashboard(ListView):
     def get_queryset(self):
         qs = self.model.objects.filter(is_deleted=False)
         return qs
+
+
+# View for head of facilities
+class BookingListView(ListView):
+
+    model = Selection
+    template_name = 'staff/bookings.html'
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        day = self.get_day()
+        range_day = Place.objects.filter(available_from__lt=day, available_until__gt=day).first()
+
+        context.update({'next_day': (day + timedelta(days=1)).strftime("%d/%m/%Y"),
+                        'prev_day': (day - timedelta(days=1)).strftime("%d/%m/%Y"),
+                        'day': day,
+                        'hours': _generate_range(range_day.available_from, range_day.available_until),
+                        'isajax': isajax_req(self.request)})
+
+        return context
+
+
+    def get_queryset(self):
+        bookings = {}
+        day = self.get_day()
+        selections = self.model.objects.filter(datetime_init__day=day.day, datetime_init__month=day.month,
+                                               datetime_init__year=day.year, booking__is_deleted=False)
+
+        for s in selections: bookings.setdefault(s.booking, []).append(s)
+        bookings = self.sort_bookings(bookings)
+
+        # Serialize bookings to JSON
+        json_data = {}
+        for k, v in bookings.items():
+            for val in v:
+                json_data.setdefault(k.name, []).append((val.place.name, val.datetime_init.strftime('%H:%M')))
+        return json.dumps(json_data)
+
+
+    def sort_bookings(self, bookings):
+        return {k: bookings[k] for k in sorted(bookings, key=lambda k: bookings[k][0].datetime_init)}
+
+
+    def get_day(self):
+        ajax_data = self.request.GET.get('day')  # If ajax request, sends week.
+
+        if ajax_data:
+            day_list = ajax_data.split('/')
+            day = datetime(int(day_list[2]), int(day_list[1]), int(day_list[0]))
+
+        else: day = datetime.now()
+
+        return day
 
 
 def isajax_req(request):
@@ -204,17 +263,16 @@ def _get_availability(event, week):
     public_days = _get_public_days(week)
     booked_dates = _get_week_bookings(week)
     ranges = _get_places_ranges(event)
-    dates_rng = ranges.keys()
-
     def_rng = _generate_range()
+
     # TO-DO incidències
     for d in weekdays:
 
         curr_rng = def_rng
-        for rng in dates_rng:
+        for rng in ranges.keys():
             if rng[0] <= d <= rng[1]:
                 open_hours.append(tuple(ranges.get(rng)))
-                curr_rng = ranges.get(rng)
+                curr_rng = ranges.get(rng).copy()
 
         # No availability for holidays and weekdays lower today.
         now = datetime.now()
@@ -225,8 +283,9 @@ def _get_availability(event, week):
 
         # Can book from now + 2 hours minimum.
         if d == now.date():
-            _tonow = _generate_range(datetime(2020, 1, 1, int(curr_rng.pop(0).split(":")[0]), 00), hour_plus2)
-            curr_rng = list(set(curr_rng) - set(_tonow))
+            _tonow = _generate_range(datetime(2020, 1, 1, int(curr_rng.copy().pop(0).
+                                                              split(":")[0]), 00), hour_plus2)
+            if _tonow: curr_rng = list(set(curr_rng) - set(_tonow))
 
         for f in all_places:
             key = d.strftime("%d/%m/%Y") + ',' + f.name + ',' + str(f.id)   # To serialize as JSON
@@ -241,7 +300,7 @@ def _get_availability(event, week):
 
         if len(week_avail) is complete_week: break
 
-    return json.dumps(week_avail), open_hours, public_days
+    return json.dumps(week_avail), open_hours
 
 
 def _get_week_bookings(week):
@@ -292,7 +351,3 @@ def _generate_range(fromm=datetime(2020, 1, 1, 9, 00), to=datetime(2020, 1, 1, 2
     return pd.date_range(fromm.strftime("%H:%M"), to.strftime("%H:%M"),
                          freq='H').strftime("%H:%M").tolist()
 
-
-def _handle_ajax(data):
-    day_list = data.split('/')
-    return _get_week(date(int(day_list[2]), int(day_list[1]), int(day_list[0])))
