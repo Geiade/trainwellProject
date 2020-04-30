@@ -8,12 +8,13 @@ from isoweek import Week
 
 from django.db import transaction
 from django.forms import formset_factory
-from django.http import Http404
+from django.http import Http404, HttpResponseForbidden
 from django.contrib.auth import login as do_login
 from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views.generic import ListView, DetailView
+from django.conf import settings
 
 from trainWellApp.models import Booking, Planner, Selection, Place
 from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2, IncidenceForm
@@ -41,11 +42,20 @@ def signup(request):
         planner_form = PlannerForm(request.POST)
 
         if user_form.is_valid() and planner_form.is_valid():
+            is_staff = False
+            if planner_form.cleaned_data['is_staff'] is True:
+                if planner_form.cleaned_data['staff_code'] == settings.STAFF_CODE:
+                    is_staff = True
+                else:
+                    return redirect(reverse('index'))
+
             user = user_form.save()
-            instance = planner_form.save(commit=False)
-            instance.user = user
-            instance.save()
-            return redirect(reverse('index'))
+            planner = planner_form.save(commit=False)
+            planner.is_staff = is_staff
+            planner.user = user
+            planner.save()
+
+        return redirect(reverse('index'))
 
     else:
         user_form = UserForm()
@@ -140,7 +150,7 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
                 for hour in v[0]:
                     d, m, y = v[1].split('/')
                     form.data['1-' + str(i) + '-datetime_init'] = y + '-' + m + '-' + d + ' ' + hour + ':00'
-                    form.data['1-' + str(i) + '-place'] = (get_object_or_404(Place, name=k)).id
+                    form.data['1-' + str(i) + '-place'] = (get_object_or_404(Place, id=int(k))).id
                     i += 1
 
             form.data.pop('json_selection')
@@ -184,7 +194,7 @@ def bookingcancelation(request, pk):
     else:
         return Http404
 
-    return redirect(reverse('trainWellApp:dashboard'))
+    return redirect(reverse('trainwell:dashboard'))
 
 
 class Dashboard(ListView):
@@ -197,7 +207,7 @@ class Dashboard(ListView):
         return context
 
     def get_queryset(self):
-        qs = self.model.objects.filter(is_deleted=False)
+        qs = self.model.objects.filter(is_deleted=False).filter(planner__user=self.request.user)
         return qs
 
 
@@ -226,7 +236,7 @@ def _get_availability(event, week):
         curr_rng = def_rng
         for rng in dates_rng:
             if rng[0] <= d <= rng[1]:
-                open_hours.append(ranges.get(rng))
+                open_hours.append(tuple(ranges.get(rng)))
                 curr_rng = ranges.get(rng)
 
         # No availability for holidays and weekdays lower today.
@@ -242,7 +252,7 @@ def _get_availability(event, week):
             curr_rng = list(set(curr_rng) - set(_tonow))
 
         for f in all_places:
-            key = d.strftime("%d/%m/%Y") + ',' + f.name  # To serialize as JSON
+            key = d.strftime("%d/%m/%Y") + ',' + f.name + ',' + str(f.id)   # To serialize as JSON
             week_avail[key], booked_hours = curr_rng, []
 
             for h in curr_rng:
