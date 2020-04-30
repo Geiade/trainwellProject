@@ -137,7 +137,7 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
                 for hour in v[0]:
                     d, m, y = v[1].split('/')
                     form.data['1-' + str(i) + '-datetime_init'] = y + '-' + m + '-' + d + ' ' + hour + ':00'
-                    form.data['1-' + str(i) + '-place'] = (get_object_or_404(Place, name=k)).id
+                    form.data['1-' + str(i) + '-place'] = (get_object_or_404(Place, id=int(k))).id
                     i += 1
 
             form.data.pop('json_selection')
@@ -181,7 +181,7 @@ def bookingcancelation(request, pk):
     else:
         return Http404
 
-    return redirect(reverse('trainWellApp:dashboard'))
+    return redirect(reverse('trainwell:dashboard'))
 
 
 class Dashboard(ListView):
@@ -223,7 +223,7 @@ def _get_availability(event, week):
         curr_rng = def_rng
         for rng in dates_rng:
             if rng[0] <= d <= rng[1]:
-                open_hours.append(ranges.get(rng))
+                open_hours.append(tuple(ranges.get(rng)))
                 curr_rng = ranges.get(rng)
 
         # No availability for holidays and weekdays lower today.
@@ -239,7 +239,7 @@ def _get_availability(event, week):
             curr_rng = list(set(curr_rng) - set(_tonow))
 
         for f in all_places:
-            key = d.strftime("%d/%m/%Y") + ',' + f.name  # To serialize as JSON
+            key = d.strftime("%d/%m/%Y") + ',' + f.name + ',' + str(f.id)   # To serialize as JSON
             week_avail[key], booked_hours = curr_rng, []
 
             for h in curr_rng:

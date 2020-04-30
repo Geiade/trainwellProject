@@ -23,9 +23,9 @@
             </tbody>
         </table>
 
-        <a class="btn btn-primary" href="{% url 'trainWellApp:dashboard' %}"><span class="fas fa-arrow-left"></span> Go
+        <a class="btn btn-primary" href="{% url 'trainwell:dashboard' %}"><span class="fas fa-arrow-left"></span> Go
             to Dashboard</a>
-        <a class="btn btn-danger" href="{% url 'trainWellApp:booking_cancelation' pk=object.pk %}"><span
+        <a class="btn btn-danger" href="{% url 'trainwell:booking_cancelation' pk=object.pk %}"><span
                 class="fas fa-trash"></span> Cancel booking</a>
     </div>
 {% endblock %}
