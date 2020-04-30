@@ -194,7 +194,7 @@ class Dashboard(ListView):
         return context
 
     def get_queryset(self):
-        qs = self.model.objects.filter(is_deleted=False)
+        qs = self.model.objects.filter(is_deleted=False).filter(planner__user=self.request.user)
         return qs
 
 
