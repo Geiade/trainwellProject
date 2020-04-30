@@ -100,6 +100,9 @@ class Incidence(models.Model):
     limit_date = models.DateField()
     disabled = models.BooleanField(default=False)
     done = models.BooleanField(default=False)
+    places = models.ManyToManyField(Place)
+
+    created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
     modified_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
     is_deleted = models.BooleanField(default=False)

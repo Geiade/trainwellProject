@@ -84,11 +84,11 @@ def createIncidence(request):
 
         if form.is_valid():
             form.save()
-            return redirect(reverse('trainwell:incidence'))
+            return redirect(reverse('trainwell:index'))
         else:
             form = IncidenceForm()
 
-        return render(request, 'staff/addIncidence.html', {'form': form})
+        return render(request, 'trainWellApp/addIncidence.html', {'form': form})
 
 
 # WizardView data

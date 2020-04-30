@@ -34,8 +34,31 @@
                 <label class="font-weight-bold" for="limit_date">Limit Date</label>
                <input name="limit_date" type="date" class="form-control" id="limit_date">
 
-                {% if Incidence.limit_date.errors %}
+                {% if IncidenceForm.limit_date.errors %}
                     {% for error in IncidenceForm.event.errors %}
+                        <small class="text-danger">{{ error|escape }}</small>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+             <div class="form-group col-sm-6" id="disabled">
+                <label class="font-weight-bold" for="disabled">Disabled</label>
+               <input name="disabled" type="checkbox" class="form-control" id="disabled">
+
+                {% if IncidenceForm.disabled.errors %}
+                    {% for error in IncidenceForm.event.errors %}
+                        <small class="text-danger">{{ error|escape }}</small>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+
+            <div class="form-group col-sm-6" id="done">
+                <label class="font-weight-bold" for="done">Done</label>
+               <input name="done" type="checkbox" class="form-control" id="done">
+
+                {% if IncidenceForm.done.errors %}
+                    {% for error in IncidenceForm.done.errors %}
                         <small class="text-danger">{{ error|escape }}</small>
                     {% endfor %}
                 {% endif %}

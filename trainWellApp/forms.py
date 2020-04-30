@@ -97,4 +97,4 @@ class OwnAuthenticationForm(AuthenticationForm):
 class IncidenceForm(ModelForm):
     class Meta:
         model = Incidence
-        fields = ['name', 'description', 'limit_date', 'disabled','done']
+        fields = ['name', 'description', 'limit_date', 'disabled','done','places']
