@@ -41,7 +41,7 @@
                 {% endif %}
             </div>
 
-             <div class="form-group col-sm-6" id="disabled">
+             <div class="form-group"  id="disabled">
                <label class="font-weight-bold" for="disabled">Disabled</label>
                <input name="disabled" type="checkbox" class="form-control" id="disabled">
                <small id="disabled" class="form-text text-muted">If marked, some bookings may be affected</small>
@@ -54,11 +54,11 @@
             </div>
 
 
-            <div class="form-group col-sm-6" id="place">
-                    <label class="font-weight-bold" for="place">Place</label>
+            <div class="form-group"  id="place">
+                    <label class="font-weight-bold" for="place">Places</label>
                     <small id="disabled" class="form-text text-muted">Select the places that will be affected or disabled</small>
-                    <select class="form-control" name="{{ IncidenceForm.places.html_name }}" id="place">
-                        {% for e in IncidenceForm.places %}
+                    <select class="form-control" name="{{ form.places.html_name }}" id="place">
+                        {% for e in form.places %}
                             <option style="display:none">{{ e }}</option>
                         {% endfor %}
 

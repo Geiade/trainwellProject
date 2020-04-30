@@ -93,7 +93,8 @@ def createIncidence(request):
         form = IncidenceForm(data=request.POST)
 
         if form.is_valid():
-            if form.limit_date >= datetime.today():
+            compare = form.cleaned_data['limit_date']
+            if compare >= date.today():
                 form.save()
                 return redirect(reverse('trainwell:index'))
     else:
