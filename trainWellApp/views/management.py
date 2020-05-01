@@ -53,3 +53,11 @@ class IncidencesListView(ListView):
     def get_queryset1(self):
         return self.model.objects.filter(done=True).order_by('limit_date')
 
+
+# TO-DO owner on Incidence
+def incidence_done(request, pk):
+    incidence = Incidence.objects.get(pk=pk)
+    incidence.done = True
+    incidence.save()
+
+    return redirect(reverse('staff:incidences_list'))
