@@ -32,7 +32,7 @@
 
             <div class="form-group col-sm-6" id="limit">
                 <label class="font-weight-bold" for="limit">Limit Date</label>
-               <input name="limit_date" type="date" class="form-control" id="limit">
+                <input name="limit_date" type="date" class="form-control" id="limit">
 
                 {% if IncidenceForm.limit_date.errors %}
                     {% for error in IncidenceForm.event.errors %}
@@ -41,10 +41,10 @@
                 {% endif %}
             </div>
 
-             <div class="form-group"  id="disabled">
-               <label class="font-weight-bold" for="disabled">Disabled</label>
-               <input name="disabled" type="checkbox" class="form-control" id="disabled">
-               <small id="disabled" class="form-text text-muted">If marked, some bookings may be affected</small>
+            <div class="form-group custom-control custom-checkbox">
+                <input name="disabled" type="checkbox" class="custom-control-input" id="disabled">
+                <label class="custom-control-label" for="disabled">*Disabled.</label>
+                <small id="disabled" class="form-text text-muted">If marked, some bookings may be affected</small>
 
                 {% if IncidenceForm.disabled.errors %}
                     {% for error in IncidenceForm.event.errors %}
@@ -53,20 +53,23 @@
                 {% endif %}
             </div>
 
+            <div class="form-group custom-control custom-checkbox">
+                <label class="font-weight-bold" for="place">Places</label>
+                <small id="disabled" class="form-text text-muted">Select the places that will be affected or
+                    disabled</small>
 
-            <div class="form-group"  id="place">
-                    <label class="font-weight-bold" for="place">Places</label>
-                    <small id="disabled" class="form-text text-muted">Select the places that will be affected or disabled</small>
-                    <select class="form-control" name="{{ form.places.html_name }}" id="place">
-                        {% for e in form.places %}
-                            <option style="display:none">{{ e }}</option>
-                        {% endfor %}
+                <select class="selectpicker" name="{{ form.places.html_name }}" id="place" multiple>
+                    {% for e in form.places %}
+                        <option value="{{ e }}"></option>
+                    {% endfor %}
 
-                    </select>
+                </select>
+            </div>
 
-            <div class="form-group col-sm-6" id="done">
-                <label class="font-weight-bold" for="done">Done</label>
-               <input name="done" type="checkbox" class="form-control" id="done">
+            <div class="form-group custom-control custom-checkbox">
+                <input name="done" type="checkbox" class="custom-control-input" id="done">
+                <label class="custom-control-label" for="done">Done</label>
+
 
                 {% if IncidenceForm.done.errors %}
                     {% for error in IncidenceForm.done.errors %}
@@ -75,11 +78,13 @@
                 {% endif %}
             </div>
 
+
             <div class="my-5">
                 {% if IncidenceForm.disabled == True %}
                     <a class="btn btn-primary" href="{% url 'trainWellApp:dashboard' %}"><span
                             class="fas fa-arrow-left"></span> Go to Dashboard</a>
-                    <input type="submit" onclick="return confirm('This bookings will be affected: get_affected_bookings(datetime.today,IncidenceForm.limit_date')"
+                    <input type="submit"
+                           onclick="return confirm('This bookings will be affected: get_affected_bookings(datetime.today,IncidenceForm.limit_date')"
                            class="btn btn-secondary btn-lg" value="AddIncidence"/>
                 {% else %}
                     <a class="btn btn-primary" href="{% url 'trainWellApp:dashboard' %}"><span
