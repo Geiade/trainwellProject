@@ -97,7 +97,7 @@ class Invoice(models.Model):
 
 class Incidence(models.Model):
     name = models.CharField(max_length=30)
-    description = models.CharField(max_length=1000)
+    description = models.TextField()
     limit_date = models.DateField()
     disabled = models.BooleanField(default=False)
     done = models.BooleanField(default=False)

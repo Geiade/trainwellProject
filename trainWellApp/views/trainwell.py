@@ -18,7 +18,7 @@ from django.views.generic import ListView, DetailView
 from django.conf import settings
 
 from trainWellApp.models import Booking, Planner, Selection, Place
-from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2
+from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2, IncidenceForm
 
 
 def index(request):
@@ -92,6 +92,21 @@ def signin(request):
 def signout(request):
     do_logout(request)
     return redirect('/')
+
+
+def createIncidence(request):
+    form = IncidenceForm()
+
+    if request.method == "POST":
+
+        if form.is_valid():
+            if form.cleaned_data['limit_date'] >= date.today():
+                form.save()
+                return redirect(reverse('trainwell:dashboard'))
+
+    else:
+        form = IncidenceForm()
+    return render(request, 'trainWellApp/addIncidence.html', {'form': form})
 
 
 # WizardView data
@@ -324,6 +339,3 @@ def _generate_range(fromm=datetime(2020, 1, 1, 9, 00), to=datetime(2020, 1, 1, 2
 def _handle_ajax(data):
     day_list = data.split('/')
     return _get_week(date(int(day_list[2]), int(day_list[1]), int(day_list[0])))
-
-
-

@@ -80,23 +80,23 @@
 
 
             <div class="my-5">
-                {% if IncidenceForm.disabled == True %}
-                    <a class="btn btn-primary" href="{% url 'trainWellApp:dashboard' %}"><span
-                            class="fas fa-arrow-left"></span> Go to Dashboard</a>
-                    <input type="submit"
-                           onclick="return confirm('This bookings will be affected: get_affected_bookings(datetime.today,IncidenceForm.limit_date')"
-                           class="btn btn-secondary btn-lg" value="AddIncidence"/>
-                {% else %}
-                    <a class="btn btn-primary" href="{% url 'trainWellApp:dashboard' %}"><span
-                            class="fas fa-arrow-left"></span> Go to Dashboard</a>
-                    <input type="submit" onclick="return confirm('Are you sure?')"
-                           class="btn btn-secondary btn-lg" value="AddIncidence"/>
-                {% endif %}
+                <a class="btn btn-primary" href="{% url 'trainWellApp:dashboard' %}"><span
+                        class="fas fa-arrow-left"></span> Go to Dashboard</a>
+                <script>
+                    actual = new Date()
+                    dia = actual.getDate()
+                </script>
+                <button id="notification" type="button" class="btn btn-primary"
+                        onclick="getAffected('{% url 'trainwell:notification'  %}','{{ dia }}', '{{ form.limit_date }}')">
+                        <span class="fas fa-arrow-right"></span> Add Incidence</a>
+
+                </button>
             </div>
 
             {% csrf_token %}
         </form>
     </div>
+
 {% endblock %}
 
 

@@ -3,6 +3,7 @@ from django.urls import path
 
 from trainWellApp import views
 from trainWellApp.views import *
+from trainWellApp.views.management import _get_affected_bookings
 
 """trainwell URL Configuration
 
@@ -32,4 +33,5 @@ urlpatterns = [
     url(r'^add_booking/$', booking_wizard, name='book'),
     url('incidence/', createIncidence, name='incidence'),
     path('dashboard/', Dashboard.as_view(), name='dashboard'),
+    url('notification', _get_affected_bookings, name='notification')
 ]
