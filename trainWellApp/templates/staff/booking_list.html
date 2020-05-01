@@ -7,7 +7,7 @@
     <section id="day_schedule" class="container-fluid">
 
         <div id="header" class="row px-5 pt-5 pb-3">
-            <div class="col">
+            <div class="col-auto pr-1">
                 <div class="btn-group" role="group">
                     <button id="pw" type="button" class="btn btn-secondary btn-sm d-inline"
                             onclick="swipeDay('{% url 'staff:booking_list' %}','{{ prev_day }}')">
@@ -21,12 +21,12 @@
                 <button id="today" type="button" class="btn btn-secondary btn-sm mr-3"
                         onclick="swipeDay('{% url 'staff:booking_list' %}','{% now "d/m/Y" %}')">Today
                 </button>
-                <button id="today" type="button" class="btn btn-success btn-sm mr-3"
-                        onclick="">
-                    <i class="fas fa-plus mr-2"></i>Incidence
-                </button>
             </div>
-            <h5>{{ day|date:"D, d F Y" }}</h5>
+            <h5 class="col-auto pl-1 v-middle">{{ day|date:"D, d F Y" }}</h5>
+            <button id="today" type="button" class="ml-auto btn btn-success btn-sm mr-3"
+                    onclick="">
+                <i class="fas fa-plus mr-2"></i>Incidence
+            </button>
         </div>
 
         {% for h in hours %}
@@ -37,28 +37,28 @@
             {% else %}
                 <div class="row m-5 animated slideInRight border-top">
             {% endif %}
-                <small class="col-sm-12 mr-3 text-muted">{{ h }}</small>
+        <small class="col-sm-12 mr-3 text-muted">{{ h }}</small>
 
-                {% for key, vals in  object_list.items %}
+        {% for key, vals in  object_list.items %}
 
-                    {% if h == vals.values|tolist|first|first %}
-                        <div class="card col-auto ml-5 mt-3 mb-2 border-0 shadow-sm"
-                             style="border-left: .5rem solid #cc73e1 !important">
-                            <div class="card-body">
-                                <h6 class="card-title">{{ key.name }}</h6>
-                                <h6 class="card-subtitle mb-2 text-muted">{{ key.event }}</h6>
-                                <div class="card-text btn-group" role="group">
-                                    {% for k, v in vals.items %}
-                                        <button type="button" class="btn btn-sm btn-light" data-toggle="popover"
+            {% if h == vals.values|tolist|first|first %}
+                <div class="card col-auto ml-5 mt-3 mb-2 border-0 shadow-sm"
+                     style="border-left: .5rem solid #cc73e1 !important">
+                    <div class="card-body">
+                        <h6 class="card-title">{{ key.name }}</h6>
+                        <h6 class="card-subtitle mb-2 text-muted">{{ key.event }}</h6>
+                        <div class="card-text btn-group" role="group">
+                            {% for k, v in vals.items %}
+                                <button type="button" class="btn btn-sm btn-light" data-toggle="popover"
                                         title="Hours" data-trigger="hover" data-content="{{ v }}"
-                                                style="font-size: small">{{ k }}</button>
-                                    {% endfor %}
-                                </div>
-                            </div>
+                                        style="font-size: small">{{ k }}</button>
+                            {% endfor %}
                         </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+        </div>
         {% endfor %}
 
         <script id="popover_script" type="text/javascript">
