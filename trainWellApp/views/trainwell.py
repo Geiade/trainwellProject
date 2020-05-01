@@ -10,6 +10,7 @@ from django.db import transaction
 from django.forms import formset_factory
 from django.http import Http404, HttpResponseForbidden
 from django.contrib.auth import login as do_login
+from django.contrib.auth import logout as do_logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
@@ -86,6 +87,11 @@ def signin(request):
         form = AuthenticationForm()
 
     return render(request, 'accounts/signin.html', {'form': form})
+
+
+def signout(request):
+    do_logout(request)
+    return redirect('/')
 
 
 # WizardView data
@@ -320,14 +326,4 @@ def _handle_ajax(data):
     return _get_week(date(int(day_list[2]), int(day_list[1]), int(day_list[0])))
 
 
-def _get_affected_bookings(datainici, datafi):
-    selection = Selection.objects.filter(datetime_init__range=[datainici, datafi],
-                                         booking__is_deleted=False)
-    bookinglist = {}
-    for s in selection:
-        if s.booking in bookinglist:
-            bookinglist[s.booking].append(s)
-        else:
-            bookinglist[s.booking] = [s]
 
-    return bookinglist
