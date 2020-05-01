@@ -30,3 +30,8 @@ def get_value(dictionary, key):
 @register.simple_tag
 def define(val=None):
     return val
+
+
+@register.filter
+def tolist(object):
+    return list(object)

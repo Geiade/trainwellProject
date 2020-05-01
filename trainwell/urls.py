@@ -25,7 +25,7 @@ from trainwell import settings
 urlpatterns = [
     path('', RedirectView.as_view(pattern_name='trainwell:index'), name='index'),
     path('trainwell/', include(('trainWellApp.urls.trainwell_urls', 'trainWellApp'), namespace='trainwell')),
-    path('trainwell/', include(('trainWellApp.urls.staff_urls', 'trainWellApp'), namespace='staff')),
+    path('staff/', include(('trainWellApp.urls.staff_urls', 'trainWellApp'), namespace='staff')),
     path('admin/', admin.site.urls),
     path('accounts/signin/', views.signin, name="signin"),
     path('accounts/signup/', views.signup, name="signup"),

@@ -32,3 +32,12 @@
     visibility: visible;
     transform: scaleX(1);
 }
+
+.bg-magenta{
+    background-color: #cc73e1;
+}
+
+.card-border {
+    border-left: .25rem solid #cc73e1 !important;
+    border-left-width: 0.25rem !important;
+}

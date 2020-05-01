@@ -193,60 +193,6 @@ class Dashboard(ListView):
         return qs
 
 
-# View for head of facilities
-class BookingListView(ListView):
-
-    model = Selection
-    template_name = 'staff/bookings.html'
-
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        day = self.get_day()
-        range_day = Place.objects.filter(available_from__lt=day, available_until__gt=day).first()
-
-        context.update({'next_day': (day + timedelta(days=1)).strftime("%d/%m/%Y"),
-                        'prev_day': (day - timedelta(days=1)).strftime("%d/%m/%Y"),
-                        'day': day,
-                        'hours': _generate_range(range_day.available_from, range_day.available_until),
-                        'isajax': isajax_req(self.request)})
-
-        return context
-
-
-    def get_queryset(self):
-        bookings = {}
-        day = self.get_day()
-        selections = self.model.objects.filter(datetime_init__day=day.day, datetime_init__month=day.month,
-                                               datetime_init__year=day.year, booking__is_deleted=False)
-
-        for s in selections: bookings.setdefault(s.booking, []).append(s)
-        bookings = self.sort_bookings(bookings)
-
-        # Serialize bookings to JSON
-        json_data = {}
-        for k, v in bookings.items():
-            for val in v:
-                json_data.setdefault(k.name, []).append((val.place.name, val.datetime_init.strftime('%H:%M')))
-        return json.dumps(json_data)
-
-
-    def sort_bookings(self, bookings):
-        return {k: bookings[k] for k in sorted(bookings, key=lambda k: bookings[k][0].datetime_init)}
-
-
-    def get_day(self):
-        ajax_data = self.request.GET.get('day')  # If ajax request, sends week.
-
-        if ajax_data:
-            day_list = ajax_data.split('/')
-            day = datetime(int(day_list[2]), int(day_list[1]), int(day_list[0]))
-
-        else: day = datetime.now()
-
-        return day
-
-
 def isajax_req(request):
     return request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
