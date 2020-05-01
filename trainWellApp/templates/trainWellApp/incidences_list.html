@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body_block %}
+
+    <section class="container">
+
+        <div class="row p-5">
+
+            <h4>Incidences<sup id="num_in">{{ object_list|length }}</sup></h4>
+            <div class="btn-group ml-auto mb-4" role="group" aria-label="Basic example">
+                <button type="button" onclick="swipeIncidences(0,{{ object_list|length }})"
+                        class="btn border btn-light text-secondary">Active
+                </button>
+                <button type="button" onclick="swipeIncidences(1,{{ done|length }})"
+                        class="btn border btn-light text-secondary">Done
+                </button>
+            </div>
+
+            {% for incidence in object_list %}
+                <div style="border-radius: 25px;" class="card col-12 border-0 shadow-sm p-3 my-3 inpg">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <h6 class="card-title mb-1">{{ incidence.name }}</h6>
+
+                            <p class="card-text text-muted" data-toggle="popover" data-trigger="hover"
+                               data-title="Description" data-content="{{ incidence.description }}">
+                                {{ incidence.description | truncatechars:30 }}</p>
+                        </div>
+                        <div class="col-sm-2 text-center">
+                            <small class="text-muted">Limit date<br>{{ incidence.limit_date|date:"d-m-Y" }}</small>
+                        </div>
+                        <div class="col-sm-2 text-center">
+                            <small class="text-muted">Created<br>{{ incidence.limit_date|date:"d-m-Y" }}</small>
+                        </div>
+                        <div class="col-sm-4 text-center">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-success">Done</button>
+                                <button type="button" class="btn btn-secondary">Edit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+
+            {% for incidence in done %}
+                <div style="border-radius: 25px;display: none" class="card col-12 border-0 shadow-sm p-3 my-3 done">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <h6 class="card-title mb-1">{{ incidence.name }}</h6>
+                            <p class="card-text text-muted" data-toggle="popover" data-trigger="hover"
+                               data-title="Description" data-content="{{ incidence.description }}">
+                                {{ incidence.description | truncatechars:30 }}</p>
+                        </div>
+                        <div class="col-sm-2 text-center">
+                            <small class="text-muted">Limit date<br>{{ incidence.limit_date|date:"d-m-Y" }}</small>
+                        </div>
+                        <div class="col-sm-2 text-center">
+                            <small class="text-muted">Created<br>{{ incidence.limit_date|date:"d-m-Y" }}</small>
+                        </div>
+                        <div class="col-sm-4 text-center">
+                            <small class="badge badge-success">Solved</small><br>
+                            <small class="text-muted">{{ incidence.last_modified|date:"d-m-Y" }}</small>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <script id="popover_script" type="text/javascript">
+        $(document).ready(function () {
+            $('[data-toggle="popover"]').popover();
+        });
+
+        function swipeIncidences(type, len) {
+
+            if (type === 0) {
+                $(".done").css("display", "none")
+                $(".inpg").css("display", "")
+                $("#num_in").html(len)
+            } else {
+                $(".inpg").css("display", "none")
+                $(".done").css("display", "")
+                $("#num_in").html(len)
+            }
+        }
+    </script>
+
+{% endblock %}
+
