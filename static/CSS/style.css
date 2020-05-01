@@ -10,6 +10,11 @@
     background-color: #858796;
 }
 
+.lightred {
+    color: #e83a30;
+    background: #fad3d1;
+}
+
 .ui-selecting {
     background: #cc73e1;
     color: white;

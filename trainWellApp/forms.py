@@ -67,6 +67,12 @@ class BookingForm2(ModelForm):
         fields = ['booking', 'place', 'datetime_init']
 
 
+class EventForm(ModelForm):
+    class Meta:
+        model = Event
+        fields = ['name', 'places']
+
+
 class OwnAuthenticationForm(AuthenticationForm):
     def clean(self):
         username = self.cleaned_data.get('username')

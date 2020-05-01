@@ -22,7 +22,7 @@ Including another URLconf
 
 app_name = "trainWellApp"
 
-booking_wizard = BookingFormWizardView.as_view(BOOK_FORMS, url_name='trainWellApp:book_step', )
+booking_wizard = BookingFormWizardView.as_view(BOOK_FORMS, url_name='trainwell:book_step', )
 
 urlpatterns = [
     path('', index, name='index'),
