@@ -35,7 +35,7 @@
 
         <div class="row">
             {% for booking in object_list %}
-                <div class="card col-sm-12 col-md-4 my-3 border-0 shadow-sm" onclick="location.href='{% url 'trainWellApp:booking-detail' pk=booking.pk %}';"
+                <div class="card col-sm-12 col-md-4 my-3 border-1 shadow" onclick="location.href='{% url 'trainWellApp:booking-detail' pk=booking.pk %}';"
                      style="cursor: pointer;">
                     <div class="card-body">
                         <h5 class="card-title">{{ booking.name }}</h5>
