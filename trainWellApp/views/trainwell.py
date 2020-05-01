@@ -8,12 +8,13 @@ from isoweek import Week
 
 from django.db import transaction
 from django.forms import formset_factory
-from django.http import Http404
+from django.http import Http404, HttpResponseForbidden
 from django.contrib.auth import login as do_login
 from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views.generic import ListView, DetailView
+from django.conf import settings
 
 from trainWellApp.models import Booking, Planner, Selection, Place
 from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2
@@ -41,11 +42,20 @@ def signup(request):
         planner_form = PlannerForm(request.POST)
 
         if user_form.is_valid() and planner_form.is_valid():
+            is_staff = False
+            if planner_form.cleaned_data['is_staff'] is True:
+                if planner_form.cleaned_data['staff_code'] == settings.STAFF_CODE:
+                    is_staff = True
+                else:
+                    return redirect(reverse('index'))
+
             user = user_form.save()
-            instance = planner_form.save(commit=False)
-            instance.user = user
-            instance.save()
-            return redirect(reverse('index'))
+            planner = planner_form.save(commit=False)
+            planner.is_staff = is_staff
+            planner.user = user
+            planner.save()
+
+        return redirect(reverse('index'))
 
     else:
         user_form = UserForm()
@@ -157,6 +167,15 @@ class BookingDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        curr_booking = context.get('booking')
+        qs = Selection.objects.filter(booking_id=curr_booking.id).values('place_id', 'datetime_init')
+        selections = {}
+
+        for s in qs:
+            place = Place.objects.get(id=s.get('place_id'))
+            selections.setdefault(place, []).append(s.get('datetime_init'))
+
+        context.update({'selections': selections})
         return context
 
 
@@ -171,7 +190,7 @@ def bookingcancelation(request, pk):
     else:
         return Http404
 
-    return redirect(reverse('trainWellApp:dashboard'))
+    return redirect(reverse('trainwell:dashboard'))
 
 
 class Dashboard(ListView):
@@ -184,7 +203,7 @@ class Dashboard(ListView):
         return context
 
     def get_queryset(self):
-        qs = self.model.objects.filter(is_deleted=False)
+        qs = self.model.objects.filter(is_deleted=False).filter(planner__user=self.request.user)
         return qs
 
 

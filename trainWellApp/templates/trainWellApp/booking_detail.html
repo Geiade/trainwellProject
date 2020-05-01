@@ -1,7 +1,11 @@
 {% extends 'base.html' %}
+{% load app_filters %}
 {% block body_block %}
-    <div class="container">
-        <h1>{{ object.name }} - {{ object.event.name }}</h1>
+    <div class="container py-5">
+
+        <h3>{{ object.name }}</h3>
+
+        <h5><span class="badge badge-success">{{ object.event.name }}</span></h5>
         <table class="table">
             <tbody>
             <tr>
@@ -17,15 +21,23 @@
                 <td>{{ object.phone_number }}</td>
             </tr>
             <tr>
-                <td> Date init</td>
-                <td> {{ object.get_selection.datetime_init }}</td>
+                <td> Distribution</td>
+                <td>
+                {% for key, values in selections.items %}
+                    {{ key }}
+                    {% for v in values %}
+                        {{ v|date:"H:i" }}
+                    {% endfor %}
+                {% endfor %}
+            </td>
             </tr>
             </tbody>
         </table>
 
-        <a class="btn btn-primary" href="{% url 'trainWellApp:dashboard' %}"><span class="fas fa-arrow-left"></span> Go
-            to Dashboard</a>
-        <a class="btn btn-danger" href="{% url 'trainWellApp:booking_cancelation' pk=object.pk %}"><span
-                class="fas fa-trash"></span> Cancel booking</a>
+
+        <a class="btn btn-sm btn-secondary" href="{% url 'trainWellApp:dashboard' %}"><span class="fas fa-arrow-left"></span> Go
+            Dashboard</a>
+        <a class="btn btn-sm btn-danger" href="{% url 'trainWellApp:booking_cancelation' pk=object.pk %}"><span
+                class="fas fa-trash"></span> Cancel</a>
     </div>
 {% endblock %}

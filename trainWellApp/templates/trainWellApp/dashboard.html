@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block body_block %}
     <style>
-        .card {
+        /*.card {
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
             transition: 0.3s;
             width: 40%;
@@ -14,27 +14,41 @@
 
         .container {
             padding: 2px 16px;
-        }
+        } */
     </style>
 
     <body>
-    <div class="container">
-        <h1>Bookings</h1>
-        <a class="btn btn-primary" href="{% url 'trainWellApp:book' %}"><span class="fas fa-plus"></span> Add a
-            booking</a>
-        <a class="btn btn-primary" href="{% url 'trainWellApp:dashboard' %}"><span class="fas fa-clock"></span> Show
-            Schedule</a>
+    <div class="container py-5">
+
+        <div class="row">
+            <div class="col-sm-12 col-md-6">
+                <h3 class="text-muted"><i class="far fa-calendar-alt mr-2"></i>Bookings</h3>
+            </div>
+
+            <div class="col-sm-12 col-md-6 text-md-right">
+                <a class="btn btn-sm btn-secondary mr-2" href="{% url 'trainWellApp:book' %}">
+                    <span class="fas fa-plus"></span> Add Booking</a>
+                <a class="btn btn-sm btn-secondary" href="{% url 'trainWellApp:dashboard' %}">
+                    <span class="fas fa-clock mr-1"></span>Schedule</a>
+            </div>
+        </div>
+
         <div class="row">
             {% for booking in object_list %}
-                <div class="card col-4"
-                     onclick="location.href='{% url 'trainWellApp:booking-detail' pk=booking.pk %}';"
+                <div class="card col-sm-12 col-md-4 my-3 border-1 shadow" onclick="location.href='{% url 'trainWellApp:booking-detail' pk=booking.pk %}';"
                      style="cursor: pointer;">
-                    <h5><b>{{ booking.name }} - {{ booking.event.name }} </b></h5>
-                    <a>Day: {{ booking.get_selection.datetime_init.date }}</a>
-                    <a>Hour: {{ booking.get_selection.datetime_init.time }}</a>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ booking.name }}</h5>
+                        <h6 class="card-subtitle mb-2">
+                            <span class="badge badge-success">{{ booking.event.name }}</span></h6>
+                        <p class="card-text text-muted">
+                            Day: {{ booking.get_selection.datetime_init.date }}<br>
+                            Start: {{ booking.get_selection.datetime_init.time }}
+                        </p>
+                    </div>
                 </div>
             {% empty %}
-                <h2>No bookings yet</h2>
+                <h5>No bookings yet...</h5>
             {% endfor %}
         </div>
     </div>
