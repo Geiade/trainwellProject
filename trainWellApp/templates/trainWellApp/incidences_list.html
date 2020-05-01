@@ -3,6 +3,7 @@
 
 {% block body_block %}
 
+    {% include "trainWellApp/staff_navbar.html" %}
     <section class="container">
 
         <div class="row p-5">
@@ -18,7 +19,7 @@
             </div>
 
             {% for incidence in object_list %}
-                <div style="border-radius: 25px;" class="card col-12 border-0 shadow-sm p-3 my-3 inpg">
+                <div style="border-radius: 25px;" class="card col-12 border-0 shadow-sm p-4 my-3 inpg">
                     <div class="row">
                         <div class="col-sm-4">
                             <h6 class="card-title mb-1">{{ incidence.name }}</h6>
@@ -34,10 +35,10 @@
                             <small class="text-muted">Created<br>{{ incidence.limit_date|date:"d-m-Y" }}</small>
                         </div>
                         <div class="col-sm-4 text-center">
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-success">Done</button>
-                                <button type="button" class="btn btn-secondary">Edit</button>
-                            </div>
+                            <a type="button" class="btn btn-warning text-white rounded-pill">Edit</a>
+                            <a style="background: #e4e4e4" type="button"
+                               href="{% url "dummt" incidence.id %}" class="btn btn-light text-muted rounded-circle">
+                                <i class="fas fa-check"></i></a>
                         </div>
                     </div>
                 </div>
