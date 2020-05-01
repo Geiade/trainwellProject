@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load app_filters %}
+{% load i18n %}
+{% block body_block %}
+    <form id="event_form" method="post">{% csrf_token %}
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col col-md-5 p-3">
+                    <h4 class="font-weight-bold py-3">Event</h4>
+
+                    <div class="form-group" id="name">
+                        <label class="font-weight-bold" for="name">Event name</label>
+                        <input name="{{ event_form.name.html_name }}" type="text" class="form-control" id="name">
+
+                        {% if event_form.name.errors %}
+                            {% for error in event_form.name.errors %}
+                                <small class="text-danger">{{ error|escape }}</small>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group" id="places">
+                        <label class="font-weight-bold" for="places">Places</label>
+                        <select class="selectpicker form-control" name="{{ event_form.places.html_name }}" id="places"
+                                multiple>
+                            <option disabled="disabled">--Select Places--</option>
+                            {% for p in event_form.places %}
+                                <option style="display:none" value={{ p }}>{{ p }}</option>
+                            {% endfor %}
+                        </select>
+
+                        {% if event_form.places.errors %}
+                            {% for error in event_form.places.errors %}
+                                <small class="text-danger">{{ error|escape }}</small>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="row justify-content-center">
+                        <div class="col col-md-5 text-center">
+                            <input type="submit" value="{% trans "Create" %}" class="btn btn-secondary btn-lg"/>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+{% endblock %}

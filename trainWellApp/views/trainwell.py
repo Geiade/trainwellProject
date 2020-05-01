@@ -105,6 +105,7 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
 
         if self.steps.current == "1":
             event = self.get_cleaned_data_for_step('0')['event']
+            # TODO, bug, event=none, when cancel add booking or accessing by url
 
             ajax_data = self.request.GET.get('week')  # If ajax request, sends week.
             week = _handle_ajax(ajax_data) if ajax_data else _get_week(datetime.now())
@@ -145,7 +146,6 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
         return form.data
 
     def done(self, form_list, **kwargs):
-
         booking = None
 
         for i, form in enumerate(form_list):
@@ -212,6 +212,9 @@ def isajax_req(request):
 
 
 def _get_availability(event, week):
+    if event is None:
+        return json.dumps({}), [], _get_public_days(week)
+
     # Get event associated places
     all_places = event.places.all()
 
@@ -248,7 +251,7 @@ def _get_availability(event, week):
             curr_rng = list(set(curr_rng) - set(_tonow))
 
         for f in all_places:
-            key = d.strftime("%d/%m/%Y") + ',' + f.name + ',' + str(f.id)   # To serialize as JSON
+            key = d.strftime("%d/%m/%Y") + ',' + f.name + ',' + str(f.id)  # To serialize as JSON
             week_avail[key], booked_hours = curr_rng, []
 
             for h in curr_rng:
@@ -316,10 +319,11 @@ def _handle_ajax(data):
     day_list = data.split('/')
     return _get_week(date(int(day_list[2]), int(day_list[1]), int(day_list[0])))
 
+
 def _get_affected_bookings(datainici, datafi):
     selection = Selection.objects.filter(datetime_init__range=[datainici, datafi],
-                                          booking__is_deleted=False)
-    bookinglist= {}
+                                         booking__is_deleted=False)
+    bookinglist = {}
     for s in selection:
         if s.booking in bookinglist:
             bookinglist[s.booking].append(s)
