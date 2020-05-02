@@ -1,6 +1,4 @@
 from django.urls import path
-
-from trainWellApp.views import *
 from trainWellApp.views.management import *
 
 app_name = "trainWellApp"

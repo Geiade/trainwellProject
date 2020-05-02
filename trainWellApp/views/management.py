@@ -1,13 +1,11 @@
-import json
 from datetime import timedelta, datetime
 
-from django.views.generic import ListView
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import ListView
 
 from trainWellApp.forms import EventForm
-from trainWellApp.models import Selection, Incidence
+from trainWellApp.models import Incidence
 from trainWellApp.models import Selection, Place
 from trainWellApp.views.trainwell import _generate_range, isajax_req
 
@@ -24,11 +22,13 @@ def addEvent(request):
         event_form = EventForm()
 
     args = {'event_form': event_form}
-    return render(request, 'trainWellApp/add_event.html', args)
+    return render(request, 'staff/add_event.html', args)
 
 
-def _get_affected_bookings(init, end):
+def _get_affected_bookings(request, init, end, places):
     selection = Selection.objects.filter(datetime_init__range=[init, end],
+                                         booking__planner__user_id=request.user.id,
+                                         place_id__in=places,
                                          booking__is_deleted=False)
     bookinglist = {}
     for s in selection:
@@ -43,7 +43,7 @@ def _get_affected_bookings(init, end):
 class IncidencesListView(ListView):
 
     model = Incidence
-    template_name = 'trainWellApp/incidences_list.html'
+    template_name = 'staff/incidences_list.html'
 
 
     def get_context_data(self, **kwargs):
@@ -67,7 +67,6 @@ def incidence_done(request, pk):
     incidence.save()
 
     return redirect(reverse('staff:incidences_list'))
-  
   
 
 # View for head of facilities
@@ -101,6 +100,7 @@ class BookingListView(ListView):
 
         return self.format_data(bookings)
 
+
     def get_day(self):
         ajax_data = self.request.GET.get('day')  # If ajax request, sends week.
 
@@ -111,6 +111,7 @@ class BookingListView(ListView):
             day = datetime.now()
 
         return day
+
 
     @staticmethod
     def format_data(bookings):

@@ -8,7 +8,7 @@ from isoweek import Week
 
 from django.db import transaction
 from django.forms import formset_factory
-from django.http import Http404, HttpResponseForbidden
+from django.http import Http404
 from django.contrib.auth import login as do_login
 from django.contrib.auth import logout as do_logout
 from django.contrib.auth.forms import AuthenticationForm
@@ -17,7 +17,7 @@ from django.urls import reverse
 from django.views.generic import ListView, DetailView
 from django.conf import settings
 
-from trainWellApp.models import Booking, Planner, Selection, Place, Event
+from trainWellApp.models import Booking, Planner, Selection, Place
 from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2
 
 

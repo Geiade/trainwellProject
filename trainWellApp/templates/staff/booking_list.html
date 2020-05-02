@@ -4,6 +4,10 @@
 
 {% block body_block %}
 
+    {% if isajax == False %}
+        {% include "staff/staff_navbar.html" %}
+    {% endif %}
+
     <section id="day_schedule" class="container-fluid">
 
         <div id="header" class="row px-5 pt-5 pb-3">
