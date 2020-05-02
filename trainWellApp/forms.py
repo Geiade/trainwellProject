@@ -44,10 +44,12 @@ class UserForm(UserCreationForm):
 
 class PlannerForm(ModelForm):
     over_18 = forms.BooleanField(required=True)
+    is_staff = forms.BooleanField(required=False)
+    staff_code = forms.CharField()
 
     class Meta:
         model = Planner
-        fields = ('over_18',)
+        fields = ('over_18', 'is_staff', 'staff_code')
 
 
 # Creation of a booking made in two steps.
@@ -68,6 +70,12 @@ class BookingForm2(ModelForm):
     class Meta:
         model = Selection
         fields = ['booking', 'place', 'datetime_init']
+
+
+class EventForm(ModelForm):
+    class Meta:
+        model = Event
+        fields = ['name', 'places']
 
 
 class OwnAuthenticationForm(AuthenticationForm):

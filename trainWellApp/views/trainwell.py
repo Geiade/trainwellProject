@@ -8,12 +8,14 @@ from isoweek import Week
 
 from django.db import transaction
 from django.forms import formset_factory
-from django.http import Http404
+from django.http import Http404, HttpResponseForbidden
 from django.contrib.auth import login as do_login
+from django.contrib.auth import logout as do_logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views.generic import ListView, DetailView
+from django.conf import settings
 
 from trainWellApp.models import Booking, Planner, Selection, Place, Event
 from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2
@@ -41,11 +43,20 @@ def signup(request):
         planner_form = PlannerForm(request.POST)
 
         if user_form.is_valid() and planner_form.is_valid():
+            is_staff = False
+            if planner_form.cleaned_data['is_staff'] is True:
+                if planner_form.cleaned_data['staff_code'] == settings.STAFF_CODE:
+                    is_staff = True
+                else:
+                    return redirect(reverse('index'))
+
             user = user_form.save()
-            instance = planner_form.save(commit=False)
-            instance.user = user
-            instance.save()
-            return redirect(reverse('index'))
+            planner = planner_form.save(commit=False)
+            planner.is_staff = is_staff
+            planner.user = user
+            planner.save()
+
+        return redirect(reverse('index'))
 
     else:
         user_form = UserForm()
@@ -78,6 +89,11 @@ def signin(request):
     return render(request, 'accounts/signin.html', {'form': form})
 
 
+def signout(request):
+    do_logout(request)
+    return redirect('/')
+
+
 # WizardView data
 SelectionFormSet = formset_factory(BookingForm2, extra=15)
 BOOK_FORMS = [("0", BookingForm1), ("1", SelectionFormSet)]
@@ -95,6 +111,7 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
 
         if self.steps.current == "1":
             event = self.get_cleaned_data_for_step('0')['event']
+            # TODO, bug, event=none, when cancel add booking or accessing by url
 
             ajax_data = self.request.GET.get('week')  # If ajax request, sends week.
             if ajax_data:
@@ -140,7 +157,6 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
         return form.data
 
     def done(self, form_list, **kwargs):
-
         booking = None
 
         for i, form in enumerate(form_list):
@@ -162,6 +178,15 @@ class BookingDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        curr_booking = context.get('booking')
+        qs = Selection.objects.filter(booking_id=curr_booking.id).values('place_id', 'datetime_init')
+        selections = {}
+
+        for s in qs:
+            place = Place.objects.get(id=s.get('place_id'))
+            selections.setdefault(place, []).append(s.get('datetime_init'))
+
+        context.update({'selections': selections})
         return context
 
 
@@ -189,7 +214,7 @@ class Dashboard(ListView):
         return context
 
     def get_queryset(self):
-        qs = self.model.objects.filter(is_deleted=False)
+        qs = self.model.objects.filter(is_deleted=False).filter(planner__user=self.request.user)
         return qs
 
 
@@ -198,6 +223,9 @@ def isajax_req(request):
 
 
 def _get_availability(event, week):
+    if event is None:
+        return json.dumps({}), [], _get_public_days(week)
+
     # Get event associated places
     all_places = event.places.all()
 
@@ -234,7 +262,7 @@ def _get_availability(event, week):
             if _tonow: curr_rng = list(set(curr_rng) - set(_tonow))
 
         for f in all_places:
-            key = d.strftime("%d/%m/%Y") + ',' + f.name + ',' + str(f.id)   # To serialize as JSON
+            key = d.strftime("%d/%m/%Y") + ',' + f.name + ',' + str(f.id)  # To serialize as JSON
             week_avail[key], booked_hours = curr_rng, []
 
             for h in curr_rng:
@@ -296,4 +324,8 @@ def _generate_range(fromm=datetime(2020, 1, 1, 9, 00), to=datetime(2020, 1, 1, 2
     # We consider default opening hours from 9h to 21h.
     return pd.date_range(fromm.strftime("%H:%M"), to.strftime("%H:%M"),
                          freq='H').strftime("%H:%M").tolist()
-
+  
+  
+def _handle_ajax(data):
+    day_list = data.split('/')
+    return _get_week(date(int(day_list[2]), int(day_list[1]), int(day_list[0])))
