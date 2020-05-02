@@ -8,4 +8,7 @@ urlpatterns = [
     path('incidences/', IncidencesListView.as_view(), name='incidences_list'),
     path('incidences/<int:pk>/', incidence_done, name='incidence_done'),
     path('bookings/', BookingListView.as_view(), name='booking_list'),
+    path('add_incidence/', create_incidence, name='incidence'),
+    path('notification/', affected_bookings_asjson, name='notification')
+
 ]

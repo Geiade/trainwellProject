@@ -94,22 +94,6 @@ def signout(request):
     return redirect('/')
 
 
-def createIncidence(request):
-    form = IncidenceForm()
-
-    if request.method == "POST":
-        print("Method POSt")
-        form = IncidenceForm(request.POST)
-        if form.is_valid():
-            if form.cleaned_data['limit_date'] >= date.today():
-                form.save()
-                return redirect(reverse('trainwell:dashboard'))
-
-    else:
-        form = IncidenceForm()
-    return render(request, 'trainWellApp/addIncidence.html', {'form': form})
-
-
 # WizardView data
 SelectionFormSet = formset_factory(BookingForm2, extra=15)
 BOOK_FORMS = [("0", BookingForm1), ("1", SelectionFormSet)]

@@ -1,16 +1,15 @@
 function getAffected(url, created) {
 
     let values = {};
-    $.each($('#formulari').serializeArray(), function (i, field) {
-        if (field.name == 'places') {
-            values[field.name] += field.value + ','
-
-        } else {
-            values[field.name] = field.value;
-        }
-
+    let form = $('#formo');
+    $.each(form.serializeArray(), function (i, field)
+    {
+        if (field.name === 'places') values[field.name] += field.value + ','
+        else values[field.name] = field.value;
     });
+
     if (values['disabled']) {
+
         $.ajax({
                 url: url,
                 data: {
@@ -22,17 +21,11 @@ function getAffected(url, created) {
                     "X-Requested-With": "XMLHttpRequest"
                 },
                 success: function (data) {
-                    let resultat = confirm('Bookings affected: ' + data)
-
-                    if (resultat)
-                        $('#formulari').submit()
-                    else
-                        return false
+                    if (confirm('Bookings affected: ' + data)) form.submit()
+                    else return false
                 }
             }
         );
     }
-    else {
-        $('#formulari').submit()
-    }
+    else form.submit()
 }
