@@ -54,6 +54,11 @@ class PlannerForm(ModelForm):
 
 # Creation of a booking made in two steps.
 class BookingForm1(ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(BookingForm1, self).__init__(*args, **kwargs)
+        self.fields['event'].required = True
+
     class Meta:
         model = Booking
         fields = ['name', 'phone_number', 'event', 'planner']

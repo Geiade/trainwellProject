@@ -17,7 +17,7 @@ from django.urls import reverse
 from django.views.generic import ListView, DetailView
 from django.conf import settings
 
-from trainWellApp.models import Booking, Planner, Selection, Place
+from trainWellApp.models import Booking, Planner, Selection, Place, Event
 from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2
 
 
@@ -114,8 +114,13 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
             # TODO, bug, event=none, when cancel add booking or accessing by url
 
             ajax_data = self.request.GET.get('week')  # If ajax request, sends week.
-            week = _handle_ajax(ajax_data) if ajax_data else _get_week(datetime.now())
-            week_avail, open_hours, public_days = _get_availability(event, week)
+            if ajax_data:
+                day_list = ajax_data.split('/')
+                week = _get_week(date(int(day_list[2]), int(day_list[1]), int(day_list[0])))
+
+            else: week = _get_week(datetime.now())
+
+            week_avail, open_hours = _get_availability(event, week)
             weekdays = week.days()
 
             context.update({'week_avail': week_avail,
@@ -123,7 +128,7 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
                             'hours': open_hours,
                             'next_week': (weekdays[0] + timedelta(days=7)).strftime("%d/%m/%Y"),
                             'previous_week': (weekdays[0] - timedelta(days=7)).strftime("%d/%m/%Y"),
-                            'public_days': public_days,
+                            'public_days': _get_public_days(week),
                             'isajax': isajax_req(self.request)})
 
         return context
@@ -232,17 +237,16 @@ def _get_availability(event, week):
     public_days = _get_public_days(week)
     booked_dates = _get_week_bookings(week)
     ranges = _get_places_ranges(event)
-    dates_rng = ranges.keys()
-
     def_rng = _generate_range()
+
     # TO-DO incidències
     for d in weekdays:
 
         curr_rng = def_rng
-        for rng in dates_rng:
+        for rng in ranges.keys():
             if rng[0] <= d <= rng[1]:
                 open_hours.append(tuple(ranges.get(rng)))
-                curr_rng = ranges.get(rng)
+                curr_rng = ranges.get(rng).copy()
 
         # No availability for holidays and weekdays lower today.
         now = datetime.now()
@@ -253,8 +257,9 @@ def _get_availability(event, week):
 
         # Can book from now + 2 hours minimum.
         if d == now.date():
-            _tonow = _generate_range(datetime(2020, 1, 1, int(curr_rng.pop(0).split(":")[0]), 00), hour_plus2)
-            curr_rng = list(set(curr_rng) - set(_tonow))
+            _tonow = _generate_range(datetime(2020, 1, 1, int(curr_rng.copy().pop(0).
+                                                              split(":")[0]), 00), hour_plus2)
+            if _tonow: curr_rng = list(set(curr_rng) - set(_tonow))
 
         for f in all_places:
             key = d.strftime("%d/%m/%Y") + ',' + f.name + ',' + str(f.id)  # To serialize as JSON
@@ -269,7 +274,7 @@ def _get_availability(event, week):
 
         if len(week_avail) is complete_week: break
 
-    return json.dumps(week_avail), open_hours, public_days
+    return json.dumps(week_avail), open_hours
 
 
 def _get_week_bookings(week):
@@ -319,11 +324,8 @@ def _generate_range(fromm=datetime(2020, 1, 1, 9, 00), to=datetime(2020, 1, 1, 2
     # We consider default opening hours from 9h to 21h.
     return pd.date_range(fromm.strftime("%H:%M"), to.strftime("%H:%M"),
                          freq='H').strftime("%H:%M").tolist()
-
-
+  
+  
 def _handle_ajax(data):
     day_list = data.split('/')
     return _get_week(date(int(day_list[2]), int(day_list[1]), int(day_list[0])))
-
-
-

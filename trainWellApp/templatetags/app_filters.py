@@ -33,5 +33,5 @@ def define(val=None):
 
 
 @register.filter
-def index(indexable, i):
-    return indexable[i]
+def tolist(object):
+    return list(object)
