@@ -1,13 +1,13 @@
 from datetime import timedelta, datetime
-
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
+import json
+
 from django.views.generic import ListView
 
 from trainWellApp.forms import EventForm
-from trainWellApp.models import Incidence
-from trainWellApp.models import Selection, Place
-from trainWellApp.views.trainwell import _generate_range, isajax_req
+from trainWellApp.models import Selection, Incidence
 
 
 def addEvent(request):
@@ -22,7 +22,7 @@ def addEvent(request):
         event_form = EventForm()
 
     args = {'event_form': event_form}
-    return render(request, 'staff/add_event.html', args)
+    return render(request, 'trainWellApp/add_event.html', args)
 
 
 def _get_affected_bookings(request, init, end, places):
@@ -67,7 +67,7 @@ def incidence_done(request, pk):
     incidence.save()
 
     return redirect(reverse('staff:incidences_list'))
-  
+
 
 # View for head of facilities
 class BookingListView(ListView):
@@ -125,3 +125,22 @@ class BookingListView(ListView):
 
         return bookings
 
+
+
+def ajax_affected(request):
+    list_places = []
+    ajax_created = request.GET.get('created').split('-')
+    ajax_limit_date = request.GET.get('limit_date').split('-')
+    ajax_places = request.GET.get('places').split(',')
+    init = datetime(int(ajax_created[0]), int(ajax_created[1]), int(ajax_created[2])).date()
+    end = datetime(int(ajax_limit_date[0]), int(ajax_limit_date[1]), int(ajax_limit_date[2])).date()
+    for place in ajax_places:
+        if place:
+            list_places.append(int(place))
+    result = _get_affected_bookings(request, init, end, list_places)
+    json_data = []
+
+    for key, value in result.items():
+        json_data.append([str(key.planner.user.first_name) , str(key.planner.user.last_name),str(key.event.name), str(key.phone_number), str(key.name)])
+
+    return JsonResponse(json.dumps(json_data),safe=False)

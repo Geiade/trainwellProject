@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 
-from trainWellApp.models import Booking, Event, Planner, Selection
+from trainWellApp.models import Booking, Event, Planner, Selection, Incidence
 
 
 class UserForm(UserCreationForm):
@@ -105,3 +105,10 @@ class OwnAuthenticationForm(AuthenticationForm):
                     return user
             except User.DoesNotExist:
                 return None
+
+
+class IncidenceForm(ModelForm):
+
+    class Meta:
+        model = Incidence
+        fields = ['name', 'description', 'limit_date', 'disabled','places']

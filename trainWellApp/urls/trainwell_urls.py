@@ -3,6 +3,7 @@ from django.urls import path
 
 from trainWellApp import views
 from trainWellApp.views import *
+from trainWellApp.views.management import _get_affected_bookings
 
 """trainwell URL Configuration
 
@@ -30,5 +31,7 @@ urlpatterns = [
     path('booking/<int:pk>/bookingcancelation/', views.bookingcancelation, name='booking_cancelation'),
     url(r'^add_booking/(?P<step>.+)/$', booking_wizard, name='book_step'),
     url(r'^add_booking/$', booking_wizard, name='book'),
+    url('incidence/', createIncidence, name='incidence'),
     path('dashboard/', Dashboard.as_view(), name='dashboard'),
+    url('notification', ajax_affected, name='notification')
 ]

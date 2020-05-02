@@ -18,7 +18,7 @@ from django.views.generic import ListView, DetailView
 from django.conf import settings
 
 from trainWellApp.models import Booking, Planner, Selection, Place
-from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2
+from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2, IncidenceForm
 
 
 def index(request):
@@ -92,6 +92,22 @@ def signin(request):
 def signout(request):
     do_logout(request)
     return redirect('/')
+
+
+def createIncidence(request):
+    form = IncidenceForm()
+
+    if request.method == "POST":
+        print("Method POSt")
+        form = IncidenceForm(request.POST)
+        if form.is_valid():
+            if form.cleaned_data['limit_date'] >= date.today():
+                form.save()
+                return redirect(reverse('trainwell:dashboard'))
+
+    else:
+        form = IncidenceForm()
+    return render(request, 'trainWellApp/addIncidence.html', {'form': form})
 
 
 # WizardView data
@@ -257,8 +273,7 @@ def _get_availability(event, week):
 
         # Can book from now + 2 hours minimum.
         if d == now.date():
-            _tonow = _generate_range(datetime(2020, 1, 1, int(curr_rng.copy().pop(0).
-                                                              split(":")[0]), 00), hour_plus2)
+            _tonow = _generate_range(datetime(2020, 1, 1, int(curr_rng.copy().pop(0).split(":")[0]), 00), hour_plus2)
             if _tonow: curr_rng = list(set(curr_rng) - set(_tonow))
 
         for f in all_places:
@@ -324,8 +339,3 @@ def _generate_range(fromm=datetime(2020, 1, 1, 9, 00), to=datetime(2020, 1, 1, 2
     # We consider default opening hours from 9h to 21h.
     return pd.date_range(fromm.strftime("%H:%M"), to.strftime("%H:%M"),
                          freq='H').strftime("%H:%M").tolist()
-  
-  
-def _handle_ajax(data):
-    day_list = data.split('/')
-    return _get_week(date(int(day_list[2]), int(day_list[1]), int(day_list[0])))

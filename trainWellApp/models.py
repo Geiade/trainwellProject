@@ -97,10 +97,13 @@ class Invoice(models.Model):
 
 class Incidence(models.Model):
     name = models.CharField(max_length=30)
-    description = models.CharField(max_length=1000)
+    description = models.TextField()
     limit_date = models.DateField()
     disabled = models.BooleanField(default=False)
     done = models.BooleanField(default=False)
+    places = models.ManyToManyField(Place)
+
+    created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
     modified_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
     is_deleted = models.BooleanField(default=False)
