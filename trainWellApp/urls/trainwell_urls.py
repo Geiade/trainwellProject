@@ -33,5 +33,5 @@ urlpatterns = [
     url(r'^add_booking/$', booking_wizard, name='book'),
     url('incidence/', createIncidence, name='incidence'),
     path('dashboard/', Dashboard.as_view(), name='dashboard'),
-    url('notification', _get_affected_bookings, name='notification')
+    url('notification', ajax_affected, name='notification')
 ]

@@ -98,7 +98,8 @@ def createIncidence(request):
     form = IncidenceForm()
 
     if request.method == "POST":
-
+        print("Method POSt")
+        form = IncidenceForm(request.POST)
         if form.is_valid():
             if form.cleaned_data['limit_date'] >= date.today():
                 form.save()
