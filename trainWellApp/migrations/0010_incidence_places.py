@@ -4,15 +4,9 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('trainWellApp', '0009_merge_20200430_2324'),
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='incidence',
-            name='places',
-            field=models.ManyToManyField(to='trainWellApp.Place'),
-        ),
     ]
