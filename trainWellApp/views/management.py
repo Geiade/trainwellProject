@@ -1,5 +1,5 @@
 from datetime import timedelta, datetime, date
-from django.http import JsonResponse, Http404, HttpResponseForbidden
+from django.http import JsonResponse, Http404, HttpResponseForbidden, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.urls import reverse
 import json
@@ -7,7 +7,7 @@ import json
 from django.views.generic import ListView
 
 from trainWellApp.forms import EventForm, IncidenceForm
-from trainWellApp.models import Selection, Incidence, Place, Event, Booking
+from trainWellApp.models import Selection, Incidence, Place, Event, Booking, Notification
 from trainWellApp.views.trainwell import _generate_range, isajax_req
 
 
@@ -27,51 +27,54 @@ def addEvent(request):
 
 
 def deleteEvent(request, pk):
-    if request.method == "POST":
-        query = Event.objects.filter(pk=pk)
+    query = Event.objects.filter(pk=pk)
+
+    if query.exists():
+        event = query.first()
+
+        if event.is_deleted is True:
+            return HttpResponseBadRequest
+
+        event.is_deleted = True
+        event.save()
+
+        query = Booking.objects.filter(event=event)
 
         if query.exists():
-            event = query.first()
-            event.is_deleted = True
-            event.save()
-
-            # query = Booking.object.filter(event=event)
-            # if query.exists():
-            #    for booking in query:
-            #        notif_descr = "Canceled event (" + event.name + ")"
-            #        notification = Notification(booking=booking, description=notif_descr)
-            #        notification.save()
-        else:
-            return Http404
-
-        return redirect(reverse('staff:dashboard'))
+            for booking in query:
+                description = "Canceled event"
+                notification = Notification(booking=booking, name="", description=description)
+                notification.save()
 
     else:
-        return HttpResponseForbidden
+        return Http404
+
+    return redirect(reverse('staff:dashboard'))
 
 
 def deletePlace(request, pk):
-    if request.method == "POST":
-        query = Place.objects.filter(pk=pk)
+    query = Place.objects.filter(pk=pk)
 
+    if query.exists():
+        place = query.first()
+
+        if place.is_deleted is True:
+            return HttpResponseBadRequest
+
+        place.is_deleted = True
+        place.save()
+
+        query = Booking.objects.filter(event__places=place)
         if query.exists():
-            place = query.first()
-            place.is_deleted = True
-            place.save()
-
-            # query = Booking.object.filter(event=event)
-            # if query.exists():
-            #    for booking in query:
-            #        notif_descr = "Canceled event (" + event.name + ")"
-            #        notification = Notification(booking=booking, description=notif_descr)
-            #        notification.save()
-        else:
-            return Http404
-
-        return redirect(reverse('staff:dashboard'))
+            for booking in query:
+                description = "Canceled/Deleted " + place.name
+                notification = Notification(booking=booking, name="", description=description)
+                notification.save()
 
     else:
-        return HttpResponseForbidden
+        return Http404
+
+    return redirect(reverse('staff:dashboard'))
 
 
 def create_incidence(request):
