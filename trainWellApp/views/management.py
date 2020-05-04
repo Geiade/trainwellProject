@@ -1,5 +1,5 @@
 from datetime import timedelta, datetime, date
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.urls import reverse
 import json
@@ -7,7 +7,7 @@ import json
 from django.views.generic import ListView
 
 from trainWellApp.forms import EventForm, IncidenceForm
-from trainWellApp.models import Selection, Incidence, Place
+from trainWellApp.models import Selection, Incidence, Place, Event, Booking
 from trainWellApp.views.trainwell import _generate_range, isajax_req
 
 
@@ -24,6 +24,54 @@ def addEvent(request):
 
     args = {'event_form': event_form}
     return render(request, 'staff/add_event.html', args)
+
+
+def deleteEvent(request, pk):
+    if request.method == "POST":
+        query = Event.objects.filter(pk=pk)
+
+        if query.exists():
+            event = query.first()
+            event.is_deleted = True
+            event.save()
+
+            # query = Booking.object.filter(event=event)
+            # if query.exists():
+            #    for booking in query:
+            #        notif_descr = "Canceled event (" + event.name + ")"
+            #        notification = Notification(booking=booking, description=notif_descr)
+            #        notification.save()
+        else:
+            return Http404
+
+        return redirect(reverse('staff:dashboard'))
+
+    else:
+        return HttpResponseForbidden
+
+
+def deletePlace(request, pk):
+    if request.method == "POST":
+        query = Place.objects.filter(pk=pk)
+
+        if query.exists():
+            place = query.first()
+            place.is_deleted = True
+            place.save()
+
+            # query = Booking.object.filter(event=event)
+            # if query.exists():
+            #    for booking in query:
+            #        notif_descr = "Canceled event (" + event.name + ")"
+            #        notification = Notification(booking=booking, description=notif_descr)
+            #        notification.save()
+        else:
+            return Http404
+
+        return redirect(reverse('staff:dashboard'))
+
+    else:
+        return HttpResponseForbidden
 
 
 def create_incidence(request):
