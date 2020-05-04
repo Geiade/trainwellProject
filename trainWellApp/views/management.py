@@ -1,16 +1,19 @@
 from datetime import timedelta, datetime, date
-from django.http import JsonResponse, Http404, HttpResponseForbidden, HttpResponseBadRequest
-from django.shortcuts import render, redirect
-from django.urls import reverse
 import json
 
+from django.http import JsonResponse, Http404, HttpResponseBadRequest
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views.generic import ListView
 
+from trainWellApp.decorators import staff_required
 from trainWellApp.forms import EventForm, IncidenceForm
+from trainWellApp.mixins import StaffRequiredMixin
 from trainWellApp.models import Selection, Incidence, Place, Event, Booking, Notification
 from trainWellApp.views.trainwell import _generate_range, isajax_req
 
 
+@staff_required
 def addEvent(request):
     if request.method == "POST":
         event_form = EventForm(request.POST)
@@ -26,6 +29,7 @@ def addEvent(request):
     return render(request, 'staff/add_event.html', args)
 
 
+@staff_required
 def deleteEvent(request, pk):
     query = Event.objects.filter(pk=pk)
 
@@ -52,6 +56,7 @@ def deleteEvent(request, pk):
     return redirect(reverse('staff:dashboard'))
 
 
+@staff_required
 def deletePlace(request, pk):
     query = Place.objects.filter(pk=pk)
 
@@ -90,7 +95,7 @@ def create_incidence(request):
     return render(request, 'staff/add_incidence.html', {'form': form})
 
 
-class IncidencesListView(ListView):
+class IncidencesListView(StaffRequiredMixin, ListView):
     model = Incidence
     template_name = 'staff/incidences_list.html'
 
@@ -107,6 +112,7 @@ class IncidencesListView(ListView):
 
 
 # TO-DO owner on Incidence
+@staff_required
 def incidence_done(request, pk):
     incidence = Incidence.objects.get(pk=pk)
     incidence.done = True
@@ -116,7 +122,7 @@ def incidence_done(request, pk):
 
 
 # View for head of facilities
-class BookingListView(ListView):
+class BookingListView(StaffRequiredMixin, ListView):
     model = Selection
     template_name = 'staff/booking_list.html'
 
@@ -172,6 +178,7 @@ class BookingListView(ListView):
         return bookings
 
 
+@staff_required
 def affected_bookings_asjson(request):
     # Ajax data
     ajax_created = request.GET.get('created').split('-')
@@ -189,6 +196,7 @@ def affected_bookings_asjson(request):
     return JsonResponse(json.dumps(json_data), safe=False)
 
 
+@staff_required
 def _get_affected_bookings(request, init, end, places):
     selection = Selection.objects.filter(datetime_init__range=[init, end],
                                          booking__planner__user_id=request.user.id,
