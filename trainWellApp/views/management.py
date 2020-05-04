@@ -7,7 +7,7 @@ import json
 from django.views.generic import ListView
 
 from trainWellApp.forms import EventForm, IncidenceForm
-from trainWellApp.models import Selection, Incidence, Place
+from trainWellApp.models import Selection, Incidence, Place, Event
 from trainWellApp.views.trainwell import _generate_range, isajax_req
 
 
@@ -62,6 +62,22 @@ def incidence_done(request, pk):
     incidence.save()
 
     return redirect(reverse('staff:incidences_list'))
+
+
+class EventsListView(ListView):
+    model = Event
+    template_name = 'staff/events_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({'done': self.get_queryset1()})
+        return context
+
+    def get_queryset(self):
+        return self.model.objects.filter(done=False).order_by('created')
+
+    def get_queryset1(self):
+        return self.model.objects.filter(done=True).order_by('created')
 
 
 # View for head of facilities

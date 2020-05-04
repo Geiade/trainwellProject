@@ -111,12 +111,13 @@ class Incidence(models.Model):
     def __str__(self):
         return str(self.name) + " - " + str(self.limit_date)
 
+
 class Notification(models.Model):
-    name=models.CharField(max_length=30)
-    description=models.TextField()
-    booking=models.ForeignKey(Booking, blank=True, null=True, on_delete=models.PROTECT)
-    created=models.DateTimeField(auto_now_add=True)
-    is_deleted=models.BooleanField(default=False)
+    name = models.CharField(max_length=30)
+    description = models.TextField()
+    booking = models.ForeignKey(Booking, blank=True, null=True, on_delete=models.PROTECT)
+    created = models.DateTimeField(auto_now_add=True)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return str(self.name) + " - " + str(self.description)+ " - " + str(self.booking)
+        return str(self.name) + " - " + str(self.description) + " - " + str(self.booking)
