@@ -82,7 +82,16 @@ def signin(request):
 
             if user is not None:
                 do_login(request, user)
-                return redirect(reverse('trainwell:dashboard'))
+
+                if user.is_superuser is True:
+                    return redirect(reverse('trainwell:dashboard'))
+
+                planner = Planner.objects.get(user=user)
+                if planner.is_staff is True:
+                    return redirect(reverse('staff:dashboard'))
+                else:
+                    return redirect(reverse('trainwell:dashboard'))
+
     else:
         form = AuthenticationForm()
 
@@ -118,7 +127,8 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
                 day_list = ajax_data.split('/')
                 week = _get_week(date(int(day_list[2]), int(day_list[1]), int(day_list[0])))
 
-            else: week = _get_week(datetime.now())
+            else:
+                week = _get_week(datetime.now())
 
             week_avail, open_hours = _get_availability(event, week)
             weekdays = week.days()

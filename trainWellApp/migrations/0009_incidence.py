@@ -6,25 +6,14 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('trainWellApp', '0008_planner_is_staff'),
     ]
 
     operations = [
-        migrations.CreateModel(
-            name='Incidence',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=30)),
-                ('description', models.CharField(max_length=1000)),
-                ('limit_date', models.DateField()),
-                ('disabled', models.BooleanField(default=False)),
-                ('done', models.BooleanField(default=False)),
-                ('last_modified', models.DateTimeField(auto_now=True)),
-                ('is_deleted', models.BooleanField(default=False)),
-                ('modified_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
-            ],
+        migrations.RemoveField(
+            model_name='Incidence',
+            name="created",
         ),
     ]
