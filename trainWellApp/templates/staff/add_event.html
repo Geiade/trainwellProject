@@ -10,7 +10,8 @@
 
                     <div class="form-group" id="name">
                         <label class="font-weight-bold" for="name">Event name</label>
-                        <input name="{{ event_form.name.html_name }}" type="text" class="form-control" id="name">
+                        <input name="{{ event_form.name.html_name }}" type="text" class="form-control"
+                               value="{{ event_form.name.value }}" id="name">
 
                         {% if event_form.name.errors %}
                             {% for error in event_form.name.errors %}
@@ -25,7 +26,7 @@
                                 multiple>
                             <option disabled="disabled">--Select Places--</option>
                             {% for p in event_form.places %}
-                                <option style="display:none" value={{ p }}>{{ p }}</option>
+                                <option style="display:none">{{ p }}</option>
                             {% endfor %}
                         </select>
 
@@ -38,7 +39,11 @@
 
                     <div class="row justify-content-center">
                         <div class="col col-md-5 text-center">
-                            <input type="submit" value="{% trans "Create" %}" class="btn btn-secondary btn-lg"/>
+                            {% if edit %}
+                                <input type="submit" value="Edit" class="btn btn-secondary"/>
+                            {% else %}
+                                <input type="submit" value="{% trans "Create" %}" class="btn btn-secondary"/>
+                            {% endif %}
                         </div>
                     </div>
 

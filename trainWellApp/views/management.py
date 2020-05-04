@@ -4,10 +4,10 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 import json
 
-from django.views.generic import ListView
+from django.views.generic import ListView, UpdateView
 
 from trainWellApp.forms import EventForm, IncidenceForm
-from trainWellApp.models import Selection, Incidence, Place
+from trainWellApp.models import Selection, Incidence, Place, Event
 from trainWellApp.views.trainwell import _generate_range, isajax_req
 
 
@@ -24,6 +24,19 @@ def addEvent(request):
 
     args = {'event_form': event_form}
     return render(request, 'staff/add_event.html', args)
+
+
+class EventUpdateView(UpdateView):
+    model = Event
+    form_class = EventForm
+    template_name = 'staff/add_event.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['event_form'] = self.get_form()
+        context['edit'] = True
+        return context
+
 
 
 def create_incidence(request):
