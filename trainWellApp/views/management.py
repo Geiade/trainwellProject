@@ -40,20 +40,16 @@ def create_incidence(request):
 
 
 class IncidencesListView(ListView):
-
     model = Incidence
     template_name = 'staff/incidences_list.html'
-
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({'done': self.get_queryset1()})
         return context
 
-
     def get_queryset(self):
         return self.model.objects.filter(done=False).order_by('limit_date')
-
 
     def get_queryset1(self):
         return self.model.objects.filter(done=True).order_by('limit_date')
@@ -70,15 +66,18 @@ def incidence_done(request, pk):
 
 # View for head of facilities
 class BookingListView(ListView):
-
     model = Selection
     template_name = 'staff/booking_list.html'
-
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         day = self.get_day()
-        range_day = Place.objects.filter(available_from__lt=day, available_until__gt=day).first()
+
+        query = Place.objects.filter(available_from__lt=day, available_until__gt=day)
+        if query.exists():
+            range_day = query.first()
+        else:
+            return context
 
         context.update({'next_day': (day + timedelta(days=1)).strftime("%d/%m/%Y"),
                         'prev_day': (day - timedelta(days=1)).strftime("%d/%m/%Y"),
@@ -87,7 +86,6 @@ class BookingListView(ListView):
                         'isajax': isajax_req(self.request)})
 
         return context
-
 
     def get_queryset(self):
         bookings = {}
@@ -99,7 +97,6 @@ class BookingListView(ListView):
 
         return self.format_data(bookings)
 
-
     def get_day(self):
         ajax_data = self.request.GET.get('day')  # If ajax request, sends week.
 
@@ -110,7 +107,6 @@ class BookingListView(ListView):
             day = datetime.now()
 
         return day
-
 
     @staticmethod
     def format_data(bookings):
@@ -137,7 +133,7 @@ def affected_bookings_asjson(request):
     list_places = [int(place) for place in ajax_places if place]
     result = _get_affected_bookings(request, init, end, list_places)
     json_data = [(str(k.planner.user.first_name), str(k.planner.user.last_name),
-                 str(k.event.name), str(k.phone_number), str(k.name)) for k, v in result.items()]
+                  str(k.event.name), str(k.phone_number), str(k.name)) for k, v in result.items()]
 
     return JsonResponse(json.dumps(json_data), safe=False)
 
