@@ -36,11 +36,18 @@
                         {% endif %}
                     </div>
 
+                    <div class="form-group" id="color">
+                        <label class="font-weight-bold" for="color">Color</label>
+                        <input name="{{ event_form.color.html_name }}" type="color" class="form-control"
+                               value="{{ event_form.color.value }}" id="color">
 
-                    <div class="form-group" id="name">
-                        <label for="favcolor">Select your favorite color:</label>
-                        <input type="color" id="favcolor" name="favcolor" value="#ff0000">
+                        {% if event_form.color.errors %}
+                            {% for error in event_form.color.errors %}
+                                <small class="text-danger">{{ error|escape }}</small>
+                            {% endfor %}
+                        {% endif %}
                     </div>
+
                     <div class="row justify-content-center">
                         <div class="col col-md-5 text-center">
                             <input type="submit" value="{% trans "Create" %}" class="btn btn-secondary btn-lg"/>
