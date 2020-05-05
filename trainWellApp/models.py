@@ -73,7 +73,7 @@ class Selection(models.Model):
     datetime_init = models.DateTimeField()
 
     def __str__(self):
-        return str(self.place.name) + " - " + str(self.datetime_init)
+        return str(self.place.name) + " - " + str(self.datetime_init) + " - " + str(self.booking.name)
 
 
 class Invoice(models.Model):
