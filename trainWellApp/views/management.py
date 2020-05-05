@@ -33,13 +33,22 @@ class EventUpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['event_form'] = self.get_form()
-        context['edit'] = True
+        context.update({'event_form': self.get_form(),
+                        'curr_places': self.format_data(),
+                        'edit': True})
         return context
 
+    def get_success_url(self):
+        # TO-DO: Change reverse url when events_list is defined.
+        return reverse('staff:booking_list')
+
+    def format_data(self):
+        instance = self.get_form_kwargs()['instance']
+        return json.dumps([str(p.id) for p in instance.places.all()])
 
 
 def create_incidence(request):
+
     form = IncidenceForm()
     if request.method == "POST":
         form = IncidenceForm(request.POST)
