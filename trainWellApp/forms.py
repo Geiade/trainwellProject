@@ -75,7 +75,7 @@ class BookingForm2(ModelForm):
 class EventForm(ModelForm):
     class Meta:
         model = Event
-        fields = ['name', 'places']
+        fields = ['name', 'places', 'color']
 
 
 class OwnAuthenticationForm(AuthenticationForm):
