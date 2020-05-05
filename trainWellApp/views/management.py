@@ -7,7 +7,7 @@ import json
 from django.views.generic import ListView, UpdateView
 
 from trainWellApp.forms import EventForm, IncidenceForm
-from trainWellApp.models import Selection, Incidence, Place, Event
+from trainWellApp.models import Selection, Incidence, Place, Event, Notification, Booking
 from trainWellApp.views.trainwell import _generate_range, isajax_req
 
 
@@ -40,6 +40,23 @@ class EventUpdateView(UpdateView):
 
     def get_success_url(self):
         # TO-DO: Change reverse url when events_list is defined.
+        bookings_id = self.get_form_kwargs()['data']['bookings_affected'].split(',')
+        bookings_id = [x for x in bookings_id if x != '']
+        description = "Edited event available places"
+
+
+        if bookings_id:
+            for e in bookings_id:
+                # Cancel bookings.
+                booking = Booking.objects.get(id=int(e))
+                booking.is_deleted = True
+                booking.save()
+
+                # Create notifications to advertise planners.
+                title = "Canceled " + booking.name
+                instance = Notification(name=title, description=description, booking=booking)
+                instance.save()
+
         return reverse('staff:booking_list')
 
     def format_data(self):
@@ -155,7 +172,7 @@ def affected_bookings_asjson(request):
     list_places = [int(place) for place in ajax_places if place]
     result = _get_affected_bookings(request, init, end, list_places)
     json_data = [(str(k.planner.user.first_name), str(k.planner.user.last_name),
-                  str(k.event.name), str(k.phone_number), str(k.name)) for k, v in result.items()]
+                  str(k.event.name), str(k.phone_number), str(k.name), str(k.id)) for k, v in result.items()]
 
     return JsonResponse(json.dumps(json_data), safe=False)
 

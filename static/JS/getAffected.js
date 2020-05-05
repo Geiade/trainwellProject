@@ -82,11 +82,17 @@ function formatAlertBox(form, data) {
     }
     html += "</ul>"
 
+    let bookings_id = []
+    data_asjson.map(function (curr) { bookings_id.push(curr[5]); })
+
     bootbox.confirm({
         title: "Bookings affected" + "<sup>" + data_asjson.length + "</sup>",
         message: html,
         callback: function (result) {
-            if (result) form.submit();
+            if (result){
+                $('#bookings_affected').attr('value',bookings_id)
+                form.submit();
+            }
         }
     });
 }
