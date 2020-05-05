@@ -80,6 +80,22 @@ class EventsListView(ListView):
         return self.model.objects.filter(done=True).order_by('created')
 
 
+class PlacesListView(ListView):
+    model = Place
+    template_name = 'staff/places_list.html.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({'done': self.get_queryset1()})
+        return context
+
+    def get_queryset(self):
+        return self.model.objects.filter(done=False).order_by('available_until')
+
+    def get_queryset1(self):
+        return self.model.objects.filter(done=True).order_by('available_until')
+
+
 # View for head of facilities
 class BookingListView(ListView):
     model = Selection

@@ -9,14 +9,6 @@
         <div class="row p-5">
 
             <h4>Events<sup id="num_in">{{ object_list|length }}</sup></h4>
-            <div class="btn-group ml-auto mb-4" role="group" aria-label="Basic example">
-                <button type="button" onclick="swipeEvents(0,{{ object_list|length }})"
-                        class="btn border btn-light text-secondary">Active
-                </button>
-                <button type="button" onclick="swipeEvents(1,{{ done|length }})"
-                        class="btn border btn-light text-secondary">Done
-                </button>
-            </div>
 
             {% for event in object_list %}
                 <div style="border-radius: 25px;" class="card col-12 border-0 shadow-sm p-4 my-3 inpg">
@@ -34,31 +26,19 @@
                         </div>
                         <div class="col-sm-4 text-center">
                             <a type="button" class="btn btn-warning text-white rounded-pill">Edit</a>
-                            <a style="background: #e4e4e4" type="button" href="{% url "staff:incidence_done" incidence.id %}"
-                               onclick="return confirm('Are you sure?')" class="btn btn-light text-muted rounded-circle">
+                            <a style="background: #e4e4e4" type="button" href="{% url "staff:dashboard" event.id %}"
+                               onclick="return confirm('Are you sure?')"
+                               class="btn btn-light text-muted rounded-circle">
                                 <i class="fas fa-check"></i></a>
                         </div>
-                    </div>
-                </div>
-            {% endfor %}
 
-
-            {% for event in done %}
-                <div style="border-radius: 25px;display: none" class="card col-12 border-0 shadow-sm p-3 my-3 done">
-                    <div class="row">
-                        <div class="col-sm-4">
-                            <h6 class="card-title mb-1">{{ event.name }}</h6>
-                            <p class="card-text text-muted" data-toggle="popover" data-trigger="hover"
-                               data-title="Description" data-content="{{ event.places }}">
-                                {{ event.places | truncatechars:30 }}</p>
-                        </div>
-
-                        <div class="col-sm-2 text-center">
-                            <small class="text-muted">Created<br>{{ event.created|date:"d-m-Y" }}</small>
-                        </div>
                         <div class="col-sm-4 text-center">
-                            <small class="badge badge-success">Solved</small><br>
-                            <small class="text-muted">{{ event.last_modified|date:"d-m-Y" }}</small>
+                            <a type="button" class="btn btn-warning text-white rounded-pill">Cancel</a>
+                            <a style="background: #e4e4e4" type="button"
+                               href="{% url "staff:incidence_done" event.id %}"
+                               onclick="return confirm('Are you sure?')"
+                               class="btn btn-light text-muted rounded-circle">
+                                <i class="fas fa-check"></i></a>
                         </div>
                     </div>
                 </div>
@@ -66,24 +46,5 @@
 
         </div>
     </section>
-
-    <script id="popover_script" type="text/javascript">
-        $(document).ready(function () {
-            $('[data-toggle="popover"]').popover();
-        });
-
-        function swipeEvents(type, len) {
-
-            if (type === 0) {
-                $(".done").css("display", "none")
-                $(".inpg").css("display", "")
-                $("#num_in").html(len)
-            } else {
-                $(".inpg").css("display", "none")
-                $(".done").css("display", "")
-                $("#num_in").html(len)
-            }
-        }
-    </script>
 
 {% endblock %}
