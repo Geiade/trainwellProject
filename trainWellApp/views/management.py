@@ -27,6 +27,21 @@ def addEvent(request):
     args = {'event_form': event_form}
     return render(request, 'staff/add_event.html', args)
 
+@staff_required
+def addPlace(request):
+    if request.method == "POST":
+        place_form = Place(request.POST)
+
+        if place_form.is_valid():
+            place_form.save()
+            return redirect(reverse('staff:places'))
+
+    else:
+        event_form = EventForm()
+
+    args = {'event_form': event_form}
+    return render(request, 'staff/add_event.html', args)
+
 
 @staff_required
 def deleteEvent(request, pk):

@@ -15,5 +15,6 @@ urlpatterns = [
     path('bookings/', BookingListView.as_view(), name='booking_list'),
     path('add_incidence/', create_incidence, name='incidence'),
     path('notification/', affected_bookings_asjson, name='notification'),
+    path('add_places/', addPlaces, name="add_places"),
     path('delete_place/<int:pk>/', deletePlace, name="delete_place"),
 ]
