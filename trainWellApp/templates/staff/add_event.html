@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load app_filters %}
 {% load i18n %}
 {% block body_block %}
@@ -10,7 +11,8 @@
 
                     <div class="form-group" id="name">
                         <label class="font-weight-bold" for="name">Event name</label>
-                        <input name="{{ event_form.name.html_name }}" type="text" class="form-control" id="name">
+                        <input name="{{ event_form.name.html_name }}" type="text" class="form-control"
+                               value="{{ event_form.name.value }}" id="name">
 
                         {% if event_form.name.errors %}
                             {% for error in event_form.name.errors %}
@@ -25,7 +27,7 @@
                                 multiple>
                             <option disabled="disabled">--Select Places--</option>
                             {% for p in event_form.places %}
-                                <option style="display:none" value={{ p }}>{{ p }}</option>
+                                <option style="display:none">{{ p }}</option>
                             {% endfor %}
                         </select>
 
@@ -35,6 +37,7 @@
                             {% endfor %}
                         {% endif %}
                     </div>
+
 
                     <div class="form-group" id="color">
                         <label class="font-weight-bold" for="color">Color</label>
@@ -48,13 +51,29 @@
                         {% endif %}
                     </div>
 
+                    <input style="display: none" id="bookings_affected" name="bookings_affected">
+
+
                     <div class="row justify-content-center">
                         <div class="col col-md-5 text-center">
-                            <input type="submit" value="{% trans "Create" %}" class="btn btn-secondary btn-lg"/>
+                            {% if edit %}
+                                <input value="Edit" class="btn btn-secondary"
+                                       onclick="return (getAffectedByEvent('{% url 'staff:notification' %}', '{% now "Y-m-d" %}'))"/>
+                            {% else %}
+                                <input type="submit" value="{% trans "Create" %}" class="btn btn-secondary"/>
+                            {% endif %}
                         </div>
                     </div>
 
                 </div>
             </div>
         </div>
+    </form>
+
+    <script type="text/javascript">
+        var curr_places = {{ curr_places|safe }}
+    </script>
+
+    <script type="text/javascript" src="{% static 'JS/getAffected.js' %}"></script>
+
 {% endblock %}

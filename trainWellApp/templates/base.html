@@ -46,39 +46,13 @@
     <script type="text/javascript" src="{% static 'JS/swipe.js' %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'CSS/style.css' %}">
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.4.0/bootbox.js"
+            integrity="sha256-vHsV98JlYVo7h9eo1BQrqWgGQDt6prGrUbKAlHfP+0Y=" crossorigin="anonymous"></script>
+
+
 <body>
 {% block header %}
-
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary p-3">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#twNavBar">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse mx-5" id="twNavBar">
-            <a class="navbar-brand font-weight-bold" href="{% url 'index' %}">TrainingWell</a>
-            <ul class="navbar-nav ml-auto">
-                {% if user.is_authenticated %}
-                    <li class="nav-item text-white align-self-center mr-4">
-                        {{ user }}
-                    </li>
-                    <li class="nav-item active">
-                        <a class="nav-link btn-sm btn-primary"
-                           href="{% url 'signout' %}"><i class="fas fa-power-off"></i></a>
-                    </li>
-                {% else %}
-                    <li class="nav-item active mr-3">
-                        <a class="nav-link btn-sm  btn-primary"
-                           href="{% url 'signin' %}">Sign In</a>
-                    </li>
-                    <li class="nav-item active">
-                        <a class="nav-link btn-sm btn-primary"
-                           href="{% url 'signup' %}">Sign Up</a></a>
-                    </li>
-                {% endif %}
-            </ul>
-
-        </div>
-    </nav>
-
+    {% include 'navbar.html' %}
 {% endblock %}
 
 {% block body_block %}
