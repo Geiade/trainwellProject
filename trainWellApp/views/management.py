@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import ListView, UpdateView
 from trainWellApp.decorators import staff_required
-from trainWellApp.forms import EventForm, IncidenceForm
+from trainWellApp.forms import EventForm, IncidenceForm, PlaceForm
 from trainWellApp.mixins import StaffRequiredMixin
 from trainWellApp.models import Selection, Incidence, Place, Event, Booking, Notification
 from trainWellApp.views.trainwell import _generate_range, isajax_req
@@ -27,20 +27,21 @@ def addEvent(request):
     args = {'event_form': event_form}
     return render(request, 'staff/add_event.html', args)
 
+
 @staff_required
 def addPlace(request):
     if request.method == "POST":
-        place_form = Place(request.POST)
+        place_form = PlaceForm(request.POST)
 
         if place_form.is_valid():
             place_form.save()
             return redirect(reverse('staff:places'))
 
     else:
-        event_form = EventForm()
+        place_form = PlaceForm()
 
-    args = {'event_form': event_form}
-    return render(request, 'staff/add_event.html', args)
+    args = {'place_form': place_form}
+    return render(request, 'staff/incidences_list.html', args)
 
 
 @staff_required
