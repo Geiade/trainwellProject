@@ -44,7 +44,6 @@ class EventUpdateView(UpdateView):
         bookings_id = [x for x in bookings_id if x != '']
         description = "Edited event available places"
 
-
         if bookings_id:
             for e in bookings_id:
                 # Cancel bookings.
@@ -65,7 +64,6 @@ class EventUpdateView(UpdateView):
 
 
 def create_incidence(request):
-
     form = IncidenceForm()
     if request.method == "POST":
         form = IncidenceForm(request.POST)
@@ -101,6 +99,30 @@ def incidence_done(request, pk):
     incidence.save()
 
     return redirect(reverse('staff:incidences_list'))
+
+
+class EventsListView(ListView):
+    model = Event
+    template_name = 'staff/events_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def get_queryset(self):
+        return self.model.objects.all().order_by('created')
+
+
+class PlacesListView(ListView):
+    model = Place
+    template_name = 'staff/places_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def get_queryset(self):
+        return self.model.objects.all().order_by('available_until')
 
 
 # View for head of facilities
