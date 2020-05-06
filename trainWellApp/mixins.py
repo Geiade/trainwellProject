@@ -17,3 +17,19 @@ class StaffRequiredMixin:
                 raise PermissionDenied
         else:
             raise PermissionDenied
+
+
+class GerentRequiredMixin:
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            try:
+                planner = Planner.objects.get(user=request.user)
+                if planner.is_gerent is True:
+                    return super().dispatch(request, *args, **kwargs)
+                else:
+                    raise PermissionDenied
+
+            except Planner.DoesNotExist:
+                raise PermissionDenied
+        else:
+            raise PermissionDenied
