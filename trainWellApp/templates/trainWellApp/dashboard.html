@@ -41,7 +41,8 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ booking.name }}</h5>
                         <h6 class="card-subtitle mb-2">
-                            <span class="badge badge-success">{{ booking.event.name }}</span></h6>
+                            <span style="background: {{ booking.event.color }}; color: white"
+                                  class="badge">{{ booking.event.name }}</span></h6>
                         <p class="card-text text-muted">
                             Day: {{ booking.get_selection.datetime_init.date }}<br>
                             Start: {{ booking.get_selection.datetime_init.time }}

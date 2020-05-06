@@ -38,6 +38,7 @@ class Place(models.Model):
 class Event(models.Model):
     name = models.CharField(max_length=30)
     places = models.ManyToManyField(Place, related_name="events")
+    color = models.CharField(max_length=16, default='#cc73e1')
 
     created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
@@ -113,9 +114,10 @@ class Incidence(models.Model):
 
 
 class Notification(models.Model):
+    booking = models.ForeignKey(Booking, blank=True, null=True, on_delete=models.PROTECT)
     name = models.CharField(max_length=30)
     description = models.TextField()
-    booking = models.ForeignKey(Booking, blank=True, null=True, on_delete=models.PROTECT)
+
     created = models.DateTimeField(auto_now_add=True)
     is_deleted = models.BooleanField(default=False)
 

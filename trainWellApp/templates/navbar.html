@@ -1,0 +1,58 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary p-3">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#twNavBar">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse px-5" id="twNavBar">
+        <a class="navbar-brand font-weight-bold" href="{% url 'index' %}">TrainingWell</a>
+        <ul class="navbar-nav ml-auto">
+            {% if user.is_authenticated %}
+
+                <li class="nav-item text-white align-self-center mr-4">
+                    {{ user }}
+                </li>
+
+                <li class="nav-item dropdown dropleft mr-1">
+                    <button class="nav-link dropdown-toggle btn btn-primary" id="navbarDropdown" role="button"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-bell border-right px-2"></i>
+                        <span class="badge badge-warning ml-2">{{ notifications|length }}</span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li class="dropdown-item font-weight-bold border-bottom mb-3">
+                            Notifications <sup class="badge badge-warning">{{ notifications|length }}</sup>
+                        </li>
+                        {% for n in notifications %}
+                            <li class="dropdown-item">
+                                <h6>{{ n.name }}</h6>
+                                <small class="text-muted" data-toggle="popover" data-trigger="hover"
+                                       data-content="{{ n.description }}">{{ n.description | truncatechars:30 }}</small>
+                                <div class="dropdown-divider"></div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+
+                <li class="nav-item align-self-center">
+                    <a class="nav-link btn-primary"
+                       href="{% url 'signout' %}"><i class="fas fa-power-off"></i></a>
+                </li>
+            {% else %}
+                <li class="nav-item active mr-3">
+                    <a class="nav-link btn-sm  btn-primary"
+                       href="{% url 'signin' %}">Sign In</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link btn-sm btn-primary"
+                       href="{% url 'signup' %}">Sign Up</a></a>
+                </li>
+            {% endif %}
+        </ul>
+
+    </div>
+</nav>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('[data-toggle="popover"]').popover();
+    });
+</script>

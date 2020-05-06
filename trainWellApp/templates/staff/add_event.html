@@ -38,6 +38,19 @@
                         {% endif %}
                     </div>
 
+
+                    <div class="form-group" id="color">
+                        <label class="font-weight-bold" for="color">Color</label>
+                        <input name="{{ event_form.color.html_name }}" type="color" class="form-control"
+                               value="{{ event_form.color.value }}" id="color">
+
+                        {% if event_form.color.errors %}
+                            {% for error in event_form.color.errors %}
+                                <small class="text-danger">{{ error|escape }}</small>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
                     <input style="display: none" id="bookings_affected" name="bookings_affected">
 
 
