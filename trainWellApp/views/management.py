@@ -277,3 +277,21 @@ def _get_affected_bookings(request, init, end, places):
             bookinglist[s.booking] = [s]
 
     return bookinglist
+
+
+class NotificationsListView(StaffRequiredMixin, ListView):
+    model = Notification
+    template_name = 'manager/notifications_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({'read': self.get_queryset1()})
+        return context
+
+
+    def get_queryset(self):
+        self.model.objects.get(is_read=False, is_deleted=False)
+
+
+    def get_queryset1(self):
+        self.model.objects.get(is_read=True, is_deleted=False)
