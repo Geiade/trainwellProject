@@ -16,9 +16,10 @@
                         <div class="col-sm-4">
                             <h6 class="card-title mb-1">{{ event.name }}</h6>
 
-                            <p class="card-text text-muted" data-toggle="popover" data-trigger="hover"
-                               data-title="Places" data-content="{{ event.places }}">
-                                {{ event.places | truncatechars:30 }}</p>
+                            {% for p in event.places.all %}
+                                <p class="places_assigned">{{ p.name }}</p>
+                            {% endfor %}
+
                         </div>
 
                         <div class="col-sm-2 text-center">
@@ -27,9 +28,9 @@
                         <div class="col-sm-4 text-center">
                             <a type="button" class="btn btn-warning text-white rounded-pill">Edit</a>
                             <a style="background: #e4e4e4" type="button" href="{% url "staff:dashboard" %}"
-                               onclick="return confirm('Are you sure?')"
-                               class="btn btn-light text-muted rounded-circle">
-                                <i class="fas fa-check"></i></a>
+                               onclick="return confirm('Are you sure?')">
+                              </a>
+
                         </div>
 
                         <div class="col-sm-4 text-center">
@@ -40,6 +41,8 @@
                                class="btn btn-light text-muted rounded-circle">
                                 <i class="fas fa-check"></i></a>
                         </div>
+
+
                     </div>
                 </div>
             {% endfor %}
