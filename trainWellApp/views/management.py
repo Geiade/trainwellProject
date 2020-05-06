@@ -49,6 +49,9 @@ def deleteEvent(request, pk):
                 notification = Notification(booking=booking, name="", description=description)
                 notification.save()
 
+                booking.is_deleted = True
+                booking.save()
+
     else:
         return Http404
 
@@ -74,6 +77,9 @@ def deletePlace(request, pk):
                 description = "Canceled/Deleted " + place.name
                 notification = Notification(booking=booking, name="", description=description)
                 notification.save()
+
+                booking.is_deleted = True
+                booking.save()
 
     else:
         return Http404

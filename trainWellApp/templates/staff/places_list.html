@@ -9,6 +9,8 @@
         <div class="row p-5">
 
             <h4>Places<sup id="num_in">{{ object_list|length }}</sup></h4>
+            <a class="btn btn-secondary ml-auto mb-4" href="#">
+                <i class="fas fa-plus mr-2"></i>Add Place </a>
 
             {% for place in object_list %}
                 <div style="border-radius: 25px;" class="card col-12 border-0 shadow-sm p-4 my-3 inpg">
@@ -18,7 +20,10 @@
 
                             <p class="card-text text-muted" data-toggle="popover" data-trigger="hover"
                                data-title="Description" data-content="{{ place.description }}">
-                                {{ place.description }}</p>
+                                {{ place.description | truncatechars:30 }}</p>
+                        </div>
+                        <div class="col-sm-2 text-center">
+                            <small class="text-muted">Price per hour<br>{{ place.price_hour }}€</small>
                         </div>
                         <div class="col-sm-2 text-center">
                             <small class="text-muted">Available from<br>{{ place.available_from|date:"d-m-Y" }}</small>
@@ -27,18 +32,12 @@
                             <small class="text-muted">Available until<br>{{ place.available_until|date:"d-m-Y" }}
                             </small>
                         </div>
-                        <div class="col-sm-4 text-center">
-                            <a type="button" class="btn btn-warning text-white rounded-pill">Edit</a>
-                            <a style="background: #e4e4e4" type="button"
-                               href="{% url "staff:dashboard"%}"
-                               onclick="return confirm('Are you sure?')">
-                               </a>
+                        <div class="col-sm-2 text-center">
+                            <a type="button" class="btn btn-primary text-white"><i class="far fa-edit"></i></a>
 
-                            <a type="button" class="btn btn-warning text-white rounded-pill">Remove</a>
-                            <a style="background: #e4e4e4" type="button"
-                               href="{% url "staff:dashboard" %}"
-                               onclick="return confirm('Are you sure?')">
-                               </a>
+                            <a type="button" class="btn btn-danger text-white"
+                               href="{% url "staff:delete_place" place.id %}"
+                               onclick="return confirm('Are you sure?')"><i class="far fa-trash-alt"></i></a>
                         </div>
 
 
