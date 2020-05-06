@@ -31,17 +31,17 @@ def addEvent(request):
 @staff_required
 def addPlace(request):
     if request.method == "POST":
-        place_form = PlaceForm(request.POST)
+        form = PlaceForm(request.POST)
 
-        if place_form.is_valid():
-            place_form.save()
-            return redirect(reverse('staff:places'))
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('staff:places_list'))
 
     else:
-        place_form = PlaceForm()
+        form = PlaceForm()
 
-    args = {'place_form': place_form}
-    return render(request, 'staff/incidences_list.html', args)
+    args = {'form': form}
+    return render(request, 'staff/add_places.html', args)
 
 
 @staff_required
@@ -100,7 +100,7 @@ def deletePlace(request, pk):
     else:
         return Http404
 
-    return redirect(reverse('staff:dashboard'))
+    return redirect(reverse('staff:places_list'))
 
 
 class EventUpdateView(StaffRequiredMixin, UpdateView):
@@ -120,6 +120,43 @@ class EventUpdateView(StaffRequiredMixin, UpdateView):
         bookings_id = self.get_form_kwargs()['data']['bookings_affected'].split(',')
         bookings_id = [x for x in bookings_id if x != '']
         description = "Edited event available places"
+
+        if bookings_id:
+            for e in bookings_id:
+                # Cancel bookings.
+                booking = Booking.objects.get(id=int(e))
+                booking.is_deleted = True
+                booking.save()
+
+                # Create notifications to advertise planners.
+                title = "Canceled " + booking.name
+                instance = Notification(name=title, description=description, booking=booking)
+                instance.save()
+
+        return reverse('staff:booking_list')
+
+    def format_data(self):
+        instance = self.get_form_kwargs()['instance']
+        return json.dumps([str(p.id) for p in instance.places.all()])
+
+
+class PlaceUpdateView(StaffRequiredMixin, UpdateView):
+    model = Place
+    form_class = PlaceForm
+    template_name = 'staff/places_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({'event_form': self.get_form(),
+                        'curr_places': self.format_data(),
+                        'edit': True})
+        return context
+
+    def get_success_url(self):
+        # TO-DO: Change reverse url when events_list is defined.
+        bookings_id = self.get_form_kwargs()['data']['bookings_affected'].split(',')
+        bookings_id = [x for x in bookings_id if x != '']
+        description = "Edited place available places"
 
         if bookings_id:
             for e in bookings_id:

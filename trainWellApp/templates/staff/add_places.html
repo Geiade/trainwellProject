@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body_block %}
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col col-md-5 p-3">
+
+                <h4 class="font-weight-bold py-3">Add Place</h4>
+
+                <form method="post" id="formo">
+                    <div class="form-group" id="iname">
+                        <label class="font-weight-bold" for="iname">Name</label>
+                        <input name="name" type="text" class="form-control" id="iname" required>
+
+                        {% if form.name.errors %}
+                            {% for error in form.name.errors %}
+                                <small class="text-danger">{{ error|escape }}</small>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+
+                    <div class="form-group" id="descr">
+                        <label class="font-weight-bold" for="descr">Description</label>
+                        <input name="description" type="text" class="form-control" id="descr" required>
+
+                        {% if form.description.errors %}
+                            {% for error in form.description.errors %}
+                                <small class="text-danger">{{ error|escape }}</small>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group" id="price">
+                        <label class="font-weight-bold" for="descr">Price Hour</label>
+                        <input name="price_hour" type="number" min="0" step="0.01" class="form-control" id="price" required>
+
+                        {% if form.price_hour.errors %}
+                            {% for error in form.price_hour.errors %}
+                                <small class="text-danger">{{ error|escape }}</small>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+
+                    <div class="form-group" id="from">
+                        <label class="font-weight-bold" for="from">Available_from</label>
+                        <input name="available_from" type="date" class="form-control" id="from" required>
+
+                        {% if form.available_from.errors %}
+                            {% for error in form.available_from.errors %}
+                                <small class="text-danger">{{ error|escape }}</small>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                     <div class="form-group" id="until">
+                        <label class="font-weight-bold" for="until">Available_until</label>
+                        <input name="available_until" type="date" class="form-control" id="until" required>
+
+                        {% if form.available_until.errors %}
+                            {% for error in form.available_until.errors %}
+                                <small class="text-danger">{{ error|escape }}</small>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="my-5">
+                        <input type="submit"  href="{% url 'staff:places_list' %}" onclick="return confirm('Are you sure?')"
+                                class="btn btn-block btn-secondary" value="Add Place"/>
+                    </div>
+
+
+                    {% csrf_token %}
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
