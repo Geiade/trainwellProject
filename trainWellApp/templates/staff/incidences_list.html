@@ -35,9 +35,9 @@
                             <small class="text-muted">Created<br>{{ incidence.created|date:"d-m-Y" }}</small>
                         </div>
                         <div class="col-sm-4 text-center">
-                            <a type="button" class="btn btn-warning text-white rounded-pill">Edit</a>
-                            <a style="background: #e4e4e4" type="button" href="{% url "staff:incidence_done" incidence.id %}"
-                               onclick="return confirm('Are you sure?')" class="btn btn-light text-muted rounded-circle">
+                            <a type="button" class="btn btn-primary text-white"><i class="far fa-edit"></i></a>
+                            <a  type="button" href="{% url "staff:incidence_done" incidence.id %}"
+                               onclick="return confirm('Are you sure?')" class="btn btn-success">
                                 <i class="fas fa-check"></i></a>
                         </div>
                     </div>
@@ -58,7 +58,7 @@
                             <small class="text-muted">Limit date<br>{{ incidence.limit_date|date:"d-m-Y" }}</small>
                         </div>
                         <div class="col-sm-2 text-center">
-                            <small class="text-muted">Created<br>{{ incidence.limit_date|date:"d-m-Y" }}</small>
+                            <small class="text-muted">Created<br>{{ incidence.created|date:"d-m-Y" }}</small>
                         </div>
                         <div class="col-sm-4 text-center">
                             <small class="badge badge-success">Solved</small><br>

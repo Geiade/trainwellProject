@@ -27,10 +27,10 @@
                 </button>
             </div>
             <h5 class="col-auto pl-1 v-middle">{{ day|date:"D, d F Y" }}</h5>
-            <button id="today" type="button" class="ml-auto btn btn-success btn-sm mr-3"
-                    onclick="">
+            <a id="today" type="button" class="ml-auto btn btn-secondary text-white btn-sm mr-3"
+                    href="{% url 'staff:incidence' %}">
                 <i class="fas fa-plus mr-2"></i>Incidence
-            </button>
+            </a>
         </div>
 
         {% for h in hours %}

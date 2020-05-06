@@ -65,6 +65,9 @@ def deleteEvent(request, pk):
                 notification = Notification(booking=booking, name="", description=description)
                 notification.save()
 
+                booking.is_deleted = True
+                booking.save()
+
     else:
         return Http404
 
@@ -90,6 +93,9 @@ def deletePlace(request, pk):
                 description = "Canceled/Deleted " + place.name
                 notification = Notification(booking=booking, name="", description=description)
                 notification.save()
+
+                booking.is_deleted = True
+                booking.save()
 
     else:
         return Http404
@@ -134,6 +140,7 @@ class EventUpdateView(StaffRequiredMixin, UpdateView):
         return json.dumps([str(p.id) for p in instance.places.all()])
 
 
+@staff_required
 def create_incidence(request):
     form = IncidenceForm()
     if request.method == "POST":
@@ -173,7 +180,7 @@ def incidence_done(request, pk):
     return redirect(reverse('staff:incidences_list'))
 
 
-class EventsListView(ListView):
+class EventsListView(StaffRequiredMixin, ListView):
     model = Event
     template_name = 'staff/events_list.html'
 
@@ -185,7 +192,7 @@ class EventsListView(ListView):
         return self.model.objects.all().order_by('created')
 
 
-class PlacesListView(ListView):
+class PlacesListView(StaffRequiredMixin, ListView):
     model = Place
     template_name = 'staff/places_list.html'
 
