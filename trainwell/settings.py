@@ -127,3 +127,4 @@ LOGIN_URL = '/accounts/signin/'
 LOGIN_REDIRECT_URL = '/accounts/signin/'
 
 STAFF_CODE = "MODELSDEPROCES"
+GERENT_CODE = "MODELSDEPROCES"
