@@ -17,7 +17,7 @@ from django.urls import reverse
 from django.views.generic import ListView, DetailView
 from django.conf import settings
 
-from trainWellApp.models import Booking, Planner, Selection, Place
+from trainWellApp.models import Booking, Planner, Selection, Place, Notification
 from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2, IncidenceForm
 
 
@@ -180,6 +180,12 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
                     instance.booking = booking
                     instance.save()
 
+        # Create a notification for manager department.
+        name = "New booking: " + booking.name
+        description = booking.planner.user.username + " created new booking"
+        notification = Notification(name=name, description=description, booking=booking)
+        notification.save()
+
         return redirect(reverse('trainwell:dashboard'))
 
 
@@ -208,6 +214,13 @@ def bookingcancelation(request, pk):
         booking = booking_query.first()
         booking.is_deleted = True
         booking.save()
+
+        # Create a notification for manager department.
+        name = "Canceled booking: " + booking.name
+        description = booking.planner.user.username + " has canceled a booking"
+        notification = Notification(name=name, description=description, booking=booking)
+        notification.save()
+
     else:
         return Http404
 
