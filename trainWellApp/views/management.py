@@ -147,28 +147,11 @@ class PlaceUpdateView(StaffRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update({'form': self.get_form(),
-                        'edit': True})
+        context.update({'edit': True})
+
         return context
 
     def get_success_url(self):
-        # TO-DO: Change reverse url when events_list is defined.
-        bookings_id = self.get_form_kwargs()['data']['bookings_affected'].split(',')
-        bookings_id = [x for x in bookings_id if x != '']
-        description = "Edited place available places"
-
-        if bookings_id:
-            for e in bookings_id:
-                # Cancel bookings.
-                booking = Booking.objects.get(id=int(e))
-                booking.is_deleted = True
-                booking.save()
-
-                # Create notifications to advertise planners.
-                title = "Canceled " + booking.name
-                instance = Notification(name=title, description=description, booking=booking)
-                instance.save()
-
         return reverse('staff:places_list')
 
 

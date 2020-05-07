@@ -1,6 +1,6 @@
 function getAffected(url, created) {
 
-    let form = $('#formo');
+    let form = $('#form');
     let values = buildForm(form)
 
     if (values['disabled']) {
