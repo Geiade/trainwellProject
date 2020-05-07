@@ -50,13 +50,19 @@ def signup(request):
                 if planner_form.cleaned_data['staff_code'] == settings.STAFF_CODE:
                     is_staff = True
                 else:
-                    return redirect(reverse('index'))
+                    user_form = UserForm()
+                    planner_form = PlannerForm()
+                    args = {'user_form': user_form, 'planner_form': planner_form}
+                    return render(request, 'accounts/signup.html', args)
 
             if planner_form.cleaned_data["is_gerent"] is True:
                 if planner_form.cleaned_data['gerent_code'] == settings.GERENT_CODE:
                     is_gerent = True
                 else:
-                    return redirect(reverse('index'))
+                    user_form = UserForm()
+                    planner_form = PlannerForm()
+                    args = {'user_form': user_form, 'planner_form': planner_form}
+                    return render(request, 'accounts/signup.html', args)
 
             user = user_form.save()
             planner = planner_form.save(commit=False)
