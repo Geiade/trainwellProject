@@ -60,6 +60,7 @@ class BookingForm1(ModelForm):
     def __init__(self, *args, **kwargs):
         super(BookingForm1, self).__init__(*args, **kwargs)
         self.fields['event'].required = True
+        self.fields['event'].queryset = Event.objects.filter(is_deleted=False)
 
     class Meta:
         model = Booking

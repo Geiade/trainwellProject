@@ -19,7 +19,7 @@ def addEvent(request):
 
         if event_form.is_valid():
             event_form.save()
-            return redirect(reverse('trainwell:dashboard'))
+            return redirect(reverse('staff:events_list'))
 
     else:
         event_form = EventForm()
@@ -54,6 +54,7 @@ def deleteEvent(request, pk):
         if event.is_deleted is True:
             return HttpResponseBadRequest
 
+        event.places.clear()
         event.is_deleted = True
         event.save()
 
@@ -73,7 +74,7 @@ def deleteEvent(request, pk):
     else:
         return Http404
 
-    return redirect(reverse('staff:dashboard'))
+    return redirect(reverse('staff:events_list'))
 
 
 @staff_required

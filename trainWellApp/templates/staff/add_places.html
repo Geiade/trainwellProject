@@ -48,9 +48,9 @@
 
 
                     <div class="form-group" id="from">
-                        <label class="font-weight-bold" for="from">Available_from</label>
-                        <input name="{{ form.available_from.html_name }}" type="date" class="form-control"
-                               value="{{ form.available_from.value|date:"Y-m-d" }}" id="from">
+                        <label class="font-weight-bold" for="available_from">Available_from</label>
+                        <input type="date" name="{{ form.available_from.html_name }}" class="form-control"
+                               value="{{ form.available_from.value|date:"Y-m-d" }}" id="available_from">
 
                         {% if form.available_from.errors %}
                             {% for error in form.available_from.errors %}
@@ -60,9 +60,9 @@
                     </div>
 
                     <div class="form-group" id="until">
-                        <label class="font-weight-bold" for="until">Available_until</label>
-                        <input name="{{ form.available_until.html_name }}" type="date" class="form-control"
-                               value="{{ form.available_until.value|date:"Y-m-d" }}" id="until">
+                        <label class="font-weight-bold" for="available_until">Available_until</label>
+                        <input type="date" name="{{ form.available_until.html_name }}" class="form-control"
+                               id="available_until" value="{{ form.available_until.value|date:"Y-m-d" }}">
 
                         {% if form.available_until.errors %}
                             {% for error in form.available_until.errors %}
@@ -79,7 +79,6 @@
                                        onclick="return confirm('Do you want to edit?')">
                             {% else %}
                                 <input type="submit" href="{% url 'staff:places_list' %}"
-                                       onclick="return confirm('Are you sure?')"
                                        class="btn btn-block btn-secondary" value="Add Place"/>
                             {% endif %}
                         </div>
@@ -94,3 +93,4 @@
 
 
 {% endblock %}
+
