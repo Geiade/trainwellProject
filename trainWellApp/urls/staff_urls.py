@@ -18,6 +18,7 @@ urlpatterns = [
 
     path('incidences/<int:pk>/', incidence_done, name='incidence_done'),
     path('add_incidence/', create_incidence, name='incidence'),
+    path('edit_incidence/<int:pk>/', IncidenceUpdateView.as_view(), name='edit_incidence'),
     path('notification/', affected_bookings_asjson, name='notification'),
     path('delete_place/<int:pk>/', deletePlace, name="delete_place"),
 ]

@@ -138,6 +138,17 @@ def create_incidence(request):
     return render(request, 'staff/add_incidence.html', {'form': form})
 
 
+class IncidenceUpdateView(StaffRequiredMixin, UpdateView):
+    model = Incidence
+    form_class = IncidenceForm
+    template_name = 'staff/add_incidence.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({'IncidenceForm': self.get_form(),
+                        'edit': True})
+        return context
+
 class IncidencesListView(StaffRequiredMixin, ListView):
     model = Incidence
     template_name = 'staff/incidences_list.html'
