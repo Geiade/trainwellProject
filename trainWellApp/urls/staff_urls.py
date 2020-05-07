@@ -18,6 +18,6 @@ urlpatterns = [
     path('add_incidence/', create_incidence, name='incidence'),
     path('notification/', affected_bookings_asjson, name='notification'),
     path('add_place/', addPlace, name="add_place"),
-    path('edit_place/', PlaceUpdateView.as_view(), name="edit_place"),
+    path('edit_place/<int:pk>/', PlaceUpdateView.as_view(), name="edit_place"),
     path('delete_place/<int:pk>/', deletePlace, name="delete_place"),
 ]

@@ -82,7 +82,7 @@ def deletePlace(request, pk):
         place = query.first()
 
         if place.is_deleted is True:
-            return HttpResponseBadRequest
+            return HttpResponseBadRequest()
 
         place.is_deleted = True
         place.save()
@@ -133,7 +133,7 @@ class EventUpdateView(StaffRequiredMixin, UpdateView):
                 instance = Notification(name=title, description=description, booking=booking)
                 instance.save()
 
-        return reverse('staff:booking_list')
+        return reverse('staff:events_list')
 
     def format_data(self):
         instance = self.get_form_kwargs()['instance']
@@ -143,12 +143,11 @@ class EventUpdateView(StaffRequiredMixin, UpdateView):
 class PlaceUpdateView(StaffRequiredMixin, UpdateView):
     model = Place
     form_class = PlaceForm
-    template_name = 'staff/places_list.html'
+    template_name = 'staff/add_places.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update({'event_form': self.get_form(),
-                        'curr_places': self.format_data(),
+        context.update({'form': self.get_form(),
                         'edit': True})
         return context
 
@@ -170,11 +169,7 @@ class PlaceUpdateView(StaffRequiredMixin, UpdateView):
                 instance = Notification(name=title, description=description, booking=booking)
                 instance.save()
 
-        return reverse('staff:booking_list')
-
-    def format_data(self):
-        instance = self.get_form_kwargs()['instance']
-        return json.dumps([str(p.id) for p in instance.places.all()])
+        return reverse('staff:places_list')
 
 
 @staff_required

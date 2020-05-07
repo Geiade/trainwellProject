@@ -1,16 +1,18 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load app_filters %}
+{% load i18n %}
 {% block body_block %}
-    <div class="container my-5">
-        <div class="row justify-content-center">
-            <div class="col col-md-5 p-3">
+    <form id="formo" method="post">{% csrf_token %}
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col col-md-5 p-3">
+                    <h4 class="font-weight-bold py-3">Place</h4>
 
-                <h4 class="font-weight-bold py-3">Add Place</h4>
-
-                <form method="post" id="formo">
-                    <div class="form-group" id="iname">
-                        <label class="font-weight-bold" for="iname">Name</label>
-                        <input name="name" type="text" class="form-control" id="iname" required>
+                    <div class="form-group" id="name">
+                        <label class="font-weight-bold" for="name">Place Name</label>
+                        <input name="{{ form.name.html_name }}" type="text" class="form-control"
+                               value="{{ form.name.value }}" id="name">
 
                         {% if form.name.errors %}
                             {% for error in form.name.errors %}
@@ -22,7 +24,8 @@
 
                     <div class="form-group" id="descr">
                         <label class="font-weight-bold" for="descr">Description</label>
-                        <input name="description" type="text" class="form-control" id="descr" required>
+                        <input name="{{ form.description.html_name }}" type="text" class="form-control"
+                               value="{{ form.description.value }}" id="descr">
 
                         {% if form.description.errors %}
                             {% for error in form.description.errors %}
@@ -32,8 +35,9 @@
                     </div>
 
                     <div class="form-group" id="price">
-                        <label class="font-weight-bold" for="descr">Price Hour</label>
-                        <input name="price_hour" type="number" min="0" step="0.01" class="form-control" id="price" required>
+                        <label class="font-weight-bold" for="price">Price Hour</label>
+                        <input name="{{ form.price_hour.html_name }}" type="number" min="0" step="0.01" class="form-control"
+                               value="{{ form.price_hour.value }}" id="price">
 
                         {% if form.price_hour.errors %}
                             {% for error in form.price_hour.errors %}
@@ -45,7 +49,8 @@
 
                     <div class="form-group" id="from">
                         <label class="font-weight-bold" for="from">Available_from</label>
-                        <input name="available_from" type="date" class="form-control" id="from" required>
+                        <input name="{{ form.available_from.html_name }}" type="date" class="form-control"
+                               value="{{ form.available_from.value }}" id="from">
 
                         {% if form.available_from.errors %}
                             {% for error in form.available_from.errors %}
@@ -54,9 +59,10 @@
                         {% endif %}
                     </div>
 
-                     <div class="form-group" id="until">
+                    <div class="form-group" id="until">
                         <label class="font-weight-bold" for="until">Available_until</label>
-                        <input name="available_until" type="date" class="form-control" id="until" required>
+                        <input name="{{ form.available_until.html_name }}" type="date" class="form-control"
+                               value="{{ form.available_until.value }}" id="until">
 
                         {% if form.available_until.errors %}
                             {% for error in form.available_until.errors %}
@@ -65,17 +71,26 @@
                         {% endif %}
                     </div>
 
-                    <div class="my-5">
-                        <input type="submit"  href="{% url 'staff:places_list' %}" onclick="return confirm('Are you sure?')"
-                                class="btn btn-block btn-secondary" value="Add Place"/>
+
+                    <div class="row justify-content-center">
+                        <div class="col col-md-5 text-center">
+                            {% if edit %}
+                                <input value="Edit" class="btn btn-secondary" href="{% url 'staff:places_list' %}"
+                                       onclick="return confirm('Do you want to edit?')">
+                            {% else %}
+                                <input type="submit" href="{% url 'staff:places_list' %}"
+                                       onclick="return confirm('Are you sure?')"
+                                       class="btn btn-block btn-secondary" value="Add Place"/>
+                            {% endif %}
+                        </div>
                     </div>
 
 
-                    {% csrf_token %}
-                </form>
+                </div>
             </div>
         </div>
-    </div>
+
+    </form>
 
 
 {% endblock %}
