@@ -279,7 +279,8 @@ def _get_affected_bookings(request, init, end, places):
     return bookinglist
 
 
-class NotificationsListView(StaffRequiredMixin, ListView):
+# TO-DO: Add ManagerRequiredMixin
+class NotificationsListView(ListView):
     model = Notification
     template_name = 'manager/notifications_list.html'
 
@@ -290,8 +291,8 @@ class NotificationsListView(StaffRequiredMixin, ListView):
 
 
     def get_queryset(self):
-        self.model.objects.get(is_read=False, is_deleted=False)
+        self.model.objects.filter(is_read=False, is_deleted=False)
 
 
     def get_queryset1(self):
-        self.model.objects.get(is_read=True, is_deleted=False)
+        self.model.objects.filter(is_read=True, is_deleted=False)
