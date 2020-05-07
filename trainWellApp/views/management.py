@@ -294,10 +294,9 @@ class NotificationsListView(ListView):
         context.update({'read': self.get_queryset1()})
         return context
 
-
+    # TO-DO order query
     def get_queryset(self):
         return self.model.objects.filter(is_read=False, is_deleted=False)
-
 
     def get_queryset1(self):
         return self.model.objects.filter(is_read=True, is_deleted=False)
