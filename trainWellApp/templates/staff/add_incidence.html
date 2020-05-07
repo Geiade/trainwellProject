@@ -10,7 +10,7 @@
                 <form method="post" id="formo">
                     <div class="form-group" id="iname">
                         <label class="font-weight-bold" for="iname">Name</label>
-                        <input name="name" type="text" class="form-control" id="iname" required>
+                        <input name="name" type="text" class="form-control" value="{{ IncidenceForm.name.value }}" id="iname" required>
 
                         {% if IncidenceForm.name.errors %}
                             {% for error in IncidenceForm.name.errors %}
@@ -22,7 +22,7 @@
 
                     <div class="form-group" id="descr">
                         <label class="font-weight-bold" for="descr">Description</label>
-                        <input name="description" type="text" class="form-control" id="descr" required>
+                        <input name="description" type="text" class="form-control" value="{{ IncidenceForm.description.value }}" id="descr" required>
 
                         {% if IncidenceForm.description.errors %}
                             {% for error in IncidenceForm.description.errors %}
@@ -34,7 +34,7 @@
 
                     <div class="form-group" id="limit">
                         <label class="font-weight-bold" for="limit">Limit Date</label>
-                        <input name="limit_date" type="date" class="form-control" id="limit" required>
+                        <input name="limit_date" type="date" class="form-control" value="{{ IncidenceForm.limit_date.value }}" id="limit" required>
 
                         {% if IncidenceForm.limit_date.errors %}
                             {% for error in IncidenceForm.event.errors %}
@@ -44,7 +44,7 @@
                     </div>
 
                     <div class="form-group custom-control custom-checkbox">
-                        <input name="disabled" type="checkbox" class="custom-control-input" id="disabled">
+                        <input name="disabled" type="checkbox" class="custom-control-input" value="{{ IncidenceForm.disabled.value }}" id="disabled">
                         <label class="custom-control-label" for="disabled">Disabled.</label>
                         <small id="disabled" class="form-text text-muted">If marked, some bookings may be
                             affected</small>
