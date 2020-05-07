@@ -45,11 +45,13 @@ class UserForm(UserCreationForm):
 class PlannerForm(ModelForm):
     over_18 = forms.BooleanField(required=True)
     is_staff = forms.BooleanField(required=False)
-    staff_code = forms.CharField()
+    is_gerent = forms.BooleanField(required=False)
+    staff_code = forms.CharField(required=False)
+    gerent_code = forms.CharField(required=False)
 
     class Meta:
         model = Planner
-        fields = ('over_18', 'is_staff', 'staff_code')
+        fields = ('over_18', 'is_staff', 'staff_code', 'is_gerent', 'gerent_code')
 
 
 # Creation of a booking made in two steps.
@@ -112,8 +114,9 @@ class IncidenceForm(ModelForm):
         model = Incidence
         fields = ['name', 'description', 'limit_date', 'disabled', 'places']
 
-
+        
 class PlaceForm(ModelForm):
     class Meta:
         model = Place
         fields = ['name', 'price_hour', 'available_from', 'available_until', 'description']
+

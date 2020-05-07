@@ -109,6 +109,16 @@
                         <input name="staff_code" type="password" class="form-control" id="staff_code">
                     </div>
 
+                    <div class="form-group custom-control custom-checkbox">
+                        <input name="is_gerent" type="checkbox" class="custom-control-input" id="is_gerent"
+                               onclick="showGerentCode()">
+                        <label class="custom-control-label" for="is_gerent">I'm gerent.</label>
+                    </div>
+
+                    <div class="form-group custom-control custom-checkbox" id="div_gerent_code">
+                        <label class="font-weight-bold" for="gerent_code">Gerent code</label>
+                        <input name="gerent_code" type="password" class="form-control" id="gerent_code">
+                    </div>
 
                     <div class="my-5">
                         <input type="submit" onclick="return confirm('Are you sure?')"
@@ -116,6 +126,7 @@
                     </div>
 
                     {% csrf_token %}
+
                 </form>
             </div>
         </div>
@@ -124,6 +135,7 @@
     <script>
         $(document).ready(function () {
             showStaffCode();
+            showGerentCode();
         });
 
         function showStaffCode() {
@@ -133,6 +145,16 @@
                 staff_code.style.display = "block";
             } else {
                 staff_code.style.display = "none";
+            }
+        }
+
+        function showGerentCode() {
+            let is_gerent = document.getElementById("is_gerent");
+            let gerent_code = document.getElementById("div_gerent_code");
+            if (is_gerent.checked === true) {
+                gerent_code.style.display = "block";
+            } else {
+                gerent_code.style.display = "none";
             }
         }
     </script>
