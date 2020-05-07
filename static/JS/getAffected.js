@@ -1,6 +1,6 @@
 function getAffected(url, created) {
 
-    let form = $('#form');
+    let form = $('#formo');
     let values = buildForm(form)
 
     if (values['disabled']) {
@@ -20,7 +20,8 @@ function getAffected(url, created) {
                 }
             }
         );
-    } else form.submit()
+    }
+    else form.submit()
 }
 
 function getAffectedByEvent(url, created) {
@@ -53,7 +54,6 @@ function getAffectedByEvent(url, created) {
         );
     }
 }
-
 
 function buildForm(form) {
     let values = {}

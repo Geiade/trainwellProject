@@ -16,7 +16,7 @@
                 <div style="border-radius: 25px;"
                      class="card col-12 border-0 shadow-sm p-4 my-3 inpg">
                     <div class="row">
-                        <div class="col-sm-6">
+                        <div class="col-sm-4">
                             <h6 class="card-title mb-1">{{ place.name }}</h6>
 
                             <p class="card-text text-muted" data-toggle="popover" data-trigger="hover"
@@ -36,7 +36,7 @@
                             <small class="text-muted">Available until<br>{{ place.available_until|date:"d-m-Y" }} </small>
                         </div>
 
-                        <div class="col-sm-4 ">
+                        <div class="col-sm-2 ">
                             <a type="button" href="{% url "staff:edit_place" place.id %}"
                                class="btn btn-primary"><i class="far fa-edit"></i></a>
 

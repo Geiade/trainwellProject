@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.views.generic import ListView, UpdateView
 from trainWellApp.decorators import staff_required
 from trainWellApp.forms import EventForm, IncidenceForm, PlaceForm
-from trainWellApp.mixins import StaffRequiredMixin
+from trainWellApp.mixins import StaffRequiredMixin, GerentRequiredMixin
 from trainWellApp.models import Selection, Incidence, Place, Event, Booking, Notification
 from trainWellApp.views.trainwell import _generate_range, isajax_req
 
@@ -61,8 +61,10 @@ def deleteEvent(request, pk):
 
         if query.exists():
             for booking in query:
-                description = "Canceled event"
-                notification = Notification(booking=booking, name="", description=description)
+                title = "Canceled event"
+                description = "Event " + booking.event.name + " was cancelled, and consequently" \
+                                                              "your booking " + booking.name
+                notification = Notification(booking=booking, name=title, description=description)
                 notification.save()
 
                 booking.is_deleted = True
@@ -90,8 +92,10 @@ def deletePlace(request, pk):
         query = Booking.objects.filter(event__places=place)
         if query.exists():
             for booking in query:
-                description = "Canceled/Deleted " + place.name
-                notification = Notification(booking=booking, name="", description=description)
+                title = "Canceled/Deleted " + place.name
+                description = "Place " + place.name + " was canceled/deleted, and consequently " \
+                                                      "your booking " + booking.name
+                notification = Notification(booking=booking, name=title, description=description)
                 notification.save()
 
                 booking.is_deleted = True
@@ -163,9 +167,28 @@ def create_incidence(request):
         if form.is_valid():
             if form.cleaned_data['limit_date'] >= date.today():
                 form.save()
+
+                bookings_id = request.POST['bookings_affected'].split(',')
+                bookings_id = [x for x in bookings_id if x != '']
+                description = "Incidence affects your booking"
+
+                if bookings_id:
+                    for e in bookings_id:
+                        # Cancel bookings.
+                        booking = Booking.objects.get(id=int(e))
+                        booking.is_deleted = True
+                        booking.save()
+
+                        # Create notifications to advertise planners.
+                        title = "Canceled " + booking.name
+                        instance = Notification(name=title, description=description, booking=booking)
+                        instance.save()
+
                 return redirect(reverse('staff:incidences_list'))
+
     else:
         form = IncidenceForm()
+
     return render(request, 'staff/add_incidence.html', {'form': form})
 
 
@@ -179,6 +202,10 @@ class IncidenceUpdateView(StaffRequiredMixin, UpdateView):
         context.update({'IncidenceForm': self.get_form(),
                         'edit': True})
         return context
+
+    def get_success_url(self):
+        return reverse('staff:incidences_list')
+
 
 class IncidencesListView(StaffRequiredMixin, ListView):
     model = Incidence
@@ -220,7 +247,7 @@ class EventsListView(StaffRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
-        return self.model.objects.all().order_by('created')
+        return self.model.objects.filter(is_deleted=False).order_by('created')
 
 
 class PlacesListView(StaffRequiredMixin, ListView):
@@ -232,7 +259,7 @@ class PlacesListView(StaffRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
-        return self.model.objects.all().order_by('available_until')
+        return self.model.objects.filter(is_deleted=False).order_by('available_until')
 
 
 # View for head of facilities
@@ -326,8 +353,7 @@ def _get_affected_bookings(request, init, end, places):
     return bookinglist
 
 
-# TO-DO: Add ManagerRequiredMixin
-class NotificationsListView(ListView):
+class NotificationsListView(GerentRequiredMixin, ListView):
     model = Notification
     template_name = 'manager/notifications_list.html'
 
