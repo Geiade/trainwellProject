@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load app_filters %}
+{% load i18n %}
+{% block body_block %}
+    <form id="form" method="post">{% csrf_token %}
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col col-md-5 p-3">
+                    <h4 class="font-weight-bold py-3">Place</h4>
+
+                    <div class="form-group" id="name">
+                        <label class="font-weight-bold" for="name">Place Name</label>
+                        <input name="{{ form.name.html_name }}" type="text" class="form-control"
+                               value="{{ form.name.value }}" id="name">
+
+                        {% if form.name.errors %}
+                            {% for error in form.name.errors %}
+                                <small class="text-danger">{{ error|escape }}</small>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+
+                    <div class="form-group" id="descr">
+                        <label class="font-weight-bold" for="descr">Description</label>
+                        <input name="{{ form.description.html_name }}" type="text" class="form-control"
+                               value="{{ form.description.value }}" id="descr">
+
+                        {% if form.description.errors %}
+                            {% for error in form.description.errors %}
+                                <small class="text-danger">{{ error|escape }}</small>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group" id="price">
+                        <label class="font-weight-bold" for="price">Price Hour</label>
+                        <input name="{{ form.price_hour.html_name }}" type="number" min="0" step="0.01" class="form-control"
+                               value="{{ form.price_hour.value }}" id="price">
+
+                        {% if form.price_hour.errors %}
+                            {% for error in form.price_hour.errors %}
+                                <small class="text-danger">{{ error|escape }}</small>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+
+                    <div class="form-group" id="from">
+                        <label class="font-weight-bold" for="from">Available_from</label>
+                        <input name="{{ form.available_from.html_name }}" type="date" class="form-control"
+                               value="{{ form.available_from.value }}" id="from">
+
+                        {% if form.available_from.errors %}
+                            {% for error in form.available_from.errors %}
+                                <small class="text-danger">{{ error|escape }}</small>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group" id="until">
+                        <label class="font-weight-bold" for="until">Available_until</label>
+                        <input name="{{ form.available_until.html_name }}" type="date" class="form-control"
+                               value="{{ form.available_until.value }}" id="until">
+
+                        {% if form.available_until.errors %}
+                            {% for error in form.available_until.errors %}
+                                <small class="text-danger">{{ error|escape }}</small>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+
+                    <div class="row justify-content-center">
+                        <div class="col col-md-5 text-center">
+                            {% if edit %}
+                                <input value="Edit" type="submit" class="btn btn-secondary" href="{% url 'staff:places_list' %}"
+                                       onclick="return confirm('Do you want to edit?')">
+                            {% else %}
+                                <input type="submit" href="{% url 'staff:places_list' %}"
+                                       onclick="return confirm('Are you sure?')"
+                                       class="btn btn-block btn-secondary" value="Add Place"/>
+                            {% endif %}
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+
+{% endblock %}

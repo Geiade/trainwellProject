@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import ListView, UpdateView
 from trainWellApp.decorators import staff_required
-from trainWellApp.forms import EventForm, IncidenceForm
+from trainWellApp.forms import EventForm, IncidenceForm, PlaceForm
 from trainWellApp.mixins import StaffRequiredMixin
 from trainWellApp.models import Selection, Incidence, Place, Event, Booking, Notification
 from trainWellApp.views.trainwell import _generate_range, isajax_req
@@ -26,6 +26,22 @@ def addEvent(request):
 
     args = {'event_form': event_form}
     return render(request, 'staff/add_event.html', args)
+
+
+@staff_required
+def addPlace(request):
+    if request.method == "POST":
+        form = PlaceForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('staff:places_list'))
+
+    else:
+        form = PlaceForm()
+
+    args = {'form': form}
+    return render(request, 'staff/add_places.html', args)
 
 
 @staff_required
@@ -66,7 +82,7 @@ def deletePlace(request, pk):
         place = query.first()
 
         if place.is_deleted is True:
-            return HttpResponseBadRequest
+            return HttpResponseBadRequest()
 
         place.is_deleted = True
         place.save()
@@ -84,7 +100,7 @@ def deletePlace(request, pk):
     else:
         return Http404
 
-    return redirect(reverse('staff:dashboard'))
+    return redirect(reverse('staff:places_list'))
 
 
 class EventUpdateView(StaffRequiredMixin, UpdateView):
@@ -117,11 +133,26 @@ class EventUpdateView(StaffRequiredMixin, UpdateView):
                 instance = Notification(name=title, description=description, booking=booking)
                 instance.save()
 
-        return reverse('staff:booking_list')
+        return reverse('staff:events_list')
 
     def format_data(self):
         instance = self.get_form_kwargs()['instance']
         return json.dumps([str(p.id) for p in instance.places.all()])
+
+
+class PlaceUpdateView(StaffRequiredMixin, UpdateView):
+    model = Place
+    form_class = PlaceForm
+    template_name = 'staff/add_places.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({'edit': True})
+
+        return context
+
+    def get_success_url(self):
+        return reverse('staff:places_list')
 
 
 @staff_required

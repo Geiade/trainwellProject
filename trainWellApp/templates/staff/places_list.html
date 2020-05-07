@@ -9,19 +9,23 @@
         <div class="row p-5">
 
             <h4>Places<sup id="num_in">{{ object_list|length }}</sup></h4>
-            <a class="btn btn-secondary ml-auto mb-4" href="#">
-                <i class="fas fa-plus mr-2"></i>Add Place </a>
+            <a class="btn btn-secondary ml-auto mb-4" href="{% url 'staff:add_place' %}">
+                <span class="fas fa-calendar"></span> Add Place </a>
 
             {% for place in object_list %}
-                <div style="border-radius: 25px;" class="card col-12 border-0 shadow-sm p-4 my-3 inpg">
+                <div style="border-radius: 25px;"
+                     class="card col-12 border-0 shadow-sm p-4 my-3 inpg">
                     <div class="row">
-                        <div class="col-sm-4">
+                        <div class="col-sm-6">
                             <h6 class="card-title mb-1">{{ place.name }}</h6>
 
                             <p class="card-text text-muted" data-toggle="popover" data-trigger="hover"
                                data-title="Description" data-content="{{ place.description }}">
-                                {{ place.description | truncatechars:30 }}</p>
+                                {{ place.description | truncatechars:30 }}
+                            </p>
+
                         </div>
+
                         <div class="col-sm-2 text-center">
                             <small class="text-muted">Price per hour<br>{{ place.price_hour }}€</small>
                         </div>
@@ -29,14 +33,16 @@
                             <small class="text-muted">Available from<br>{{ place.available_from|date:"d-m-Y" }}</small>
                         </div>
                         <div class="col-sm-2 text-center">
-                            <small class="text-muted">Available until<br>{{ place.available_until|date:"d-m-Y" }}
-                            </small>
+                            <small class="text-muted">Available until<br>{{ place.available_until|date:"d-m-Y" }} </small>
                         </div>
-                        <div class="col-sm-2 text-center">
-                            <a type="button" class="btn btn-primary text-white"><i class="far fa-edit"></i></a>
 
-                            <a type="button" class="btn btn-danger text-white"
-                               href="{% url "staff:delete_place" place.id %}"
+                        <div class="col-sm-4 ">
+                            <a type="button" href="{% url "staff:edit_place" place.id %}"
+                               class="btn btn-primary"><i class="far fa-edit"></i></a>
+
+
+                            <a type="button" href="{% url "staff:delete_place" place.id %}"
+                               class="btn btn-danger"
                                onclick="return confirm('Are you sure?')"><i class="far fa-trash-alt"></i></a>
                         </div>
 
@@ -44,9 +50,7 @@
                     </div>
                 </div>
             {% endfor %}
+            </div>
         </div>
     </section>
-
-
-
 {% endblock %}

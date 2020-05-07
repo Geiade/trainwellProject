@@ -20,9 +20,9 @@
                             <h6 class="card-title mb-1">{{ event.name }}</h6>
 
                             <p class="places_assigned text-muted">
-                            {% for p in event.places.all %}
-                                {{ p.name }}
-                            {% endfor %}
+                                {% for p in event.places.all %}
+                                    {{ p.name }}
+                                {% endfor %}
                             </p>
 
                         </div>
@@ -32,12 +32,12 @@
                         </div>
                         <div class="col-sm-4 text-center">
                             <a type="button" href="{% url "staff:edit_event" event.id %}"
-                            class="btn btn-primary"><i class="far fa-edit"></i></a>
+                               class="btn btn-primary"><i class="far fa-edit"></i></a>
 
 
                             <a type="button" href="{% url "staff:delete_event" event.id %}"
                                class="btn btn-danger"
-                                onclick="return confirm('Are you sure?')"><i class="far fa-trash-alt"></i></a>
+                               onclick="return confirm('Are you sure?')"><i class="far fa-trash-alt"></i></a>
                         </div>
 
 
