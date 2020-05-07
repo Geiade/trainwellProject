@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body_block %}
+
+    <section id="notifications_panel" class="container">
+
+        <div class="row p-5">
+
+            <h4>Notifications<sup id="num_notis">{{ object_list|length }}</sup></h4>
+            <div class="btn-group ml-auto mb-4" role="group">
+                <button type="button" onclick="swipeNotifications(0,{{ object_list|length }})"
+                        class="btn border btn-light text-secondary">Active
+                </button>
+                <button type="button" onclick="swipeNotifications(1,{{ read|length }})"
+                        class="btn border btn-light text-secondary">Read
+                </button>
+            </div>
+
+            {% for n in object_list %}
+                <div style="border-radius: 25px;" class="card col-12 border-0 shadow-sm p-4 my-3 active">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <h6 class="card-title mb-1">{{ n.name }}</h6>
+
+                            <p class="card-text text-muted" data-toggle="popover" data-trigger="hover"
+                               data-title="Description" data-content="{{ n.description }}">
+                                {{ n.description | truncatechars:30 }}</p>
+                        </div>
+                        <div class="col-2 text-muted">
+                            <small>
+                                Event date <br>{{ n.booking.selection_set.all.0.datetime_init|date:"d-m-Y" }}
+                            </small>
+                        </div>
+                        <div class="col-sm-2 text-center">
+                            <small class="text-muted">Status<br>IMPAGAT</small>
+                        </div>
+                        <div class="col-sm-4 text-center">
+                            <a type="button" href="{% url 'trainwell:booking-detail' n.booking.id %}"
+                               class="btn btn-primary text-white">Booking</a>
+                            <a type="button" href="{% url "manager:notification_read" n.id %}"
+                               onclick="return confirm('Are you sure?')" class="btn btn-success">
+                                <i class="fas fa-check"></i></a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            {% for n in read %}
+                <div style="border-radius: 25px; display: none" class="card col-12 border-0 shadow-sm p-4 my-3 read">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <h6 class="card-title mb-1">{{ n.name }}</h6>
+
+                            <p class="card-text text-muted" data-toggle="popover" data-trigger="hover"
+                               data-title="Description" data-content="{{ n.description }}">
+                                {{ n.description | truncatechars:30 }}</p>
+                        </div>
+                        <div class="col-2 text-muted">
+                            <small>
+                                Event date <br>{{ n.booking.selection_set.all.0.datetime_init|date:"d-m-Y" }}
+                            </small>
+                        </div>
+                        <div class="col-sm-2 text-center">
+                            <small class="text-muted">Created<br>{% now "d-M-Y" %}</small>
+                        </div>
+                        <div class="col-sm-4 text-center">
+                            <a type="button" href="{% url 'trainwell:booking-detail' n.booking.id %}"
+                               class="btn btn-primary text-white">Booking</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <script id="popover_script" type="text/javascript">
+        $(document).ready(function () {
+            $('[data-toggle="popover"]').popover();
+        });
+
+        function swipeNotifications(type, len) {
+
+            if (type === 0) {
+                $(".read").css("display", "none")
+                $(".active").css("display", "")
+                $("#num_notis").html(len)
+            } else {
+                $(".active").css("display", "none")
+                $(".read").css("display", "")
+                $("#num_notis").html(len)
+            }
+        }
+    </script>
+
+{% endblock %}
+

@@ -118,6 +118,7 @@ class Notification(models.Model):
     booking = models.ForeignKey(Booking, blank=True, null=True, on_delete=models.PROTECT)
     name = models.CharField(max_length=30)
     description = models.TextField()
+    is_read = models.BooleanField(default=False)
 
     created = models.DateTimeField(auto_now_add=True)
     is_deleted = models.BooleanField(default=False)
