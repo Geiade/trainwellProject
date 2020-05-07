@@ -132,7 +132,7 @@ def create_incidence(request):
         if form.is_valid():
             if form.cleaned_data['limit_date'] >= date.today():
                 form.save()
-                return redirect(reverse('trainwell:dashboard'))
+                return redirect(reverse('staff:incidences_list'))
     else:
         form = IncidenceForm()
     return render(request, 'staff/add_incidence.html', {'form': form})
@@ -154,12 +154,17 @@ class IncidencesListView(StaffRequiredMixin, ListView):
         return self.model.objects.filter(done=True).order_by('limit_date')
 
 
-# TO-DO owner on Incidence
+# TO-DO @ajax_required
 @staff_required
 def incidence_done(request, pk):
-    incidence = Incidence.objects.get(pk=pk)
-    incidence.done = True
-    incidence.save()
+    qs = Incidence.objects.filter(pk=pk)
+
+    if qs.exists():
+        incidence = qs.first()
+        incidence.done = True
+        incidence.save()
+    else:
+        return Http404
 
     return redirect(reverse('staff:incidences_list'))
 
@@ -291,8 +296,22 @@ class NotificationsListView(ListView):
 
 
     def get_queryset(self):
-        self.model.objects.filter(is_read=False, is_deleted=False)
+        return self.model.objects.filter(is_read=False, is_deleted=False)
 
 
     def get_queryset1(self):
-        self.model.objects.filter(is_read=True, is_deleted=False)
+        return self.model.objects.filter(is_read=True, is_deleted=False)
+
+
+# TO-DO @ajax_required
+def notification_read(request, pk):
+    qs = Notification.objects.filter(pk=pk)
+
+    if qs.exists():
+        notification = qs.first()
+        notification.is_read = True
+        notification.save()
+    else:
+        return Http404
+
+    return redirect(reverse('manager:notifications_list'))
