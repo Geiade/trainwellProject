@@ -86,6 +86,7 @@ class Invoice(models.Model):
     period_init = models.DateTimeField()
     period_end = models.DateTimeField()
     is_paid = models.BooleanField(default=False)
+    # TODO state = ChoiceField
 
     created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)

@@ -201,6 +201,7 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
         notification = Notification(name=name, description=description, booking=booking)
         notification.save()
 
+        # TODO: Redirect to communicate invoice.
         return redirect(reverse('trainwell:dashboard'))
 
 
