@@ -263,6 +263,18 @@ class PlacesListView(StaffRequiredMixin, ListView):
         return self.model.objects.filter(is_deleted=False).order_by('available_until')
 
 
+class BookingStateView(StaffRequiredMixin, ListView):
+    model = Booking
+    template_name = 'staff/bookings_state.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def get_queryset(self):
+        return self.model.objects.filter(is_deleted=False).order_by('created')
+
+
 # View for head of facilities
 class BookingListView(StaffRequiredMixin, ListView):
     model = Selection

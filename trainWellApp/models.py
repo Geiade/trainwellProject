@@ -55,6 +55,7 @@ class Booking(models.Model):
     name = models.CharField(max_length=80)
     phone_number = models.CharField(max_length=10)  # TODO django-phonenumber-field
 
+
     created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
     modified_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
