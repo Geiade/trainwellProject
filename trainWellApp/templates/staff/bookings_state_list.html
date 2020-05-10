@@ -32,15 +32,14 @@
                             <small class="text-muted">Phone Number<br>{{ booking.phone_number }}€</small>
                         </div>
 
+                        <div class="col-sm-2 text-center">
+                            <small class="text-muted">State<br>{{ invoice.booking.booking_state }}€</small>
+                        </div>
 
                         <div class="col-sm-2 ">
-                            <a type="button" href="{% url "staff:edit_place" place.id %}"
+                            <a type="button" href="{% url "manager:bookings_state_update" booking.id %}"
                                class="btn btn-primary"><i class="far fa-edit"></i></a>
 
-
-                            <a type="button" href="{% url "staff:delete_place" place.id %}"
-                               class="btn btn-danger"
-                               onclick="return confirm('Are you sure?')"><i class="far fa-trash-alt"></i></a>
                         </div>
 
 

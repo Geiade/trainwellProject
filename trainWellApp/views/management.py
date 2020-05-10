@@ -265,7 +265,7 @@ class PlacesListView(StaffRequiredMixin, ListView):
 
 class BookingStateView(StaffRequiredMixin, ListView):
     model = Booking
-    template_name = 'staff/bookings_state.html'
+    template_name = 'staff/bookings_state_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -273,6 +273,19 @@ class BookingStateView(StaffRequiredMixin, ListView):
 
     def get_queryset(self):
         return self.model.objects.filter(is_deleted=False).order_by('created')
+
+
+class BookingStateUpdate(StaffRequiredMixin, UpdateView):
+    model = Booking
+    template_name = 'staff/bookings_state_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({'edit': True})
+        return context
+
+    def get_success_url(self):
+        return reverse('manager:bookings_state_list')
 
 
 # View for head of facilities
