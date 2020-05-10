@@ -87,7 +87,7 @@ class Invoice(models.Model):
     period_init = models.DateTimeField()
     period_end = models.DateTimeField()
     is_paid = models.BooleanField(default=False)
-    booking_states = models.PositiveIntegerField(choices=BOOKING_STATES, default=BOOKING_STATES[1][0])
+    booking_state = models.PositiveIntegerField(choices=BOOKING_STATES, default=BOOKING_STATES[1][0])
 
     created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
