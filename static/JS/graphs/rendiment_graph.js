@@ -20,7 +20,7 @@ function getData_rendiment_graph_promise() {
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
             console.log(xhr.responseText)
-            draw_chart_rendiment()
+            draw_chart_rendiment(xhr.responseText)
         } else if (xhr.readyState === 4) {
             console.log("error")
         } else {
@@ -32,15 +32,24 @@ function getData_rendiment_graph_promise() {
 
 }
 
-function draw_chart_rendiment() {
+function draw_chart_rendiment(json_data) {
+    json_data = JSON.parse(json_data);
+    let keys = [];
+    let values = [];
+
+    Object.keys(json_data).forEach(function (key) {
+        keys.push(key)
+        values.push(json_data[key])
+    });
+
     const ctx_rendiment = document.getElementById('canvas_rendiment_graph').getContext('2d');
     const myChart = new Chart(ctx_rendiment, {
         type: 'bar',
         data: {
-            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+            labels: keys,
             datasets: [{
                 label: '# of Votes',
-                data: [12, 19, 3, 5, 2, 3],
+                data: values,
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.2)',
                     'rgba(54, 162, 235, 0.2)',
@@ -64,7 +73,10 @@ function draw_chart_rendiment() {
             scales: {
                 yAxes: [{
                     ticks: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        min:0,
+                        stepSize:25,
+                        max:100
                     }
                 }]
             }

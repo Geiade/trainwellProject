@@ -407,19 +407,20 @@ class RendimentGraph(APIView):
             return JsonResponse({"Message": "Error"})
 
     def get_rendiment(self, place, init_data, end_data):
-        init_data = init_data.split("-")
-        end_data = end_data.split("-")
-        d0 = date(int(init_data[0]), int(init_data[1]), int(init_data[2]))
-        d1 = date(int(end_data[0]), int(end_data[1]), int(end_data[2]))
+        init = init_data.split("-")
+        end = end_data.split("-")
+        d0 = date(int(init[0]), int(init[1]), int(init[2]))
+        d1 = date(int(end[0]), int(end[1]), int(end[2]))
         total_hours = (d1 - d0)
-        print(total_hours.days * 12)
+        total_hours = total_hours.days * 12
 
-        query = Selection.objects.filter(booking__is_deleted=False, )
+        query = Selection.objects.filter(booking__is_deleted=False).filter(place=place).filter(
+            datetime_init__lt=end_data).filter(datetime_init__gt=init_data)
 
-
-
-
-        return "2"
+        if query.exists():
+            return (query.count() / total_hours) * 100
+        else:
+            return 0
 
 
 class UsageGraph(APIView):
