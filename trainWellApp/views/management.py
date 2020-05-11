@@ -1,16 +1,17 @@
 from datetime import timedelta, datetime, date
 import json
 
+from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse, Http404, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import ListView, UpdateView
 from django.views import View
 from rest_framework.views import APIView
-from trainWellApp.decorators import staff_required
+from trainWellApp.decorators import staff_required, gerent_required
 from trainWellApp.forms import EventForm, IncidenceForm, PlaceForm
 from trainWellApp.mixins import StaffRequiredMixin, GerentRequiredMixin
-from trainWellApp.models import Selection, Incidence, Place, Event, Booking, Notification
+from trainWellApp.models import Selection, Incidence, Place, Event, Booking, Notification, Planner
 from trainWellApp.views.trainwell import _generate_range, isajax_req
 
 
@@ -391,22 +392,35 @@ class Graphs(View):
     template_name = "manager/graphs.html"
 
     def get(self, request):
-        return render(request, self.template_name, {})
+        if request.user.is_authenticated:
+            try:
+                planner = Planner.objects.get(user=request.user)
+                if planner.is_gerent is True:
+                    return render(request, self.template_name, {})
+                else:
+                    raise PermissionDenied
+
+            except Planner.DoesNotExist:
+                raise PermissionDenied
+        else:
+            raise PermissionDenied
 
 
 class RendimentGraph(APIView):
+    @gerent_required
     def get(self, request):
         query = Place.objects.all()
         if query.exists() and request.GET['init_data'] and request.GET['end_data']:
             places = {}
             for place in query:
-                places[place.name] = self.get_rendiment(place, place.price_hour, request.GET['init_data'], request.GET['end_data'])
+                places[place.name] = self._get_rendiment(place, place.price_hour, request.GET['init_data'],
+                                                         request.GET['end_data'])
             return JsonResponse(places)
 
         else:
             return JsonResponse({"Message": "Error"})
 
-    def get_rendiment(self, place, price_hour, init_data, end_data):
+    def _get_rendiment(self, place, price_hour, init_data, end_data):
         init = init_data.split("-")
         end = end_data.split("-")
 
@@ -414,24 +428,25 @@ class RendimentGraph(APIView):
             datetime_init__lt=end_data).filter(datetime_init__gt=init_data).filter()
 
         if query.exists():
-            return query.count()*price_hour
+            return query.count() * price_hour
         else:
             return 0
 
 
 class UsageGraph(APIView):
+    @gerent_required
     def get(self, request):
         query = Place.objects.all()
         if query.exists() and request.GET['init_data'] and request.GET['end_data']:
             places = {}
             for place in query:
-                places[place.name] = self.get_usage(place, request.GET['init_data'], request.GET['end_data'])
+                places[place.name] = self._get_usage(place, request.GET['init_data'], request.GET['end_data'])
             return JsonResponse(places)
 
         else:
             return JsonResponse({"Message": "Error"})
 
-    def get_usage(self, place, init_data, end_data):
+    def _get_usage(self, place, init_data, end_data):
         init = init_data.split("-")
         end = end_data.split("-")
         d0 = date(int(init[0]), int(init[1]), int(init[2]))
