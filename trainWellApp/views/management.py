@@ -400,13 +400,38 @@ class RendimentGraph(APIView):
         if query.exists() and request.GET['init_data'] and request.GET['end_data']:
             places = {}
             for place in query:
-                places[place.name] = self.get_rendiment(place, request.GET['init_data'], request.GET['end_data'])
+                places[place.name] = self.get_rendiment(place, place.price_hour, request.GET['init_data'], request.GET['end_data'])
             return JsonResponse(places)
 
         else:
             return JsonResponse({"Message": "Error"})
 
-    def get_rendiment(self, place, init_data, end_data):
+    def get_rendiment(self, place, price_hour, init_data, end_data):
+        init = init_data.split("-")
+        end = end_data.split("-")
+
+        query = Selection.objects.filter(booking__is_deleted=False).filter(place=place).filter(
+            datetime_init__lt=end_data).filter(datetime_init__gt=init_data).filter()
+
+        if query.exists():
+            return query.count()*price_hour
+        else:
+            return 0
+
+
+class UsageGraph(APIView):
+    def get(self, request):
+        query = Place.objects.all()
+        if query.exists() and request.GET['init_data'] and request.GET['end_data']:
+            places = {}
+            for place in query:
+                places[place.name] = self.get_usage(place, request.GET['init_data'], request.GET['end_data'])
+            return JsonResponse(places)
+
+        else:
+            return JsonResponse({"Message": "Error"})
+
+    def get_usage(self, place, init_data, end_data):
         init = init_data.split("-")
         end = end_data.split("-")
         d0 = date(int(init[0]), int(init[1]), int(init[2]))
@@ -421,9 +446,3 @@ class RendimentGraph(APIView):
             return (query.count() / total_hours) * 100
         else:
             return 0
-
-
-class UsageGraph(APIView):
-    def get(self, request):
-        return JsonResponse({"Message": "Done"})
-        pass

@@ -1,1 +1,22 @@
-it works
+<div class="col-md-6 col-sm-6 ">
+
+    <div class="box-header with-border form-horizontal">
+        <h3 class="box-title"> Usage graph in % </h3>
+        <i class="fa fa-fw fa-info-circle" data-toggle="tooltip"
+           title=" Usage graph "></i>
+    </div>
+
+    <div class="box-body form-horizontal">
+        <label class="col-sm-1 control-label"> Date Initial </label>
+        <input type="date" id="date_init_usage" onchange="getData_usage_graph()">
+        <label class="col-sm-1 control-label"> Date Ending </label>
+        <input type="date" id="date_end_usage" onchange="getData_usage_graph()">
+
+        <div style="height:150px">
+            <canvas id="canvas_usage_graph"></canvas>
+        </div>
+        <p id="error_usage_graph"></p>
+
+    </div>
+
+</div>

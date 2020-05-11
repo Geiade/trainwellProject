@@ -3,13 +3,29 @@ $(document).ready(function () {
     d7.setDate(d7.getDate() - 7);
     document.getElementById('date_init_rendiment').valueAsDate = d7;
     document.getElementById('date_end_rendiment').valueAsDate = new Date();
-    getData_rendiment_graph_promise();
+    getData_rendiment_graph();
 });
 
 
-function getData_rendiment_graph_promise() {
+function getData_rendiment_graph() {
     let dateInitSelected = document.getElementById('date_init_rendiment').value;
     let dateEndSelected = document.getElementById('date_end_rendiment').value;
+
+    let init_valuedAsDate = document.getElementById('date_init_rendiment').valueAsDate;
+    let end_valuedAsDate = document.getElementById('date_end_rendiment').valueAsDate;
+
+    if (init_valuedAsDate < end_valuedAsDate) {
+        document.getElementById('canvas_rendiment_graph').hidden = false;
+        document.getElementById('error_rendiment_graph').innerText = "";
+    } else if (init_valuedAsDate > end_valuedAsDate) {
+        document.getElementById('canvas_rendiment_graph').hidden = true;
+        document.getElementById('error_rendiment_graph').innerText = "WRONG DATES";
+        return
+    } else {
+        document.getElementById('canvas_rendiment_graph').hidden = true;
+        document.getElementById('error_rendiment_graph').innerText = "SAME DATES";
+        return
+    }
 
     let url = "/manager/graphs/api/rendiment?";
     if (dateInitSelected !== "" && dateEndSelected !== "") {
@@ -38,17 +54,23 @@ function draw_chart_rendiment(json_data) {
     let values = [];
 
     Object.keys(json_data).forEach(function (key) {
-        keys.push(key)
+        keys.push(key);
         values.push(json_data[key])
     });
 
     const ctx_rendiment = document.getElementById('canvas_rendiment_graph').getContext('2d');
-    const myChart = new Chart(ctx_rendiment, {
+
+    if (typeof myChartRendiment != 'undefined') {
+        myChartRendiment.destroy();
+        myChartRendiment = new Chart(ctx_rendiment, {});
+    }
+
+    myChartRendiment = new Chart(ctx_rendiment, {
         type: 'bar',
         data: {
             labels: keys,
             datasets: [{
-                label: '# of Votes',
+                label: '€',
                 data: values,
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.2)',
@@ -74,9 +96,7 @@ function draw_chart_rendiment(json_data) {
                 yAxes: [{
                     ticks: {
                         beginAtZero: true,
-                        min:0,
-                        stepSize:25,
-                        max:100
+                        stepSize: 25,
                     }
                 }]
             }
