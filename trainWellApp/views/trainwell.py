@@ -21,6 +21,7 @@ from trainWellApp.models import Booking, Planner, Selection, Place, Notification
 from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2, IncidenceForm
 
 
+
 def index(request):
     return render(request, 'index.html')
 
@@ -362,3 +363,6 @@ def _generate_range(fromm=datetime(2020, 1, 1, 9, 00), to=datetime(2020, 1, 1, 2
     # We consider default opening hours from 9h to 21h.
     return pd.date_range(fromm.strftime("%H:%M"), to.strftime("%H:%M"),
                          freq='H').strftime("%H:%M").tolist()
+
+def user_schedule(request):
+    return render(request, 'user/userschedule.html')
