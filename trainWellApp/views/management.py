@@ -407,7 +407,6 @@ class Graphs(View):
 
 
 class RendimentGraph(APIView):
-    @gerent_required
     def get(self, request):
         query = Place.objects.all()
         if query.exists() and request.GET['init_data'] and request.GET['end_data']:
@@ -434,7 +433,6 @@ class RendimentGraph(APIView):
 
 
 class UsageGraph(APIView):
-    @gerent_required
     def get(self, request):
         query = Place.objects.all()
         if query.exists() and request.GET['init_data'] and request.GET['end_data']:
