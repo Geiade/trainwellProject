@@ -395,11 +395,31 @@ class Graphs(View):
 
 
 class RendimentGraph(APIView):
-
     def get(self, request):
-        print(request)
-        return JsonResponse({"Message": "Done"})
-        pass
+        query = Place.objects.all()
+        if query.exists() and request.GET['init_data'] and request.GET['end_data']:
+            places = {}
+            for place in query:
+                places[place.name] = self.get_rendiment(place, request.GET['init_data'], request.GET['end_data'])
+            return JsonResponse(places)
+
+        else:
+            return JsonResponse({"Message": "Error"})
+
+    def get_rendiment(self, place, init_data, end_data):
+        init_data = init_data.split("-")
+        end_data = end_data.split("-")
+        d0 = date(int(init_data[0]), int(init_data[1]), int(init_data[2]))
+        d1 = date(int(end_data[0]), int(end_data[1]), int(end_data[2]))
+        total_hours = (d1 - d0)
+        print(total_hours.days * 12)
+
+        query = Selection.objects.filter(booking__is_deleted=False, )
+
+
+
+
+        return "2"
 
 
 class UsageGraph(APIView):
