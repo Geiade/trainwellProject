@@ -131,3 +131,7 @@ dmypy.json
 
 # Pycharm
 .idea/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid

@@ -19,6 +19,7 @@ from django.conf import settings
 
 from trainWellApp.models import Booking, Planner, Selection, Place, Notification
 from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2, IncidenceForm
+from trainWellApp.tasks import some_task
 
 
 def index(request):
@@ -201,6 +202,8 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
         notification = Notification(name=name, description=description, booking=booking)
         notification.save()
 
+        some_task()
+        some_task.apply_async(eta=datetime(2020, 5, 11, 11, 00))
         # TODO: Redirect to communicate invoice.
         return redirect(reverse('trainwell:dashboard'))
 
