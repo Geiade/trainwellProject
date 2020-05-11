@@ -5,12 +5,13 @@ from django.http import JsonResponse, Http404, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import ListView, UpdateView
+from django.views import View
+from rest_framework.views import APIView
 from trainWellApp.decorators import staff_required
 from trainWellApp.forms import EventForm, IncidenceForm, PlaceForm
 from trainWellApp.mixins import StaffRequiredMixin, GerentRequiredMixin
 from trainWellApp.models import Selection, Incidence, Place, Event, Booking, Notification
 from trainWellApp.views.trainwell import _generate_range, isajax_req
-
 
 
 @staff_required
@@ -384,3 +385,24 @@ def notification_read(request, pk):
         return Http404
 
     return redirect(reverse('manager:notifications_list'))
+
+
+class Graphs(View):
+    template_name = "manager/graphs.html"
+
+    def get(self, request):
+        return render(request, self.template_name, {})
+
+
+class RendimentGraph(APIView):
+
+    def get(self, request):
+        print(request)
+        return JsonResponse({"Message": "Done"})
+        pass
+
+
+class UsageGraph(APIView):
+    def get(self, request):
+        return JsonResponse({"Message": "Done"})
+        pass
