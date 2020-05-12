@@ -239,7 +239,6 @@ def bookingcancelation(request, pk):
         notification = Notification(name=name, description=description, booking=booking)
         notification.save()
 
-        # Cancel task associated to booking
         qs = Invoice.objects.filter(booking_id=booking.id)
         if qs.exists():
             invoice = qs.first()
@@ -249,14 +248,15 @@ def bookingcancelation(request, pk):
                 event_date = booking.selection_set().all().first().datetime_init
                 days_to_event = (event_date - datetime.now()).days
 
-                # Booking canceled minimu 7 days in advance ('Cancelada pagada)
+                # Booking canceled minimum 7 days in advance ('Cancelada pagada)
                 invoice.booking_state = 3 if days_to_event >= 7 else 5
 
             else:
                 invoice.booking_state = 4
 
             invoice.save()
-            cancel_task(booking.id)
+
+        cancel_task(booking.id)  # Cancel task associated to booking
 
     else:
         return Http404

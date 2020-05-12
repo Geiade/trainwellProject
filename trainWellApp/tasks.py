@@ -4,31 +4,37 @@ import pytz
 from celery.task import task
 from django_celery_beat.models import CrontabSchedule, PeriodicTask
 
-from trainWellApp.models import Booking
+from trainWellApp.models import Booking, Notification, Invoice
 
 task_manager = {}
 
 
 @task
-def is_invoice_paid_at_time(*args):
+def check_invoice_ispaid(*args):
     global task_manager
     booking_id = args[0]
     qs = Booking.objects.filter(id=int(booking_id))
 
     if qs.exists():
         booking = qs.first()
-
-        for n in booking.notification_set.all():
-            n.is_deleted = True
-            n.save()
-
         booking.is_deleted = True
-        booking.notification_set.clear()
         booking.save()
-    # TODO NOTIFICATION and invoice
+
+        # Create a notification for manager and planner.
+        title = "Canceled booking: " + booking.name
+        description = "Booking was canceled because it was not paid within 24h."
+        notification = Notification(name=title, description=description, booking=booking)
+        notification.save()
+
+
+        qs = Invoice.objects.filter(booking_id=booking.id)
+        if qs.exists():
+            invoice = qs.first()
+            invoice.booking_state = 4   # State 'Cancelada impagada'
+            invoice.save()
+
     # After completed cancel it.
     cancel_task(booking_id)
-
 
 
 def setup_task(booking):
@@ -49,7 +55,7 @@ def setup_task(booking):
     task = PeriodicTask.objects.create(
         crontab=schedule,
         name="Check after 24h if " + str(booking.id) + " is_paid",
-        task='trainWellApp.tasks.is_invoice_paid_at_time',
+        task='trainWellApp.tasks.check_invoice_ispaid',
         args=json.dumps([booking.id]),
         expires=task_date + timedelta(minutes=5)
     )
