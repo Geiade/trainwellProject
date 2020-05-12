@@ -1,9 +1,7 @@
 import json
 from datetime import timedelta, date, datetime
 import holidays
-import pytz
 import pandas as pd
-
 from formtools.wizard.views import NamedUrlSessionWizardView
 from isoweek import Week
 
@@ -19,8 +17,8 @@ from django.views.generic import ListView, DetailView
 from django.conf import settings
 
 from trainWellApp.models import Booking, Planner, Selection, Place, Notification
-from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2, IncidenceForm
-from trainWellApp.tasks import is_invoice_paid_at_time
+from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2
+from trainWellApp.tasks import setup_task
 
 
 def index(request):
@@ -245,23 +243,6 @@ def bookingcancelation(request, pk):
         return Http404
 
     return redirect(reverse('trainwell:dashboard'))
-
-
-def setup_task(booking):
-    event_date = booking.selection_set.all().first().datetime_init
-
-    if event_date:
-        diff = (event_date - datetime.now()).days
-
-        # Event date bigger than 1 day, limit 24h else 1h before event.
-        if diff >= 1:
-            is_invoice_paid_at_time.apply_async([booking.id], eta=(datetime.now() + timedelta(hours=24)).
-                                                replace(tzinfo=pytz.utc))
-            ''' is_invoice_paid_at_time.apply_async([booking.id], eta=datetime(2020, 5, 11, 10, 25).
-                                                replace(tzinfo=pytz.utc)) '''
-        else:
-            is_invoice_paid_at_time.apply_async([booking.id], eta=(event_date - timedelta(hours=1)).
-                                                replace(tzinfo=pytz.utc))
 
 
 class Dashboard(ListView):

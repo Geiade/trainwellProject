@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'formtools',
+    'django_celery_beat',
     'trainWellApp',
     'django.contrib.admin',
     'django.contrib.auth',
