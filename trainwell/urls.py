@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView
 from django.conf.urls.static import static
-from trainWellApp import views
+from trainWellApp.views import *
 from trainwell import settings
 
 urlpatterns = [
@@ -27,8 +27,8 @@ urlpatterns = [
     path('staff/', include(('trainWellApp.urls.staff_urls', 'trainWellApp'), namespace='staff')),
     path('manager/', include(('trainWellApp.urls.manager_urls', 'trainWellApp'), namespace='manager')),
     path('admin/', admin.site.urls),
-    path('accounts/signin/', views.signin, name="signin"),
-    path('accounts/signup/', views.signup, name="signup"),
-    path('accounts/signout/', views.signout, name="signout"),
-    path('trainwell/schedule', views.user_schedule, name="schedule"),
+    path('accounts/signin/', signin, name="signin"),
+    path('accounts/signup/', signup, name="signup"),
+    path('accounts/signout/', signout, name="signout"),
+    path('trainwell/schedule', BookingScheduleView.as_view(), name="bookingschedule"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
