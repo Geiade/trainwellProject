@@ -74,12 +74,16 @@ class Selection(models.Model):
     place = models.ForeignKey(Place, blank=True, null=True, on_delete=models.CASCADE)
     datetime_init = models.DateTimeField()
 
+    created = models.DateTimeField(auto_now_add=True)
+    is_deleted = models.BooleanField(default=False)
+
     def __str__(self):
-        return str(self.place.name) + " - " + str(self.datetime_init) + " - " + str(self.booking.name)
+        return str(self.place.name) + " - " + str(self.datetime_init)
 
 
 class Invoice(models.Model):
-    BOOKING_STATES = ((1, 'Pagada'), (2, 'Impagada'), (3, 'Cancelada pagada'), (4, 'Cancelada impagada'), (5, 'Cancelada fora de termini'))
+    BOOKING_STATES = ((1, 'Pagada'), (2, 'Impagada'), (3, 'Cancelada pagada'),
+                      (4, 'Cancelada impagada'), (5, 'Cancelada fora de termini'))
     booking = models.ForeignKey(Booking, blank=True, null=True, on_delete=models.PROTECT)
     price = models.FloatField()
     concept = models.CharField(max_length=250)
@@ -126,4 +130,4 @@ class Notification(models.Model):
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return str(self.name) + " - " + str(self.description) + " - " + str(self.booking)
+        return str(self.name) + " - " + str(self.description)
