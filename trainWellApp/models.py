@@ -80,7 +80,7 @@ class Selection(models.Model):
 
 
 class Invoice(models.Model):
-    BOOKING_STATES = ((1, 'Pagada'),(2, 'Impagada'), (3, 'Cancelada pagada'), (4,'Cancelada impagada'),(5,'Cancelada fora de termini'))
+    BOOKING_STATE = ((1, 'Pagada'),(2, 'Impagada'), (3, 'Cancelada pagada'), (4,'Cancelada impagada'),(5,'Cancelada fora de termini'))
     booking = models.ForeignKey(Booking, blank=True, null=True, on_delete=models.PROTECT)
     price = models.FloatField()
     concept = models.CharField(max_length=250)
@@ -88,7 +88,7 @@ class Invoice(models.Model):
     period_init = models.DateTimeField()
     period_end = models.DateTimeField()
     is_paid = models.BooleanField(default=False)
-    booking_state = models.PositiveIntegerField(choices=BOOKING_STATES)
+    booking_state = models.PositiveIntegerField(default=BOOKING_STATE[1][0], choices=BOOKING_STATE)
     # TODO state = ChoiceField
 
     created = models.DateTimeField(auto_now_add=True)

@@ -10,7 +10,7 @@
 
             <h4>Bookings<sup id="num_in">{{ object_list|length }}</sup></h4>
 
-            {% for place in object_list %}
+            {% for booking in object_list %}
                 <div style="border-radius: 25px;"
                      class="card col-12 border-0 shadow-sm p-4 my-3 inpg">
                     <div class="row">
@@ -29,15 +29,15 @@
                         </div>
 
                         <div class="col-sm-2 text-center">
-                            <small class="text-muted">Phone Number<br>{{ booking.phone_number }}€</small>
+                            <small class="text-muted">Phone Number<br>{{ booking.phone_number }}</small>
                         </div>
 
                         <div class="col-sm-2 text-center">
-                            <small class="text-muted">State<br>{{ invoice.booking.booking_state }}€</small>
+                            <small class="text-muted">State<br>{{ invoice.booking.booking_state.value }}</small>
                         </div>
 
                         <div class="col-sm-2 ">
-                            <a type="button" href="{% url "manager:bookings_state_update" booking.id %}"
+                            <a type="button" href="{% url "manager:notifications_list"  %}"
                                class="btn btn-primary"><i class="far fa-edit"></i></a>
 
                         </div>

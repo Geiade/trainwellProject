@@ -263,9 +263,9 @@ class PlacesListView(StaffRequiredMixin, ListView):
         return self.model.objects.filter(is_deleted=False).order_by('available_until')
 
 
-class BookingStateView(StaffRequiredMixin, ListView):
+class BookingStateView(GerentRequiredMixin, ListView):
     model = Booking
-    template_name = 'staff/bookings_state_list.html'
+    template_name = 'staff/../templates/manager/bookings_state_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -275,9 +275,9 @@ class BookingStateView(StaffRequiredMixin, ListView):
         return self.model.objects.filter(is_deleted=False).order_by('created')
 
 
-class BookingStateUpdate(StaffRequiredMixin, UpdateView):
+class BookingStateUpdateView(GerentRequiredMixin, UpdateView):
     model = Booking
-    template_name = 'staff/bookings_state_list.html'
+    template_name = 'staff/../templates/manager/bookings_state_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -286,6 +286,19 @@ class BookingStateUpdate(StaffRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('manager:bookings_state_list')
+
+    model = Place
+    form_class = PlaceForm
+    template_name = 'staff/add_places.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({'edit': True})
+
+        return context
+
+    def get_success_url(self):
+        return reverse('staff:places_list')
 
 
 # View for head of facilities
