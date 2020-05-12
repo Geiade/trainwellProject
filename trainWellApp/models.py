@@ -74,8 +74,10 @@ class Selection(models.Model):
     place = models.ForeignKey(Place, blank=True, null=True, on_delete=models.CASCADE)
     datetime_init = models.DateTimeField()
 
+    is_deleted = models.BooleanField(default=False)
+
     def __str__(self):
-        return str(self.place.name) + " - " + str(self.datetime_init) + " - " + str(self.booking.name)
+        return str(self.place.name) + " - " + str(self.datetime_init)
 
 
 class Invoice(models.Model):
