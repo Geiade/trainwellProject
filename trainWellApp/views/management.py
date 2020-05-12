@@ -302,9 +302,6 @@ class BookingStateUpdateView(GerentRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse('manager:bookings_state_list')
 
-    def get_queryset(self):
-        return self.model.objects.all().order_by('created')
-
 
 # View for head of facilities
 class BookingListView(StaffRequiredMixin, ListView):

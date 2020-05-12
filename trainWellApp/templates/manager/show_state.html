@@ -11,8 +11,9 @@
 
                     <div class="form-group" id="state">
                         <label class="font-weight-bold" for="state">State</label>
-                        <select class="selectpicker form-control" name="{{ invoice.booking.booking_state.html_name }}" id="state"
-                                multiple>
+
+
+                        <select class="selectpicker form-control" name="{{ invoice.booking_state }}" id="state">
                             <option disabled="disabled">--Select State--</option>
                             {% for p in form.booking_state %}
                                 <option style="display:none">{{ p }}</option>
