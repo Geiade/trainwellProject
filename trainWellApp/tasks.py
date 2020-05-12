@@ -11,23 +11,24 @@ task_manager = {}
 
 @task
 def is_invoice_paid_at_time(*args):
+    global task_manager
     booking_id = args[0]
     qs = Booking.objects.filter(id=int(booking_id))
 
     if qs.exists():
         booking = qs.first()
-        for s in booking.selection_set.all():
-            s.is_deleted = True
-            s.save()
 
         for n in booking.notification_set.all():
             n.is_deleted = True
             n.save()
 
         booking.is_deleted = True
-        booking.selection_set.clear()
         booking.notification_set.clear()
         booking.save()
+    # TODO NOTIFICATION and invoice
+    # After completed cancel it.
+    cancel_task(booking_id)
+
 
 
 def setup_task(booking):
@@ -56,7 +57,23 @@ def setup_task(booking):
     task_manager[booking.id] = task.id
 
 
+def cancel_task(booking_id):
+    global task_manager
+    task_id = task_manager.get(booking_id)
 
+    if task_id:
+        qs = PeriodicTask.objects.filter(id=task_id)
+
+        if qs.exists():
+            task = qs.first()
+            qs_cron = CrontabSchedule.objects.filter(id=task.crontab.id)
+
+            if qs_cron.exists():
+                crontab = qs_cron.first()
+                crontab.delete()
+
+            task.delete()
+            del task_manager[booking_id]
 
 
 def get_cron_weekday(day):

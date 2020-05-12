@@ -16,9 +16,9 @@ from django.urls import reverse
 from django.views.generic import ListView, DetailView
 from django.conf import settings
 
-from trainWellApp.models import Booking, Planner, Selection, Place, Notification
+from trainWellApp.models import Booking, Planner, Selection, Place, Notification, Invoice
 from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2
-from trainWellApp.tasks import setup_task
+from trainWellApp.tasks import setup_task, cancel_task
 
 
 def index(request):
@@ -238,6 +238,25 @@ def bookingcancelation(request, pk):
         description = booking.planner.user.username + " has canceled a booking"
         notification = Notification(name=name, description=description, booking=booking)
         notification.save()
+
+        # Cancel task associated to booking
+        qs = Invoice.objects.filter(booking_id=booking.id)
+        if qs.exists():
+            invoice = qs.first()
+            state = invoice.booking_state
+
+            if state == 1:
+                event_date = booking.selection_set().all().first().datetime_init
+                days_to_event = (event_date - datetime.now()).days
+
+                # Booking canceled minimu 7 days in advance ('Cancelada pagada)
+                invoice.booking_state = 3 if days_to_event >= 7 else 5
+
+            else:
+                invoice.booking_state = 4
+
+            invoice.save()
+            cancel_task(booking.id)
 
     else:
         return Http404
