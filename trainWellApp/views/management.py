@@ -6,9 +6,9 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import ListView, UpdateView
 from trainWellApp.decorators import staff_required
-from trainWellApp.forms import EventForm, IncidenceForm, PlaceForm
+from trainWellApp.forms import EventForm, IncidenceForm, PlaceForm, InvoiceForm
 from trainWellApp.mixins import StaffRequiredMixin, GerentRequiredMixin
-from trainWellApp.models import Selection, Incidence, Place, Event, Booking, Notification
+from trainWellApp.models import Selection, Incidence, Place, Event, Booking, Notification, Invoice
 from trainWellApp.views.trainwell import _generate_range, isajax_req
 
 
@@ -42,6 +42,20 @@ def addPlace(request):
 
     args = {'form': form}
     return render(request, 'staff/add_places.html', args)
+
+
+def modifyInvoiceState(request):
+    if request.method == 'POST':
+        form = InvoiceForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('manager:bookings_state_list'))
+    else:
+        form = InvoiceForm()
+
+    args = {'form': form}
+    return render(request, 'manager/show_state.html', args)
 
 
 @staff_required
@@ -264,20 +278,21 @@ class PlacesListView(StaffRequiredMixin, ListView):
 
 
 class BookingStateView(GerentRequiredMixin, ListView):
-    model = Booking
-    template_name = 'staff/../templates/manager/bookings_state_list.html'
+    model = Invoice
+    template_name = 'manager/bookings_state_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
 
     def get_queryset(self):
-        return self.model.objects.filter(is_deleted=False).order_by('created')
+        return self.model.objects.all().order_by('created')
 
 
 class BookingStateUpdateView(GerentRequiredMixin, UpdateView):
-    model = Booking
-    template_name = 'staff/../templates/manager/bookings_state_list.html'
+    model = Invoice
+    form_class = InvoiceForm
+    template_name = 'manager/show_state.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -287,18 +302,8 @@ class BookingStateUpdateView(GerentRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse('manager:bookings_state_list')
 
-    model = Place
-    form_class = PlaceForm
-    template_name = 'staff/add_places.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({'edit': True})
-
-        return context
-
-    def get_success_url(self):
-        return reverse('staff:places_list')
+    def get_queryset(self):
+        return self.model.objects.all().order_by('created')
 
 
 # View for head of facilities
