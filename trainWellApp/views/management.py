@@ -44,19 +44,6 @@ def addPlace(request):
     return render(request, 'staff/add_places.html', args)
 
 
-def modifyInvoiceState(request):
-    if request.method == 'POST':
-        form = InvoiceForm(request.POST)
-
-        if form.is_valid():
-            form.save()
-            return redirect(reverse('manager:bookings_state_list'))
-    else:
-        form = InvoiceForm()
-
-    args = {'form': form}
-    return render(request, 'manager/show_state.html', args)
-
 
 @staff_required
 def deleteEvent(request, pk):
@@ -293,11 +280,6 @@ class BookingStateUpdateView(GerentRequiredMixin, UpdateView):
     model = Invoice
     form_class = InvoiceForm
     template_name = 'manager/show_state.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({'edit': True})
-        return context
 
     def get_success_url(self):
         return reverse('manager:bookings_state_list')
