@@ -74,19 +74,24 @@ class Selection(models.Model):
     place = models.ForeignKey(Place, blank=True, null=True, on_delete=models.CASCADE)
     datetime_init = models.DateTimeField()
 
+    is_deleted = models.BooleanField(default=False)
+
     def __str__(self):
-        return str(self.place.name) + " - " + str(self.datetime_init) + " - " + str(self.booking.name)
+        return str(self.place.name) + " - " + str(self.datetime_init)
 
 
 class Invoice(models.Model):
-    BOOKING_STATES = ((1, 'Pagada'), (2, 'Impagada'), (3, 'Cancelada pagada'), (4, 'Cancelada impagada'), (5, 'Cancelada fora de termini'))
-    booking = models.ForeignKey(Booking, blank=True, null=True, on_delete=models.PROTECT)
-    price = models.FloatField()
+    BOOKING_STATES = ((1, 'Pagada'), (2, 'Impagada'), (3, 'Cancelada pagada'),
+                      (4, 'Cancelada impagada'), (5, 'Cancelada fora de termini'))
+
+    PAYMENT_METHODS = ((1, 'Credit card'), (2, 'Cash'), (3, 'Bank Transfer'), (4, 'Bank check'))
+
+    booking = models.OneToOneField(Booking, blank=True, null=True, on_delete=models.PROTECT)
+    price = models.DecimalField(max_digits=8, decimal_places=2)
     concept = models.CharField(max_length=250)
-    payment_method = models.CharField(max_length=20)  # TODO create payment_method model
+    payment_method = models.PositiveIntegerField(choices=PAYMENT_METHODS, default=PAYMENT_METHODS[1][0])
     period_init = models.DateTimeField()
     period_end = models.DateTimeField()
-    is_paid = models.BooleanField(default=False)
     booking_state = models.PositiveIntegerField(choices=BOOKING_STATES, default=BOOKING_STATES[1][0])
 
     created = models.DateTimeField(auto_now_add=True)
@@ -94,9 +99,9 @@ class Invoice(models.Model):
     modified_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     is_deleted = models.BooleanField(default=False)
 
+
     def __str__(self):
-        return str(self.booking) + " - " + str(self.booking.planner) + ":" + str(
-            self.price) + " by " + self.payment_method
+        return str(self.booking) + " - " + str(self.booking.planner) + ":" + str(self.price)
 
 
 class Incidence(models.Model):
