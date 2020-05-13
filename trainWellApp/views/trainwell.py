@@ -362,9 +362,23 @@ def _generate_range(fromm=datetime(2020, 1, 1, 9, 00), to=datetime(2020, 1, 1, 2
     return pd.date_range(fromm.strftime("%H:%M"), to.strftime("%H:%M"),
                          freq='H').strftime("%H:%M").tolist()
 
+
 class BookingScheduleView(ListView):
     model = Selection
     template_name = 'user/userschedule.html'
+
+    selection = Selection.objects.filter(datetime_init__range=[init, end],
+                                         booking__planner__user_id=request.user.id,
+                                         place_id__in=places,
+                                         booking__is_deleted=False)
+    bookinglist = {}
+    for s in selection:
+        if s.booking in bookinglist:
+            bookinglist[s.booking].append(s)
+        else:
+            bookinglist[s.booking] = [s]
+
+    return bookinglist
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
