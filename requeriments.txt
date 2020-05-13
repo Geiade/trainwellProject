@@ -7,6 +7,7 @@ Django==2.2.12
 django-celery-beat==2.0.0
 django-cleanup==4.0.0
 django-formtools==2.2
+djangorestframework==3.11.0
 django-timezone-field==4.0
 django-triggers==2.1.1
 gevent==20.5.0
