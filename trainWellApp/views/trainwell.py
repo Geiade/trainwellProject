@@ -20,6 +20,7 @@ from django.conf import settings
 from trainWellApp.models import Booking, Planner, Selection, Place, Notification
 from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2, IncidenceForm
 
+
 def index(request):
     return render(request, 'index.html')
 
@@ -367,18 +368,17 @@ class BookingScheduleView(ListView):
     model = Selection
     template_name = 'user/userschedule.html'
 
-    selection = Selection.objects.filter(datetime_init__range=[init, end],
-                                         booking__planner__user_id=request.user.id,
-                                         place_id__in=places,
-                                         booking__is_deleted=False)
-    bookinglist = {}
-    for s in selection:
-        if s.booking in bookinglist:
-            bookinglist[s.booking].append(s)
-        else:
-            bookinglist[s.booking] = [s]
-
-    return bookinglist
+    def _get_daily_bookings(self):
+        dailybookings = {}
+        day = self.get_day()
+        selection = self.model.objects.filter(datetime_init__day=day.day, datetime_init__month=day.month,
+                                              datetime_init__year=day.year, booking__is_deleted=False)
+        for s in selection:
+            if s.booking in dailybookings:
+                dailybookings[s.booking].append(s)
+            else:
+                dailybookings[s.booking] = [s]
+        return self.format_data(dailybookings)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -398,16 +398,6 @@ class BookingScheduleView(ListView):
 
         return context
 
-    def get_queryset(self):
-        bookings = {}
-        day = self.get_day()
-        selections = self.model.objects.filter(datetime_init__day=day.day, datetime_init__month=day.month,
-                                               datetime_init__year=day.year, booking__is_deleted=False)
-
-        for s in selections: bookings.setdefault(s.booking, []).append(s)
-
-        return self.format_data(bookings)
-
     def get_day(self):
         ajax_data = self.request.GET.get('day')  # If ajax request, sends week.
 
@@ -421,7 +411,7 @@ class BookingScheduleView(ListView):
 
     @staticmethod
     def format_data(bookings):
-        # Sort first selections by hours.
+        #Sort first selections by hours.
         [v.sort(key=lambda x: x.datetime_init) for k, v in bookings.items()]
 
         for k, v in bookings.items():
