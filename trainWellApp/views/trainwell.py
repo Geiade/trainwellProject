@@ -206,8 +206,7 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
         # Create a notification for manager department.
         name = "New booking: " + booking.name
         description = booking.planner.user.username + " created new booking"
-        notification = Notification(name=name, description=description, booking=booking)
-        notification.save()
+        Notification(name=name, description=description, level=1, booking=booking).save()
 
         setup_task(booking)
 
@@ -244,8 +243,7 @@ def bookingcancelation(request, pk):
         # Create a notification for manager department.
         name = "Canceled booking: " + booking.name
         description = booking.planner.user.username + " has canceled a booking"
-        notification = Notification(name=name, description=description, booking=booking)
-        notification.save()
+        Notification(name=name, description=description, level=2, booking=booking).save()
 
         qs = Invoice.objects.filter(booking_id=booking.id)
         if qs.exists():

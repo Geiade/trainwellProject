@@ -11,11 +11,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RenameField(
-            model_name='invoice',
-            old_name='booking_states',
-            new_name='booking_state',
-        ),
         migrations.RemoveField(
             model_name='invoice',
             name='is_paid',
