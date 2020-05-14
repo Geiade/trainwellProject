@@ -13,7 +13,7 @@ def notifications(request):
             kwargs['notifications'] = qs
 
 
-        elif not user.planner.is_gerent and not user.planneris_staff:
+        elif not user.planner.is_gerent and not user.planner.is_staff:
             qs = Notification.objects.filter(booking__planner__user_id=user.id,
                                              level=1, is_read=False, is_deleted=False)
             kwargs['notifications'] = qs

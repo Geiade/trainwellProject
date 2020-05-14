@@ -210,7 +210,7 @@ def create_incidence(request):
 
                         # Create notifications to advertise planners.
                         title = "Canceled " + booking.name
-                        description = "Incidence affects your booking"
+                        description = "Incidence affects booking"
                         Notification(name=title, description=description, level=1, booking=booking).save()
                         Notification(name=title, description=description, level=2, booking=booking).save()
 
@@ -384,10 +384,14 @@ def notification_read(request, pk):
         notification = qs.first()
         notification.is_read = True
         notification.save()
+
+        if notification.level == 2:
+            return redirect(reverse('manager:notifications_list'))
+        else:
+            return redirect('/')
+
     else:
         return Http404
-
-    return redirect(reverse('manager:notifications_list'))
 
 
 class Graphs(View):

@@ -206,7 +206,7 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
         # Create a notification for manager department.
         name = "New booking: " + booking.name
         description = booking.planner.user.username + " created new booking"
-        Notification(name=name, description=description, level=1, booking=booking).save()
+        Notification(name=name, description=description, level=2, booking=booking).save()
 
         setup_task(booking)
 
