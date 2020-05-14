@@ -71,7 +71,13 @@ def signup(request):
             planner.user = user
             planner.save()
 
-        return redirect(reverse('index'))
+            return redirect(reverse('index'))
+
+        else:
+            user_form = UserForm(request.POST)
+            planner_form = PlannerForm(request.POST)
+            args = {'user_form': user_form, 'planner_form': planner_form}
+            return render(request, 'accounts/signup.html', args)
 
     else:
         user_form = UserForm()
@@ -104,6 +110,8 @@ def signin(request):
                 planner = Planner.objects.get(user=user)
                 if planner.is_staff is True:
                     return redirect(reverse('staff:dashboard'))
+                elif planner.is_gerent is True:
+                    return redirect(reverse('manager:graphs'))
                 else:
                     return redirect(reverse('trainwell:dashboard'))
 
