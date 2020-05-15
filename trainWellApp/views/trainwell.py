@@ -2,6 +2,7 @@ import json
 from datetime import timedelta, date, datetime
 import holidays
 import pandas as pd
+from django.views.generic.base import View
 from formtools.wizard.views import NamedUrlSessionWizardView
 from isoweek import Week
 
@@ -19,6 +20,7 @@ from django.conf import settings
 from trainWellApp.models import Booking, Planner, Selection, Place, Notification, Invoice
 from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2
 from trainWellApp.tasks import setup_task, cancel_task
+from trainWellApp.utils import Render
 
 
 def index(request):
@@ -213,8 +215,8 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
         Notification(name=name, description=description, level=2, booking=booking).save()
 
         setup_task(booking)
+        create_invoice(booking)
 
-        # TODO: Redirect to communicate invoice.
         return redirect(reverse('trainwell:dashboard'))
 
 
@@ -272,6 +274,51 @@ def bookingcancelation(request, pk):
         return Http404
 
     return redirect(reverse('trainwell:dashboard'))
+
+
+def create_invoice(booking):
+    TAX = 0.21
+    price = 0
+
+    selections = booking.selection_set.all()
+
+    for s in selections:
+        place = Place.objects.get(id=s.place.id)
+        price = price + (float(place.price_hour) * ((100 - place.discount)/100))
+
+    price = float(price) * (1 + TAX)
+    invoice = Invoice(booking=booking, price=price,
+                      concept="Booking: " + booking.name,
+                      period_init=selections.first().datetime_init,
+                      period_end=selections.first().datetime_init,)
+
+    invoice.save()
+
+    return invoice
+
+
+class InvoicePdf(View):
+    model = Invoice
+    template_name = 'trainWellApp/invoice_pdf.html'
+
+    def get(self, request, *args, **kwargs):
+        invoice = get_object_or_404(Invoice, pk=self.kwargs.get('pk'))
+        selections = invoice.booking.selection_set.all()
+        places = {}
+        for s in selections:
+            value = places.get(s.place.name)
+            if value:
+                value[1] += 1
+            else:
+                places[s.place.name] = [s.place.id, 1, s.place.price_hour, s.place.discount,
+                                        s.place.price_hour*s.place.discount/100]
+
+        for k, v in places.items(): v += [round(v[1]*v[2], 2), round(v[1]*v[4], 2)]
+
+        return Render.render_pdf(self.template_name, {'invoice': invoice,
+                                                      'booking': invoice.booking,
+                                                      'places': places,
+                                                      'subtotal': round(float(invoice.price)/1.21, 2)})
 
 
 class Dashboard(ListView):

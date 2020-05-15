@@ -1,0 +1,123 @@
+<style>
+    table.a, th.a, td.a {
+        border: 1px solid black;
+    }
+
+    table.a {
+        padding: 5px;
+    }
+
+    th.a {
+        background-color: #e3f2fd;
+    }
+    @page {
+        margin: 90px;
+    }
+</style>
+
+
+<section>
+    <table style="margin-bottom: 50px; width: 100%">
+        <thead>
+        <tr style="border-bottom: 1px solid black; padding-bottom: 5px">
+            <th style="width: 50%; text-align: left; font-size: 18px">TRAINGWELL
+                <br><a style="font-weight: normal; font-size: medium" href="#">
+                    www.trainingwell.club</a></th>
+            <th style="width: 50%; text-align: right; font-size: 24px; color: #64b5f6">INVOICE</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr style="padding-top: 5px">
+            <td>Carrer Wells 45<br>25001 Lleida<br>(973) 234765<br>factures@trainingwell.club</td>
+            <td style="text-align: right"><b>DATA:</b> {{ booking.created | date:"d-m-Y" }}<br><b>INVOICE #</b>{{ invoice.id }}</td>
+        </tr>
+        <tr style="padding-top: 5px">
+            <td><b>Facturat a:</b>
+                <br>{{ booking.planner.user.first_name }} {{ booking.planner.user.last_name }}
+                <br>{{ booking.planner.user.email }}
+                <br>{{ booking.phone_number }}
+            </td>
+            <td> </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table class="a" style="margin-bottom: 30px;">
+        <thead>
+        <tr class="a">
+            <th class="a">CONCEPTE</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="a">
+            <td class="a">Reserva amb nom: {{ booking.name }}</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table class="a" style="margin-bottom: 30px;">
+        <thead>
+        <tr class="a">
+            <th class="a">INICI PERIODE</th>
+            <th class="a">FI PERIODE</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="a">
+            <td class="a">{{ booking.selection_set.all.values.0.datetime_init|date:"d-M-Y" }}</td>
+            <td class="a">{{ booking.selection_set.all.values.0.datetime_init|date:"d-M-Y" }}</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table class="a" style="width: 100%; margin-bottom: 30px">
+        <thead>
+        <tr>
+            <th class="a" style="width: 10%">ID</th>
+            <th class="a" style="width: 50%">DESCRIPTION</th>
+            <th class="a" style="width: 10%">HOURS</th>
+            <th class="a" style="width: 15%">RATE</th>
+            <th class="a" style="width: 15%">AMOUNT</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for k, v in places.items %}
+            <tr class="a">
+                <td class="a">{{ booking.id }}</td>
+                <td class="a">{{ k }} #{{ v.0 }}</td>
+                <td class="a">{{ v.1 }}</td>
+                <td class="a">{{ v.2 }} eur</td>
+                <td class="a">{{ v.5 }} eur</td>
+            </tr>
+
+            {% if v.3 != 0 %}
+                <tr>
+                    <td class="a">{{ booking.id }}</td>
+                    <td class="a">- DESCOMPTE {{ k }}: {{ v.3 }}%</td>
+                    <td class="a">{{ v.1 }}</td>
+                    <td class="a">-{{ v.4 }} eur</td>
+                    <td class="a">-{{ v.6 }} eur</td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <table class="a" style="margin-bottom: 30px; width: 100%">
+        <tbody>
+        <tr class="a">
+            <td class="a" style="width: 20%; background-color: #e0e0e0">Subtotal</td>
+            <td class="a" style="width: 20%">{{ subtotal }} eur</td>
+        </tr>
+        <tr class="a">
+            <td class="a" style="width: 20%; background-color: #e0e0e0">Tax</td>
+            <td class="a" style="width: 20%">21,00%</td>
+        </tr>
+        <tr class="a">
+            <td class="a" style="width: 20%; background-color: #e0e0e0; font-weight: bold">Total</td>
+            <td class="a" style="width: 20%">{{ invoice.price }} eur</td>
+        </tr>
+        </tbody>
+    </table>
+
+</section>
