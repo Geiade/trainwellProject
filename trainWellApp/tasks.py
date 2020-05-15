@@ -6,12 +6,37 @@ from django_celery_beat.models import CrontabSchedule, PeriodicTask
 
 from trainWellApp.models import Booking, Notification, Invoice
 
-task_manager = {}
+notpaid_manager = {}
+events_done_manager = {}
+
+
+def setup_task_ispaid(booking):
+    global notpaid_manager
+    event_date = booking.selection_set.all().first().datetime_init
+    diff = (event_date - datetime.now()).days
+    task_date = (datetime.now() + timedelta(hours=24)) if diff >= 1 else (event_date - timedelta(hours=1))
+    schedule, _ = CrontabSchedule.objects.get_or_create(
+        minute=task_date.minute,
+        hour=task_date.hour,
+        day_of_week=get_cron_weekday(task_date.strftime("%A")),
+        day_of_month=task_date.day,
+        month_of_year=task_date.month,
+        timezone=pytz.timezone('Europe/Madrid')
+    )
+
+    task = PeriodicTask.objects.create(
+        crontab=schedule,
+        name="Check after 24h if " + str(booking.id) + " is_paid",
+        task='trainWellApp.tasks.booking_notpaid',
+        args=json.dumps([booking.id]),
+        expires=task_date + timedelta(minutes=5)
+    )
+
+    notpaid_manager[booking.id] = task.id
 
 
 @task
-def check_invoice_ispaid(*args):
-    global task_manager
+def booking_notpaid(*args):
     booking_id = args[0]
     qs = Booking.objects.filter(id=int(booking_id))
 
@@ -34,14 +59,15 @@ def check_invoice_ispaid(*args):
             invoice.save()
 
     # After completed cancel it.
-    cancel_task(booking_id)
+    cancel_task(notpaid_manager, booking_id)
+    cancel_task(events_done_manager, booking_id)
 
 
-def setup_task(booking):
-    global task_manager
-    event_date = booking.selection_set.all().first().datetime_init
-    diff = (event_date - datetime.now()).days
-    task_date = (datetime.now() + timedelta(hours=24)) if diff >= 1 else (event_date - timedelta(hours=1))
+def setup_task_event_done(booking):
+    global events_done_manager
+
+    event_date = booking.selection_set.all().last()
+    task_date = event_date.datetime_init + timedelta(hours=1)
 
     schedule, _ = CrontabSchedule.objects.get_or_create(
         minute=task_date.minute,
@@ -54,20 +80,32 @@ def setup_task(booking):
 
     task = PeriodicTask.objects.create(
         crontab=schedule,
-        name="Check after 24h if " + str(booking.id) + " is_paid",
-        task='trainWellApp.tasks.check_invoice_ispaid',
+        name="Booking " + str(booking.id) + " happened",
+        task='trainWellApp.tasks.event_done',
         args=json.dumps([booking.id]),
         expires=task_date + timedelta(minutes=5)
     )
 
-    task_manager[booking.id] = task.id
+    events_done_manager[booking.id] = task.id
 
 
-def cancel_task(booking_id):
-    global task_manager
+@task
+def event_done(*args):
+    booking_id = args[0]
+    qs = Booking.objects.filter(id=int(booking_id))
+
+    if qs.exists():
+        booking = qs.first()
+        booking.is_deleted = True
+        booking.save()
+
+    cancel_task(events_done_manager, booking_id)
+
+
+def cancel_task(task_manager, booking_id):
     task_id = task_manager.get(booking_id)
-
     if task_id:
+
         qs = PeriodicTask.objects.filter(id=task_id)
 
         if qs.exists():
