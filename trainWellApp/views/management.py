@@ -31,6 +31,7 @@ def addEvent(request):
     return render(request, 'staff/add_event.html', args)
 
 
+
 class EventsListView(StaffRequiredMixin, ListView):
     model = Event
     template_name = 'staff/events_list.html'
