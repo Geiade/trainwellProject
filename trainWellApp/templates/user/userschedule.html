@@ -36,23 +36,9 @@
             {% endif %}
             <small class="col-sm-12 mr-3 text-muted">{{ h }}</small>
 
-            {% for key, vals in  object_list.items %}
-                {% if h == vals.values|tolist|first|first %}
-                    <div class="card col-auto ml-5 mt-3 mb-2 border-0 shadow-sm"
-                         style="border-left: .5rem solid {{ key.event.color }} !important">
-                        <div class="card-body">
-                            <h6 class="card-title">{{ key.name }}</h6>
-                            <h6 class="card-subtitle mb-2 text-muted">{{ key.event }}</h6>
-                            <div class="card-text btn-group" role="group">
-                                {% for k, v in vals.items %}
-                                    <button type="button" class="btn btn-sm btn-light" data-toggle="popover"
-                                            title="Hours" data-trigger="hover" data-content="{{ v }}"
-                                            style="font-size: small">{{ k }}</button>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
+            {% for k, v in  object_list.items %}
+
+            hhh
             {% endfor %}
         </div>
         {% endfor %}

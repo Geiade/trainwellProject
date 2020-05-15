@@ -368,7 +368,7 @@ class BookingScheduleView(ListView):
     model = Selection
     template_name = 'user/userschedule.html'
 
-    def _get_daily_bookings(self):
+    def get_queryset(self):
         dailybookings = {}
         day = self.get_day()
         selection = self.model.objects.filter(datetime_init__day=day.day, datetime_init__month=day.month,
