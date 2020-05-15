@@ -2,6 +2,7 @@ import json
 from datetime import timedelta, date, datetime
 import holidays
 import pandas as pd
+from django.views.generic.base import View
 from formtools.wizard.views import NamedUrlSessionWizardView
 from isoweek import Week
 
@@ -19,6 +20,7 @@ from django.conf import settings
 from trainWellApp.models import Booking, Planner, Selection, Place, Notification, Invoice
 from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2
 from trainWellApp.tasks import setup_task, cancel_task
+from trainWellApp.utils import Render
 
 
 def index(request):
@@ -293,6 +295,30 @@ def create_invoice(booking):
     invoice.save()
 
     return invoice
+
+
+class InvoicePdf(View):
+    model = Invoice
+    template_name = 'trainWellApp/invoice_pdf.html'
+
+    def get(self, request, *args, **kwargs):
+        invoice = get_object_or_404(Invoice, pk=self.kwargs.get('pk'))
+        selections = invoice.booking.selection_set.all()
+        places = {}
+        for s in selections:
+            value = places.get(s.place.name)
+            if value:
+                value[1] += 1
+            else:
+                places[s.place.name] = [s.place.id, 1, s.place.price_hour, s.place.discount,
+                                        s.place.price_hour*s.place.discount/100]
+
+        for k, v in places.items(): v += [round(v[1]*v[2], 2), round(v[1]*v[4], 2)]
+
+        return Render.render_pdf(self.template_name, {'invoice': invoice,
+                                                      'booking': invoice.booking,
+                                                      'places': places,
+                                                      'subtotal': round(float(invoice.price)/1.21, 2)})
 
 
 class Dashboard(ListView):
