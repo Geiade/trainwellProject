@@ -1,14 +1,17 @@
 from datetime import timedelta, datetime, date
 import json
 
+from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse, Http404, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import ListView, UpdateView
-from trainWellApp.decorators import staff_required
+from django.views import View
+from rest_framework.views import APIView
+from trainWellApp.decorators import staff_required, gerent_required
 from trainWellApp.forms import EventForm, IncidenceForm, PlaceForm, InvoiceForm
 from trainWellApp.mixins import StaffRequiredMixin, GerentRequiredMixin
-from trainWellApp.models import Selection, Incidence, Place, Event, Booking, Notification, Invoice
+from trainWellApp.models import Selection, Incidence, Place, Event, Booking, Notification, Planner, Invoice
 from trainWellApp.views.trainwell import _generate_range, isajax_req
 
 
@@ -28,85 +31,16 @@ def addEvent(request):
     return render(request, 'staff/add_event.html', args)
 
 
-@staff_required
-def addPlace(request):
-    if request.method == "POST":
-        form = PlaceForm(request.POST)
+class EventsListView(StaffRequiredMixin, ListView):
+    model = Event
+    template_name = 'staff/events_list.html'
 
-        if form.is_valid():
-            form.save()
-            return redirect(reverse('staff:places_list'))
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
 
-    else:
-        form = PlaceForm()
-
-    args = {'form': form}
-    return render(request, 'staff/add_places.html', args)
-
-
-
-@staff_required
-def deleteEvent(request, pk):
-    query = Event.objects.filter(pk=pk)
-
-    if query.exists():
-        event = query.first()
-
-        if event.is_deleted is True:
-            return HttpResponseBadRequest
-
-        event.places.clear()
-        event.is_deleted = True
-        event.save()
-
-        query = Booking.objects.filter(event=event)
-
-        if query.exists():
-            for booking in query:
-                title = "Canceled event"
-                description = "Event " + booking.event.name + " was cancelled, and consequently" \
-                                                              "your booking " + booking.name
-                notification = Notification(booking=booking, name=title, description=description)
-                notification.save()
-
-                booking.is_deleted = True
-                booking.save()
-
-    else:
-        return Http404
-
-    return redirect(reverse('staff:events_list'))
-
-
-@staff_required
-def deletePlace(request, pk):
-    query = Place.objects.filter(pk=pk)
-
-    if query.exists():
-        place = query.first()
-
-        if place.is_deleted is True:
-            return HttpResponseBadRequest()
-
-        place.is_deleted = True
-        place.save()
-
-        query = Booking.objects.filter(event__places=place)
-        if query.exists():
-            for booking in query:
-                title = "Canceled/Deleted " + place.name
-                description = "Place " + place.name + " was canceled/deleted, and consequently " \
-                                                      "your booking " + booking.name
-                notification = Notification(booking=booking, name=title, description=description)
-                notification.save()
-
-                booking.is_deleted = True
-                booking.save()
-
-    else:
-        return Http404
-
-    return redirect(reverse('staff:places_list'))
+    def get_queryset(self):
+        return self.model.objects.filter(is_deleted=False).order_by('created')
 
 
 class EventUpdateView(StaffRequiredMixin, UpdateView):
@@ -146,6 +80,68 @@ class EventUpdateView(StaffRequiredMixin, UpdateView):
         return json.dumps([str(p.id) for p in instance.places.all()])
 
 
+
+@staff_required
+def deleteEvent(request, pk):
+    query = Event.objects.filter(pk=pk)
+
+    if query.exists():
+        event = query.first()
+
+        if event.is_deleted is True:
+            return HttpResponseBadRequest
+
+        event.places.clear()
+        event.is_deleted = True
+        event.save()
+
+        query = Booking.objects.filter(event=event)
+
+        if query.exists():
+            for booking in query:
+                title = "Canceled event"
+                description = "Event " + booking.event.name + " was cancelled, and consequently" \
+                                                              "your booking " + booking.name
+                notification = Notification(booking=booking, name=title, description=description)
+                notification.save()
+
+                booking.is_deleted = True
+                booking.save()
+
+    else:
+        return Http404
+
+    return redirect(reverse('staff:events_list'))
+
+
+@staff_required
+def addPlace(request):
+    if request.method == "POST":
+        form = PlaceForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('staff:places_list'))
+
+    else:
+        form = PlaceForm()
+
+    args = {'form': form}
+    return render(request, 'staff/add_places.html', args)
+
+
+class PlacesListView(StaffRequiredMixin, ListView):
+    model = Place
+    template_name = 'staff/places_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def get_queryset(self):
+        return self.model.objects.filter(is_deleted=False).order_by('available_until')
+
+
 class PlaceUpdateView(StaffRequiredMixin, UpdateView):
     model = Place
     form_class = PlaceForm
@@ -159,6 +155,37 @@ class PlaceUpdateView(StaffRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('staff:places_list')
+
+
+@staff_required
+def deletePlace(request, pk):
+    query = Place.objects.filter(pk=pk)
+
+    if query.exists():
+        place = query.first()
+
+        if place.is_deleted is True:
+            return HttpResponseBadRequest()
+
+        place.is_deleted = True
+        place.save()
+
+        query = Booking.objects.filter(event__places=place)
+        if query.exists():
+            for booking in query:
+                title = "Canceled/Deleted " + place.name
+                description = "Place " + place.name + " was canceled/deleted, and consequently " \
+                                                      "your booking " + booking.name
+                notification = Notification(booking=booking, name=title, description=description)
+                notification.save()
+
+                booking.is_deleted = True
+                booking.save()
+
+    else:
+        return Http404
+
+    return redirect(reverse('staff:places_list'))
 
 
 @staff_required
@@ -284,7 +311,7 @@ class BookingStateUpdateView(GerentRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse('manager:bookings_state_list')
 
-
+      
 # View for head of facilities
 class BookingListView(StaffRequiredMixin, ListView):
     model = Selection
@@ -405,3 +432,76 @@ def notification_read(request, pk):
         return Http404
 
     return redirect(reverse('manager:notifications_list'))
+
+
+class Graphs(View):
+    template_name = "manager/graphs.html"
+
+    def get(self, request):
+        if request.user.is_authenticated:
+            try:
+                planner = Planner.objects.get(user=request.user)
+                if planner.is_gerent is True:
+                    return render(request, self.template_name, {})
+                else:
+                    raise PermissionDenied
+
+            except Planner.DoesNotExist:
+                raise PermissionDenied
+        else:
+            raise PermissionDenied
+
+
+class RendimentGraph(APIView):
+    def get(self, request):
+        query = Place.objects.all()
+        if query.exists() and request.GET['init_data'] and request.GET['end_data']:
+            places = {}
+            for place in query:
+                places[place.name] = self._get_rendiment(place, place.price_hour, request.GET['init_data'],
+                                                         request.GET['end_data'])
+            return JsonResponse(places)
+
+        else:
+            return JsonResponse({"Message": "Error"})
+
+    def _get_rendiment(self, place, price_hour, init_data, end_data):
+        init = init_data.split("-")
+        end = end_data.split("-")
+
+        query = Selection.objects.filter(booking__is_deleted=False).filter(place=place).filter(
+            datetime_init__lt=end_data).filter(datetime_init__gt=init_data).filter()
+
+        if query.exists():
+            return query.count() * price_hour
+        else:
+            return 0
+
+
+class UsageGraph(APIView):
+    def get(self, request):
+        query = Place.objects.all()
+        if query.exists() and request.GET['init_data'] and request.GET['end_data']:
+            places = {}
+            for place in query:
+                places[place.name] = self._get_usage(place, request.GET['init_data'], request.GET['end_data'])
+            return JsonResponse(places)
+
+        else:
+            return JsonResponse({"Message": "Error"})
+
+    def _get_usage(self, place, init_data, end_data):
+        init = init_data.split("-")
+        end = end_data.split("-")
+        d0 = date(int(init[0]), int(init[1]), int(init[2]))
+        d1 = date(int(end[0]), int(end[1]), int(end[2]))
+        total_hours = (d1 - d0)
+        total_hours = total_hours.days * 12
+
+        query = Selection.objects.filter(booking__is_deleted=False).filter(place=place).filter(
+            datetime_init__lt=end_data).filter(datetime_init__gt=init_data)
+
+        if query.exists():
+            return (query.count() / total_hours) * 100
+        else:
+            return 0
