@@ -122,9 +122,12 @@ class Incidence(models.Model):
 
 
 class Notification(models.Model):
+    TYPES = ((1, 'USER'), (2, 'ADMIN'))
+
     booking = models.ForeignKey(Booking, blank=True, null=True, on_delete=models.PROTECT)
     name = models.CharField(max_length=30)
     description = models.TextField()
+    level = models.PositiveIntegerField(choices=TYPES, default=[1][0])
     is_read = models.BooleanField(default=False)
 
     created = models.DateTimeField(auto_now_add=True)

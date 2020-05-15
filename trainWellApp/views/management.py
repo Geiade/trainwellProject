@@ -60,7 +60,6 @@ class EventUpdateView(StaffRequiredMixin, UpdateView):
         # TO-DO: Change reverse url when events_list is defined.
         bookings_id = self.get_form_kwargs()['data']['bookings_affected'].split(',')
         bookings_id = [x for x in bookings_id if x != '']
-        description = "Edited event available places"
 
         if bookings_id:
             for e in bookings_id:
@@ -71,8 +70,9 @@ class EventUpdateView(StaffRequiredMixin, UpdateView):
 
                 # Create notifications to advertise planners.
                 title = "Canceled " + booking.name
-                instance = Notification(name=title, description=description, booking=booking)
-                instance.save()
+                description = "Edited event available places"
+                Notification(name=title, description=description, level=1, booking=booking).save()
+                Notification(name=title, description=description, level=2, booking=booking).save()
 
         return reverse('staff:events_list')
 
@@ -100,11 +100,12 @@ def deleteEvent(request, pk):
 
         if query.exists():
             for booking in query:
-                title = "Canceled event"
+                title = "Canceled " + booking.name
                 description = "Event " + booking.event.name + " was cancelled, and consequently" \
                                                               "your booking " + booking.name
-                notification = Notification(booking=booking, name=title, description=description)
-                notification.save()
+
+                Notification(booking=booking, name=title, level=1, description=description).save()
+                Notification(booking=booking, name=title, level=2, description=description).save()
 
                 booking.is_deleted = True
                 booking.save()
@@ -174,11 +175,12 @@ def deletePlace(request, pk):
         query = Booking.objects.filter(event__places=place)
         if query.exists():
             for booking in query:
-                title = "Canceled/Deleted " + place.name
+                title = "Canceled " + booking.name
                 description = "Place " + place.name + " was canceled/deleted, and consequently " \
                                                       "your booking " + booking.name
-                notification = Notification(booking=booking, name=title, description=description)
-                notification.save()
+
+                Notification(booking=booking, name=title, level=1, description=description).save()
+                Notification(booking=booking, name=title, level=2, description=description).save()
 
                 booking.is_deleted = True
                 booking.save()
@@ -200,7 +202,6 @@ def create_incidence(request):
 
                 bookings_id = request.POST['bookings_affected'].split(',')
                 bookings_id = [x for x in bookings_id if x != '']
-                description = "Incidence affects your booking"
 
                 if bookings_id:
                     for e in bookings_id:
@@ -211,8 +212,9 @@ def create_incidence(request):
 
                         # Create notifications to advertise planners.
                         title = "Canceled " + booking.name
-                        instance = Notification(name=title, description=description, booking=booking)
-                        instance.save()
+                        description = "Incidence affects booking"
+                        Notification(name=title, description=description, level=1, booking=booking).save()
+                        Notification(name=title, description=description, level=2, booking=booking).save()
 
                 return redirect(reverse('staff:incidences_list'))
 
@@ -415,10 +417,10 @@ class NotificationsListView(GerentRequiredMixin, ListView):
 
     # TO-DO order query
     def get_queryset(self):
-        return self.model.objects.filter(is_read=False, is_deleted=False)
+        return self.model.objects.filter(level=2, is_read=False, is_deleted=False)
 
     def get_queryset1(self):
-        return self.model.objects.filter(is_read=True, is_deleted=False)
+        return self.model.objects.filter(level=2, is_read=True, is_deleted=False)
 
 
 # TO-DO @ajax_required
@@ -429,10 +431,14 @@ def notification_read(request, pk):
         notification = qs.first()
         notification.is_read = True
         notification.save()
+
+        if notification.level == 2:
+            return redirect(reverse('manager:notifications_list'))
+        else:
+            return redirect('/')
+
     else:
         return Http404
-
-    return redirect(reverse('manager:notifications_list'))
 
 
 class Graphs(View):

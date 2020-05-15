@@ -17,13 +17,19 @@
                         <i class="fas fa-bell border-right px-2"></i>
                         <span class="badge badge-warning ml-2">{{ notifications|length }}</span>
                     </button>
-                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <ul class="dropdown-menu" style="max-height:300px; overflow:auto;" aria-labelledby="navbarDropdown">
                         <li class="dropdown-item font-weight-bold border-bottom mb-3">
                             Notifications <sup class="badge badge-warning">{{ notifications|length }}</sup>
                         </li>
                         {% for n in notifications %}
                             <li class="dropdown-item">
-                                <h6>{{ n.name }}</h6>
+                                <div class="d-inline-flex">
+                                    <a type="button" class="btn btn-sm btn-success mr-2"
+                                       href="{% url "manager:notification_read" n.id %}">
+                                        <i class="fas fa-check"></i></a>
+                                    <h6>{{ n.name }}</h6>
+                                </div>
+                                <br>
                                 <small class="text-muted" data-toggle="popover" data-trigger="hover"
                                        data-content="{{ n.description }}">{{ n.description | truncatechars:30 }}</small>
                                 <div class="dropdown-divider"></div>
