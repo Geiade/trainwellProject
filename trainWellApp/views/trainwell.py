@@ -20,7 +20,7 @@ from django.conf import settings
 from trainWellApp.models import Booking, Planner, Selection, Place, Notification, Invoice
 from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2
 from trainWellApp.tasks import setup_task_ispaid, cancel_task, setup_task_event_done, notpaid_manager, \
-    events_done_manager
+    events_done_manager, setup_task_invoice
 from trainWellApp.utils import Render
 
 
@@ -296,6 +296,7 @@ def create_invoice(booking):
                       period_end=selections.first().datetime_init,)
 
     invoice.save()
+    setup_task_invoice(invoice)
 
     return invoice
 

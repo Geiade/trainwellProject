@@ -8,6 +8,7 @@ from trainWellApp.models import Booking, Notification, Invoice
 
 notpaid_manager = {}
 events_done_manager = {}
+invoices_manager = {}
 
 
 def setup_task_ispaid(booking):
@@ -100,6 +101,42 @@ def event_done(*args):
         booking.save()
 
     cancel_task(events_done_manager, booking_id)
+
+
+def setup_task_invoice(invoice):
+    global invoices_manager
+
+    curr_year = datetime.now().year
+    task_date = datetime.now().replace(year=curr_year + 2)  # By law 2 years.
+
+    schedule, _ = CrontabSchedule.objects.get_or_create(
+        minute=task_date.minute,
+        hour=task_date.hour,
+        day_of_week=get_cron_weekday(task_date.strftime("%A")),
+        day_of_month=task_date.day,
+        month_of_year=task_date.month,
+        timezone=pytz.timezone('Europe/Madrid')
+    )
+
+    task = PeriodicTask.objects.create(
+        crontab=schedule,
+        name="Invoice " + str(invoice.id) + " deleted",
+        task='trainWellApp.tasks.invoice_timeout',
+        args=json.dumps([invoice.id]),
+        expires=task_date + timedelta(minutes=5)
+    )
+
+    invoices_manager[invoice.id] = task.id
+
+
+@task
+def invoice_timeout(*args):
+    invoice_id = args[0]
+    qs = Invoice.objects.filter(id=int(invoice_id))
+
+    if qs.exists(): qs.first().delete()
+
+    cancel_task(invoices_manager, invoice_id)
 
 
 def cancel_task(task_manager, booking_id):
