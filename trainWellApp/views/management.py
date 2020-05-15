@@ -270,30 +270,6 @@ def incidence_done(request, pk):
     return redirect(reverse('staff:incidences_list'))
 
 
-class EventsListView(StaffRequiredMixin, ListView):
-    model = Event
-    template_name = 'staff/events_list.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
-    def get_queryset(self):
-        return self.model.objects.filter(is_deleted=False).order_by('created')
-
-
-class PlacesListView(StaffRequiredMixin, ListView):
-    model = Place
-    template_name = 'staff/places_list.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
-    def get_queryset(self):
-        return self.model.objects.filter(is_deleted=False).order_by('available_until')
-
-
 class BookingStateView(GerentRequiredMixin, ListView):
     model = Invoice
     template_name = 'manager/bookings_state_list.html'

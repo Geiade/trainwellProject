@@ -3,9 +3,9 @@
 
 {% block body_block %}
 
-
+    {% include "manager/manager_navbar.html" %}
     <section class="container">
-        {% include "manager/manager_navbar.html" %}
+
         <div class="row p-5">
 
             <h4>Bookings<sup id="num_in">{{ object_list|length }}</sup></h4>
