@@ -2,7 +2,6 @@ import json
 from datetime import timedelta, date, datetime
 import holidays
 import pandas as pd
-
 from formtools.wizard.views import NamedUrlSessionWizardView
 from isoweek import Week
 
@@ -17,8 +16,9 @@ from django.urls import reverse
 from django.views.generic import ListView, DetailView
 from django.conf import settings
 
-from trainWellApp.models import Booking, Planner, Selection, Place, Notification
-from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2, IncidenceForm
+from trainWellApp.models import Booking, Planner, Selection, Place, Notification, Invoice
+from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2
+from trainWellApp.tasks import setup_task, cancel_task
 
 
 def index(request):
@@ -75,7 +75,13 @@ def signup(request):
             planner.user = user
             planner.save()
 
-        return redirect(reverse('index'))
+            return redirect(reverse('index'))
+
+        else:
+            user_form = UserForm(request.POST)
+            planner_form = PlannerForm(request.POST)
+            args = {'user_form': user_form, 'planner_form': planner_form}
+            return render(request, 'accounts/signup.html', args)
 
     else:
         user_form = UserForm()
@@ -108,6 +114,8 @@ def signin(request):
                 planner = Planner.objects.get(user=user)
                 if planner.is_staff is True:
                     return redirect(reverse('staff:dashboard'))
+                elif planner.is_gerent is True:
+                    return redirect(reverse('manager:graphs'))
                 else:
                     return redirect(reverse('trainwell:dashboard'))
 
@@ -205,6 +213,8 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
         notification = Notification(name=name, description=description, booking=booking)
         notification.save()
 
+        setup_task(booking)
+
         # TODO: Redirect to communicate invoice.
         return redirect(reverse('trainwell:dashboard'))
 
@@ -240,6 +250,25 @@ def bookingcancelation(request, pk):
         description = booking.planner.user.username + " has canceled a booking"
         notification = Notification(name=name, description=description, booking=booking)
         notification.save()
+
+        qs = Invoice.objects.filter(booking_id=booking.id)
+        if qs.exists():
+            invoice = qs.first()
+            state = invoice.booking_state
+
+            if state == 1:
+                event_date = booking.selection_set().all().first().datetime_init
+                days_to_event = (event_date - datetime.now()).days
+
+                # Booking canceled minimum 7 days in advance ('Cancelada pagada)
+                invoice.booking_state = 3 if days_to_event >= 7 else 5
+
+            else:
+                invoice.booking_state = 4
+
+            invoice.save()
+
+        cancel_task(booking.id)  # Cancel task associated to booking
 
     else:
         return Http404
