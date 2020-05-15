@@ -213,8 +213,8 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
         Notification(name=name, description=description, level=2, booking=booking).save()
 
         setup_task(booking)
+        create_invoice(booking)
 
-        # TODO: Redirect to communicate invoice.
         return redirect(reverse('trainwell:dashboard'))
 
 
@@ -272,6 +272,27 @@ def bookingcancelation(request, pk):
         return Http404
 
     return redirect(reverse('trainwell:dashboard'))
+
+
+def create_invoice(booking):
+    TAX = 0.21
+    price = 0
+
+    selections = booking.selection_set.all()
+
+    for s in selections:
+        place = Place.objects.get(id=s.place.id)
+        price = price + (float(place.price_hour) * ((100 - place.discount)/100))
+
+    price = float(price) * (1 + TAX)
+    invoice = Invoice(booking=booking, price=price,
+                      concept="Booking: " + booking.name,
+                      period_init=selections.first().datetime_init,
+                      period_end=selections.first().datetime_init,)
+
+    invoice.save()
+
+    return invoice
 
 
 class Dashboard(ListView):
