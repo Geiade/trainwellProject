@@ -32,8 +32,13 @@ def addEvent(request):
 def addPlace(request):
     if request.method == "POST":
         form = PlaceForm(request.POST)
-
+        available_u = form.save(self=form.available_until)
+        available_f = form.save(self=form.available_from)
+        print(available_u)
+        print(available_f)
+        print(form)
         if form.is_valid():
+            print(form)
             form.save()
             return redirect(reverse('staff:places_list'))
 

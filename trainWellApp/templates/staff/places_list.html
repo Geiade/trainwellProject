@@ -30,10 +30,10 @@
                             <small class="text-muted">Price per hour<br>{{ place.price_hour }}€</small>
                         </div>
                         <div class="col-sm-2 text-center">
-                            <small class="text-muted">Available from<br>{{ place.available_from|date:"d-m-Y" }}</small>
+                            <small class="text-muted">Available from<br>{{ place.available_from|date:"Y-m-d H:m" }}</small>
                         </div>
                         <div class="col-sm-2 text-center">
-                            <small class="text-muted">Available until<br>{{ place.available_until|date:"d-m-Y" }} </small>
+                            <small class="text-muted">Available until<br>{{ place.available_until|date:"Y-m-d H:m"  }} </small>
                         </div>
 
                         <div class="col-sm-2 ">

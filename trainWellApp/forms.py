@@ -115,8 +115,9 @@ class IncidenceForm(ModelForm):
         model = Incidence
         fields = ['name', 'description', 'limit_date', 'disabled', 'places']
 
-        
+
 class PlaceForm(ModelForm):
+
     class Meta:
         model = Place
         fields = ['name', 'price_hour', 'available_from', 'available_until', 'description']
