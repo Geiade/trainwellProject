@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 
@@ -23,6 +24,8 @@ class Planner(models.Model):
 class Place(models.Model):
     name = models.CharField(max_length=30)
     price_hour = models.DecimalField(max_digits=8, decimal_places=2)
+    discount = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0),
+                                                                  MaxValueValidator(100)])
     available_from = models.DateTimeField()
     available_until = models.DateTimeField()
     description = models.TextField(blank=True, null=True)

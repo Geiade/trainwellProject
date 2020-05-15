@@ -23,20 +23,23 @@
             <tr>
                 <td> Distribution</td>
                 <td>
-                {% for key, values in selections.items %}
-                    {{ key }}
-                    {% for v in values %}
-                        {{ v|date:"H:i" }}
+                    {% for key, values in selections.items %}
+                        {{ key }}
+                        {% for v in values %}
+                            {{ v|date:"H:i" }}
+                        {% endfor %}
                     {% endfor %}
-                {% endfor %}
-            </td>
+                </td>
             </tr>
             </tbody>
         </table>
 
 
-        <a class="btn btn-sm btn-secondary" href="{% url 'trainWellApp:dashboard' %}"><span class="fas fa-arrow-left"></span> Go
+        <a class="btn btn-sm btn-secondary" href="{% url 'trainWellApp:dashboard' %}"><span
+                class="fas fa-arrow-left"></span> Go
             Dashboard</a>
+        <a class="btn btn-sm btn-secondary" href="{% url 'trainwell:invoice_pdf' object.invoice.id %}">
+            <i class="fas fa-file-pdf"></i> Invoice</a>
         <a class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')"
            href="{% url 'trainWellApp:booking_cancelation' pk=object.pk %}">
             <span class="fas fa-trash"></span> Cancel</a>
