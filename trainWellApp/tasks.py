@@ -30,7 +30,6 @@ def setup_task_ispaid(booking):
         name="Check after 24h if " + str(booking.id) + " is_paid",
         task='trainWellApp.tasks.booking_notpaid',
         args=json.dumps([booking.id]),
-        expires=task_date + timedelta(minutes=5)
     )
 
     notpaid_manager[booking.id] = task.id
@@ -38,8 +37,8 @@ def setup_task_ispaid(booking):
 
 @task
 def booking_notpaid(*args):
-    booking_id = args[0]
-    qs = Booking.objects.filter(id=int(booking_id))
+    booking_id = int(args[0])
+    qs = Booking.objects.filter(id=booking_id)
 
     if qs.exists():
         booking = qs.first()
@@ -84,7 +83,6 @@ def setup_task_event_done(booking):
         name="Booking " + str(booking.id) + " happened",
         task='trainWellApp.tasks.event_done',
         args=json.dumps([booking.id]),
-        expires=task_date + timedelta(minutes=5)
     )
 
     events_done_manager[booking.id] = task.id
@@ -92,8 +90,8 @@ def setup_task_event_done(booking):
 
 @task
 def event_done(*args):
-    booking_id = args[0]
-    qs = Booking.objects.filter(id=int(booking_id))
+    booking_id = int(args[0])
+    qs = Booking.objects.filter(id=booking_id)
 
     if qs.exists():
         booking = qs.first()
@@ -123,7 +121,6 @@ def setup_task_invoice(invoice):
         name="Invoice " + str(invoice.id) + " deleted",
         task='trainWellApp.tasks.invoice_timeout',
         args=json.dumps([invoice.id]),
-        expires=task_date + timedelta(minutes=5)
     )
 
     invoices_manager[invoice.id] = task.id
@@ -142,7 +139,6 @@ def invoice_timeout(*args):
 def cancel_task(task_manager, booking_id):
     task_id = task_manager.get(booking_id)
     if task_id:
-
         qs = PeriodicTask.objects.filter(id=task_id)
 
         if qs.exists():
