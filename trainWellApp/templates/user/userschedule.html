@@ -3,7 +3,10 @@
 {% load static %}
 
 {% block body_block %}
-
+<!-- Per adaptar el header si ho deixes horitzontal -->
+<style>
+    nav{ width:2200px;}
+</style>
 
 <section id="day_schedule" class="container-fluid">
 
@@ -12,11 +15,11 @@
                 <div class="btn-group" role="group">
                     <button id="pw" type="button" class="btn btn-secondary btn-sm d-inline"
                             onclick="swipeDay('{% url 'bookings_schedule' %}','{{ prev_day }}')">
-                        <i class="fas fa-chevron-left"> </i>
+                        <i class="fas fa-chevron-left"><script>reSize()</script></i>
                     </button>
                     <button id="nw" type="button" class="btn btn-secondary btn-sm d-inline"
                             onclick="swipeDay('{% url 'bookings_schedule' %}','{{ next_day }}')">
-                        <i class="fas fa-chevron-right"> </i>
+                        <i class="fas fa-chevron-right"><script>reSize()</script></i>
                     </button>
                 </div>
                 <button id="today" type="button" class="btn btn-secondary btn-sm mr-3"
@@ -26,27 +29,60 @@
             <h5 class="col-auto pl-1 v-middle">{{ day|date:"D, d F Y" }}</h5>
         </div>
 
+        <div class="row flex-nowrap"> <!-- Treu el flex-nowrap si no vols que no et superi la mida de la pantalla -->
         {% for h in hours %}
             {% now "H:00" as curr_hour %}
             {% if curr_hour == h %}
-                <div style="border-top-style: solid; border-top-width: 1.5px; border-top-color: #e74a3b;"
+                <div style="border-left-style: solid; border-top-width: 1.5px; border-left-color: #e74a3b;"
                      class="row m-5 animated slideInRight">
             {% else %}
-                <div class="row m-5 animated slideInRight border-top">
+                <div class="row m-5 animated slideInRight border-left">
             {% endif %}
-            <small class="col-sm-12 mr-3 text-muted">{{ h }}</small>
+            <small class="col-sm mr-3 text-muted">{{ h }}</small>
 
             {% for k, v in  object_list.items %}
-
-            hhh
+                {% if h == v.values|tolist|first|first %}
+                    <div class="card col-auto ml-5 mt-3 mb-2 border-0 shadow-sm"
+                         style="border-left: .5rem solid {{ key.event.color }} !important">
+                        <div class="card-body">
+                            <h6 class="card-title">{{ k.name }}</h6>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ k.event }}</h6>
+                            <div class="card-text btn-group" role="group">
+                                {% for key, value in v.items %}
+                                    <button type="button" class="btn btn-sm btn-light" data-toggle="popover"
+                                            title="Hours" data-trigger="hover" data-content="{{ value }}"
+                                            style="font-size: small">{{ key }}</button>
+                                {% endfor %}
+                            <script>addWidth('{{ h }}')</script>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
             {% endfor %}
         </div>
         {% endfor %}
+        </div>
 
         <script id="popover_script" type="text/javascript">
+            var hours = [];
+
             $(document).ready(function () {
                 $('[data-toggle="popover"]').popover();
             });
+
+            function reSize(){
+                document.getElementById("navbar").style.width = "2200px";
+                width_value = document.getElementById("navbar").offsetWidth;
+            }
+
+            function addWidth(hour){
+                if(!hours.includes(hour)){
+                    hours.push(hour);
+                    var width = String(document.getElementById("navbar").offsetWidth + 100);
+                    var width_value = width.concat("px");
+                    document.getElementById("navbar").style.width = width_value;
+                }
+            }
         </script>
 
     </section>
