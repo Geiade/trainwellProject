@@ -3,12 +3,14 @@ from datetime import datetime, timedelta
 import pytz
 from celery.task import task
 from django_celery_beat.models import CrontabSchedule, PeriodicTask
+from celery.utils.log import get_task_logger
 
 from trainWellApp.models import Booking, Notification, Invoice
 
 notpaid_manager = {}
 events_done_manager = {}
 invoices_manager = {}
+logger = get_task_logger(__name__)
 
 
 def setup_task_ispaid(booking):
