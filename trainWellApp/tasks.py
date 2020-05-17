@@ -15,6 +15,7 @@ def setup_task_ispaid(booking):
     event_date = booking.selection_set.all().first().datetime_init
     diff = (event_date - datetime.now()).days
     task_date = (datetime.now() + timedelta(hours=24)) if diff >= 1 else (event_date - timedelta(hours=1))
+
     schedule, _ = CrontabSchedule.objects.get_or_create(
         minute=task_date.minute,
         hour=task_date.hour,
@@ -32,11 +33,14 @@ def setup_task_ispaid(booking):
     )
 
     notpaid_manager[booking.id] = task.id
+    task.kwargs = json.dumps({'id': task.id})
+    task.save()
 
 
 @task
-def booking_notpaid(*args):
+def booking_notpaid(*args, **kwargs):
     booking_id = int(args[0])
+    task_id = int(kwargs.get('id'))
     qs = Booking.objects.filter(id=booking_id)
 
     if qs.exists():
@@ -58,16 +62,14 @@ def booking_notpaid(*args):
             invoice.save()
 
     # After completed cancel it.
-    cancel_task(notpaid_manager, booking_id)
-    cancel_task(events_done_manager, booking_id)
+    cancel_task(task=task_id)
 
 
 def setup_task_event_done(booking):
     global events_done_manager
 
     event_date = booking.selection_set.all().last()
-    # task_date = event_date.datetime_init + timedelta(hours=1)
-    task_date = datetime(2020, 5, 17, 22, 38)
+    task_date = event_date.datetime_init + timedelta(hours=1)
 
     schedule, _ = CrontabSchedule.objects.get_or_create(
         minute=task_date.minute,
@@ -86,11 +88,14 @@ def setup_task_event_done(booking):
     )
 
     events_done_manager[booking.id] = task.id
+    task.kwargs = json.dumps({'id': task.id})
+    task.save()
 
 
-@task(bind=True)
-def event_done(self, *args):
+@task
+def event_done(*args, **kwargs):
     booking_id = int(args[0])
+    task_id = int(kwargs.get('id'))
     qs = Booking.objects.filter(id=booking_id)
 
     if qs.exists():
@@ -98,7 +103,7 @@ def event_done(self, *args):
         booking.is_deleted = True
         booking.save()
 
-    cancel_task(int(self.request.id))
+    cancel_task(task=task_id)
 
 
 def setup_task_invoice(invoice):
@@ -124,16 +129,19 @@ def setup_task_invoice(invoice):
     )
 
     invoices_manager[invoice.id] = task.id
+    task.kwargs = json.dumps({'id': task.id})
+    task.save()
 
 
 @task
-def invoice_timeout(*args):
+def invoice_timeout(*args, **kwargs):
     invoice_id = args[0]
+    task_id = int(kwargs.get('id'))
     qs = Invoice.objects.filter(id=int(invoice_id))
 
     if qs.exists(): qs.first().delete()
 
-    cancel_task(invoices_manager, invoice_id)
+    cancel_task(task=task_id)
 
 
 def cancel_task(task_manager=None, booking_id=None, task=None):
@@ -151,7 +159,6 @@ def cancel_task(task_manager=None, booking_id=None, task=None):
                 crontab.delete()
 
             task.delete()
-            del task_manager[booking_id]
 
 
 def get_cron_weekday(day):
