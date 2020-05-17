@@ -3,14 +3,11 @@ from datetime import datetime, timedelta
 import pytz
 from celery.task import task
 from django_celery_beat.models import CrontabSchedule, PeriodicTask
-from celery.utils.log import get_task_logger
-
 from trainWellApp.models import Booking, Notification, Invoice
 
 notpaid_manager = {}
 events_done_manager = {}
 invoices_manager = {}
-logger = get_task_logger(__name__)
 
 
 def setup_task_ispaid(booking):
@@ -69,7 +66,8 @@ def setup_task_event_done(booking):
     global events_done_manager
 
     event_date = booking.selection_set.all().last()
-    task_date = event_date.datetime_init + timedelta(hours=1)
+    # task_date = event_date.datetime_init + timedelta(hours=1)
+    task_date = datetime(2020, 5, 17, 22, 38)
 
     schedule, _ = CrontabSchedule.objects.get_or_create(
         minute=task_date.minute,
@@ -90,8 +88,8 @@ def setup_task_event_done(booking):
     events_done_manager[booking.id] = task.id
 
 
-@task
-def event_done(*args):
+@task(bind=True)
+def event_done(self, *args):
     booking_id = int(args[0])
     qs = Booking.objects.filter(id=booking_id)
 
@@ -100,7 +98,7 @@ def event_done(*args):
         booking.is_deleted = True
         booking.save()
 
-    cancel_task(events_done_manager, booking_id)
+    cancel_task(int(self.request.id))
 
 
 def setup_task_invoice(invoice):
@@ -138,8 +136,9 @@ def invoice_timeout(*args):
     cancel_task(invoices_manager, invoice_id)
 
 
-def cancel_task(task_manager, booking_id):
-    task_id = task_manager.get(booking_id)
+def cancel_task(task_manager=None, booking_id=None, task=None):
+    task_id = task if task else task_manager.get(booking_id)
+
     if task_id:
         qs = PeriodicTask.objects.filter(id=task_id)
 
