@@ -283,7 +283,7 @@ class BookingStateView(GerentRequiredMixin, ListView):
 class BookingStateUpdateView(GerentRequiredMixin, UpdateView):
     model = Invoice
     form_class = InvoiceForm
-    template_name = 'manager/show_state.html'
+    template_name = 'manager/state_update.html'
 
     def get_success_url(self):
         return reverse('manager:bookings_state_list')
