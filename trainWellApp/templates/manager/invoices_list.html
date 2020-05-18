@@ -11,7 +11,8 @@
             <h4>invoices<sup id="num_notis">{{ object_list|length }}</sup></h4>
 
             {% for n in object_list %}
-                <div style="border-radius: 25px;" class="card col-12 border-0 shadow-sm p-4 my-3 active">
+                <div style="border-left: .5rem solid {{ n.get_color }} !important"
+                     class="card col-12 border-0 shadow-sm p-4 my-3 active">
                     <div class="row">
                         <div class="col-sm-2">
                             <h6 class="card-title mb-1">{{ n.booking.name }}</h6>
@@ -25,7 +26,7 @@
 
                         <div class="col-sm-2 text-center">
                             <small>
-                               Payment Method<br>{{ n.get_payment_method }}
+                                Payment Method<br>{{ n.get_payment_method }}
                             </small>
                         </div>
 
