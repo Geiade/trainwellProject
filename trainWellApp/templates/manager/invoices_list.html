@@ -45,6 +45,8 @@
                         <div class="col-sm-3 text-center">
                             <a type="button" href="{% url 'trainwell:booking-detail' n.booking.id %}"
                                class="btn btn-primary text-white">Booking</a>
+                            <a type="button" href="{% url 'trainwell:invoice_pdf' n.id %}"
+                               class="btn btn-light"> PDF <i class="fas fa-file-pdf"></i> </a>
                         </div>
                     </div>
                 </div>
