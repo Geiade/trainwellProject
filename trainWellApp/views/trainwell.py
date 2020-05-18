@@ -19,7 +19,8 @@ from django.conf import settings
 
 from trainWellApp.models import Booking, Planner, Selection, Place, Notification, Invoice
 from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2
-from trainWellApp.tasks import setup_task, cancel_task
+from trainWellApp.tasks import setup_task_ispaid, cancel_task, setup_task_event_done, notpaid_manager, \
+    events_done_manager, setup_task_invoice
 from trainWellApp.utils import Render
 
 
@@ -214,7 +215,8 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
         description = booking.planner.user.username + " created new booking"
         Notification(name=name, description=description, level=2, booking=booking).save()
 
-        setup_task(booking)
+        setup_task_ispaid(booking)
+        setup_task_event_done(booking)
         create_invoice(booking)
 
         return redirect(reverse('trainwell:dashboard'))
@@ -268,7 +270,8 @@ def bookingcancelation(request, pk):
 
             invoice.save()
 
-        cancel_task(booking.id)  # Cancel task associated to booking
+        cancel_task(notpaid_manager, booking.id)  # Cancel task associated to booking
+        cancel_task(events_done_manager, booking.id)  # Cancel task associated to booking
 
     else:
         return Http404
@@ -293,6 +296,7 @@ def create_invoice(booking):
                       period_end=selections.first().datetime_init,)
 
     invoice.save()
+    setup_task_invoice(invoice)
 
     return invoice
 

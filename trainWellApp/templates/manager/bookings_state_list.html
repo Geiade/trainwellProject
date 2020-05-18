@@ -11,7 +11,7 @@
             <h4>Bookings<sup id="num_in">{{ object_list|length }}</sup></h4>
 
             {% for invoice in object_list %}
-                <div style="border-radius: 25px;"
+                <div style="border-left: .5rem solid {{ invoice.booking.event.color }} !important"
                      class="card col-12 border-0 shadow-sm p-4 my-3 inpg">
                     <div class="row">
                         <div class="col-sm-4">
@@ -35,11 +35,10 @@
                         </div>
 
                         <div class="col-sm-2 ">
-                            <a type="button" href="{% url "manager:bookings_state_update" invoice.booking.id %}"
+                            <a type="button" href="{% url "manager:bookings_state_update" invoice.id %}"
                                class="btn btn-primary"><i class="far fa-edit" ></i></a>
 
                         </div>
-
 
                     </div>
                 </div>
