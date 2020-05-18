@@ -31,7 +31,6 @@ def addEvent(request):
     return render(request, 'staff/add_event.html', args)
 
 
-
 class EventsListView(StaffRequiredMixin, ListView):
     model = Event
     template_name = 'staff/events_list.html'
@@ -79,7 +78,6 @@ class EventUpdateView(StaffRequiredMixin, UpdateView):
     def format_data(self):
         instance = self.get_form_kwargs()['instance']
         return json.dumps([str(p.id) for p in instance.places.all()])
-
 
 
 @staff_required
@@ -290,7 +288,7 @@ class BookingStateUpdateView(GerentRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse('manager:bookings_state_list')
 
-      
+
 # View for head of facilities
 class BookingListView(StaffRequiredMixin, ListView):
     model = Selection
@@ -488,3 +486,15 @@ class UsageGraph(APIView):
             return (query.count() / total_hours) * 100
         else:
             return 0
+
+
+class InvoiceListView(GerentRequiredMixin, ListView):
+    model = Invoice
+    template_name = 'manager/invoices_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def get_queryset(self):
+        return self.model.objects.filter(is_deleted=False)
