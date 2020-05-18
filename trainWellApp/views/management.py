@@ -278,7 +278,7 @@ class BookingStateView(GerentRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
-        return self.model.objects.all().order_by('created')
+        return self.model.objects.filter(is_deleted=False).order_by('created')
 
 
 class BookingStateUpdateView(GerentRequiredMixin, UpdateView):
