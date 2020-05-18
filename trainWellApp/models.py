@@ -99,12 +99,25 @@ class Invoice(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
-    modified_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+    modified_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
     is_deleted = models.BooleanField(default=False)
-
 
     def __str__(self):
         return str(self.booking) + " - " + str(self.booking.planner) + ":" + str(self.price)
+
+    def get_payment_method(self):
+        return self.PAYMENT_METHODS[self.payment_method - 1][1]
+
+    def get_booking_state(self):
+        return self.BOOKING_STATES[self.booking_state - 1][1]
+
+    def get_color(self):
+        if self.booking_state == 3 or self.booking_state == 4 or self.booking_state == 5:
+            return "#ffff00"
+        elif self.booking_state == 2:
+            return "#ff0000"
+        else:
+            return "#33cc33"
 
 
 class Incidence(models.Model):
