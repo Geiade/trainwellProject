@@ -11,4 +11,5 @@ urlpatterns = [
     path('graphs/', Graphs.as_view(), name='graphs'),
     path('graphs/api/rendiment', RendimentGraph.as_view(), name='api_rendiment_graph'),
     path('graphs/api/usage', UsageGraph.as_view(), name='api_usage_graph'),
+    path('invoices/', InvoiceListView.as_view(), name="invoices_list"),
 ]
