@@ -30,6 +30,7 @@ class Place(models.Model):
     available_until = models.DateTimeField()
     description = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to="place_images/", default="place_images/default.png", blank=True, null=True)
+    shape = models.ImageField(upload_to="place_shapes/", default="place_images/default.png", blank=True, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)

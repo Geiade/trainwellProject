@@ -31,5 +31,6 @@ urlpatterns = [
     url(r'^add_booking/(?P<step>.+)/$', booking_wizard, name='book_step'),
     url(r'^add_booking/$', booking_wizard, name='book'),
     path('dashboard/', Dashboard.as_view(), name='dashboard'),
+    path('map/', CenterMapView.as_view(), name='map'),
     path('invoice/<int:pk>/pdf/', InvoicePdf.as_view(), name='invoice_pdf'),
 ]
