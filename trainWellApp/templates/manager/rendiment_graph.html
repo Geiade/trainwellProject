@@ -1,18 +1,20 @@
-<div class="card col-6">
-    <div class="card-body">
+<div class="col-12">
+    <div class="card col-5">
+        <div class="card-body">
 
-        <h3 class="card-title"> Rendiment graph in € </h3>
+            <h3 class="card-title"> Rendiment graph in € </h3>
 
-        <div class="card-text">
-            <i class="fa fa-fw fa-info-circle" data-toggle="tooltip" title=" Rendiment graph "></i>
-            <label class="card-subtitle"> Date Initial </label>
-            <input type="date" id="date_init_rendiment" onchange="getData_rendiment_graph()">
-            <label class="card-subtitle"> Date Ending </label>
-            <input type="date" id="date_end_rendiment" onchange="getData_rendiment_graph()">
+            <div class="card-text">
+                <i class="fa fa-fw fa-info-circle" data-toggle="tooltip" title=" Rendiment graph "></i>
+                <label class="card-subtitle"> Date Initial </label>
+                <input type="date" id="date_init_rendiment" onchange="getData_rendiment_graph()">
+                <label class="card-subtitle"> Date Ending </label>
+                <input type="date" id="date_end_rendiment" onchange="getData_rendiment_graph()">
 
-            <canvas id="canvas_rendiment_graph"></canvas>
-            <p id="error_rendiment_graph"></p>
+                <canvas id="canvas_rendiment_graph"></canvas>
+                <p id="error_rendiment_graph"></p>
+            </div>
+
         </div>
-
     </div>
 </div>
