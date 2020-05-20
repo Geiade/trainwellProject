@@ -2,25 +2,22 @@
 {% load static %}
 
 {% block body_block %}
-    <style>.draggable {
-        width: 40%;
-        color: #fff;
-        font-size: 1.2em;
-        border-radius: 4px;
-        padding: 2%;
-        margin: 5%;
-        touch-action: none;
-    }</style>
 
-    <div style="min-height: 100vh" class="container">
+    <div id="center_map" style="min-height: 100vh" class="row">
         {% for p in object_list %}
-            <div style="background-color: {{ p.events.all.0.color }};" class="draggable">{{ p.name }}</div>
+            <div class="col-2 draggable h-25 text-center">
+                <span><b>{{ p.name }}</b></span>
+                <img style=" border: .2rem solid #bdbdbd" class="img-fluid" src="{{ p.shape.url }}" alt="...">
+            </div>
         {% endfor %}
     </div>
 
-    <canvas id="center-map">
+    <button id="save-btn" onclick="generateCanvas()">Save</button>
 
-    </canvas>
+    <canvas id="map-canvas"></canvas>
+    <div id="dummy"></div>
+
+
 
 
 
@@ -77,7 +74,19 @@
             target.setAttribute('data-y', y)
         }
 
-        // this function is used later in the resizing and gesture demos
         window.dragMoveListener = dragMoveListener
+    </script>
+
+    <script type="text/javascript">
+
+        function generateCanvas() {
+            html2canvas(document.querySelector("#center_map")).then(canvas => {
+                var a = document.createElement('a');
+                a.href = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+                a.download = 'tw_map.jpg';
+                a.click();
+            });
+
+        }
     </script>
 {% endblock %}
