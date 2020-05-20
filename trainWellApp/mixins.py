@@ -40,7 +40,7 @@ class BothStaffGerentRequiredMixin:
         if request.user.is_authenticated:
             try:
                 planner = Planner.objects.get(user=request.user)
-                if planner.is_gerent is True and planner.is_staff is True:
+                if planner.is_gerent is True or planner.is_staff is True:
                     return super().dispatch(request, *args, **kwargs)
                 else:
                     raise PermissionDenied
