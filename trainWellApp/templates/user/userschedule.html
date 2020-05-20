@@ -4,22 +4,27 @@
 
 {% block body_block %}
 
-<style>
-    nav{ width:2200px;}
-</style>
+    <style>
+        nav {
+            width: 2200px;
+        }
+    </style>
 
-<section id="day_schedule" class="container-fluid">
-{{object_list.items}}
+    <section id="day_schedule" class="container-fluid">
         <div id="header" class="row px-5 pt-5 pb-3">
             <div class="col-auto pr-1">
                 <div class="btn-group" role="group">
                     <button id="pw" type="button" class="btn btn-secondary btn-sm d-inline"
                             onclick="swipeDay('{% url 'bookings_schedule' %}','{{ prev_day }}')">
-                        <i class="fas fa-chevron-left"><script>reSize()</script></i>
+                        <i class="fas fa-chevron-left">
+                            <script>reSize()</script>
+                        </i>
                     </button>
                     <button id="nw" type="button" class="btn btn-secondary btn-sm d-inline"
                             onclick="swipeDay('{% url 'bookings_schedule' %}','{{ next_day }}')">
-                        <i class="fas fa-chevron-right"><script>reSize()</script></i>
+                        <i class="fas fa-chevron-right">
+                            <script>reSize()</script>
+                        </i>
                     </button>
                 </div>
                 <button id="today" type="button" class="btn btn-secondary btn-sm mr-3"
@@ -30,70 +35,62 @@
         </div>
 
         <div class="row flex-nowrap">
-        {% for h in hours %}
-            {% now "H:00" as curr_hour %}
-            {% if curr_hour == h %}
-                <div style="border-left-style: solid; border-top-width: 1.5px; border-left-color: #e74a3b;"
-                     class="row m-5 animated slideInRight">
-            {% else %}
-                <div class="row m-5 animated slideInRight border-left">
-            {% endif %}
+            {% for h in hours %}
+                {% now "H:00" as curr_hour %}
+                {% if curr_hour == h %}
+                    <div style="border-left-style: solid; border-top-width: 1.5px; border-left-color: #e74a3b;"
+                         class="col">
+                {% else %}
+                    <div class="col border-left">
+                {% endif %}
             <small class="col-sm mr-3 text-muted">{{ h }}</small>
-
-
-
-            {% for k, v in  object_list.items %}
-                {% for key, values in v.items %}
-                    {% if h in values %}
-                            HOLA
-                    {% endif %}
-                {% endfor %}
+            </div>
             {% endfor %}
 
-            <!--{% for k, v in  object_list.items %}
-                {% if h == v.values|tolist|first|first %}
-                    <div class="card col-auto ml-5 mt-3 mb-2 border-0 shadow-sm"
-                         style="border-left: .5rem solid {{ k.event.color }} !important">
-                        <div class="card-body">
-                            <h6 class="card-title">{{ k.name }}</h6>
-                            <h6 class="card-subtitle mb-2 text-muted">{{ k.event }}</h6>
-                            <div class="card-text btn-group" role="group">
-                                {% for key, value in v.items %}
-                                    <button type="button" class="btn btn-sm btn-light" data-toggle="popover"
-                                            title="Hours" data-trigger="hover" data-content="{{ value }}"
-                                            style="font-size: small">{{ key }}</button>
-                                {% endfor %}
-                            <script>addWidth('{{ h }}')</script>
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
-            {% endfor %}-->
-        </div>
-        {% endfor %}
-        </div>
+            </div>
 
-        <script id="popover_script" type="text/javascript">
-            var hours = [];
+            {% for k, v in  object_list.items %}
+                <div class="row flex-nowrap">
+                    {% for h in hours %}
+                        {% for key, values in v.items %}
+                            {% if h in values %}
+                                {% if h == values.0 %}
+                                    <div class="col" style="background-color: {{ k.event.color }}">
+                                        {{ k.name }}
+                                        {{ key }}</div>
+                                {% else %}
+                                    <div class="col" style="background-color: {{ k.event.color }}"data-toggle="popover"title="Event data" data-trigger="hover" data-content="{{ k.name }}{{ values }}" >
+                                        {{ key }}</div>
+                                {% endif %}
+                            {% else %}
+                                <div class="col"></div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}</div>
+            {% endfor %}
 
-            $(document).ready(function () {
-                $('[data-toggle="popover"]').popover();
-            });
 
-            function reSize(){
-                document.getElementById("navbar").style.width = "2200px";
-                width_value = document.getElementById("navbar").offsetWidth;
-            }
+            <script id="popover_script" type="text/javascript">
+                var hours = [];
 
-            function addWidth(hour){
-                if(!hours.includes(hour)){
-                    hours.push(hour);
-                    var width = String(document.getElementById("navbar").offsetWidth + 100);
-                    var width_value = width.concat("px");
-                    document.getElementById("navbar").style.width = width_value;
+                $(document).ready(function () {
+                    $('[data-toggle="popover"]').popover();
+                });
+
+                function reSize() {
+                    document.getElementById("navbar").style.width = "2200px";
+                    width_value = document.getElementById("navbar").offsetWidth;
                 }
-            }
-        </script>
+
+                function addWidth(hour) {
+                    if (!hours.includes(hour)) {
+                        hours.push(hour);
+                        var width = String(document.getElementById("navbar").offsetWidth + 100);
+                        var width_value = width.concat("px");
+                        document.getElementById("navbar").style.width = width_value;
+                    }
+                }
+            </script>
 
     </section>
 
