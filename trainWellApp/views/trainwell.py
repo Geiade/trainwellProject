@@ -418,7 +418,7 @@ class BookingScheduleView(ListView):
             d = {}
             for e in v: d.setdefault(e.place.name, []).append(e.datetime_init.strftime("%H:%M"))
             bookings[k] = d
-
+        print(bookings)
         return bookings
 
 

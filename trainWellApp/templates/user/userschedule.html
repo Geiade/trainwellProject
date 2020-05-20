@@ -3,13 +3,13 @@
 {% load static %}
 
 {% block body_block %}
-<!-- Per adaptar el header si ho deixes horitzontal -->
+
 <style>
     nav{ width:2200px;}
 </style>
 
 <section id="day_schedule" class="container-fluid">
-
+{{object_list.items}}
         <div id="header" class="row px-5 pt-5 pb-3">
             <div class="col-auto pr-1">
                 <div class="btn-group" role="group">
@@ -29,7 +29,7 @@
             <h5 class="col-auto pl-1 v-middle">{{ day|date:"D, d F Y" }}</h5>
         </div>
 
-        <div class="row flex-nowrap"> <!-- Treu el flex-nowrap si no vols que no et superi la mida de la pantalla -->
+        <div class="row flex-nowrap">
         {% for h in hours %}
             {% now "H:00" as curr_hour %}
             {% if curr_hour == h %}
@@ -40,10 +40,20 @@
             {% endif %}
             <small class="col-sm mr-3 text-muted">{{ h }}</small>
 
+
+
             {% for k, v in  object_list.items %}
+                {% for key, values in v.items %}
+                    {% if h in values %}
+                            HOLA
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+
+            <!--{% for k, v in  object_list.items %}
                 {% if h == v.values|tolist|first|first %}
                     <div class="card col-auto ml-5 mt-3 mb-2 border-0 shadow-sm"
-                         style="border-left: .5rem solid {{ key.event.color }} !important">
+                         style="border-left: .5rem solid {{ k.event.color }} !important">
                         <div class="card-body">
                             <h6 class="card-title">{{ k.name }}</h6>
                             <h6 class="card-subtitle mb-2 text-muted">{{ k.event }}</h6>
@@ -58,7 +68,7 @@
                         </div>
                     </div>
                 {% endif %}
-            {% endfor %}
+            {% endfor %}-->
         </div>
         {% endfor %}
         </div>
