@@ -21,4 +21,7 @@ urlpatterns = [
     path('add_place/', addPlace, name="add_place"),
     path('edit_place/<int:pk>/', PlaceUpdateView.as_view(), name="edit_place"),
     path('delete_place/<int:pk>/', deletePlace, name="delete_place"),
+    path('add_map/', MapCreateView.as_view(), name="add_map"),
+    path('edit_map/<int:pk>', MapUpdateView.as_view(), name="edit_map"),
+
 ]

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body_block %}
+    <div class="container my-5">
+
+        <div class="row justify-content-center">
+            <div class="col col-md-5 p-3">
+
+                <h4 class="font-weight-bold py-3">Map</h4>
+
+                <form method="post" enctype="multipart/form-data">
+                    <div class="form-group" id="name">
+                        <label class="font-weight-bold text-muted" for="name">Name</label>
+                        <input name="name" type="text" class="form-control" id="name" value="{{ form.name.value }}">
+
+                        {% if form.name.errors %}
+                            {% for error in form.name.errors %}
+                                <small class="text-danger">{{ error|escape }}</small>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    {{ form.image }}
+
+                    <div class="my-5">
+                        {% if edit %}
+                            <input type="submit" class="btn btn-secondary btn-lg btn-block" value="Edit"/>
+                        {% else %}
+                            <input type="submit" class="btn btn-secondary btn-lg btn-block" value="Submit"/>
+                        {% endif %}
+                    </div>
+                    {% csrf_token %}
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
