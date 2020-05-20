@@ -115,8 +115,9 @@ def deleteEvent(request, pk):
     return redirect(reverse('staff:events_list'))
 
 
-@staff_required
+
 @gerent_required
+@staff_required
 def addPlace(request):
     if request.method == "POST":
         form = PlaceForm(request.POST)
