@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block body_block %}
+    {% include "manager/manager_navbar.html" %}
+    <section id="invoices_panel" class="container">
+
+        <div class="row p-5">
+
+            <h4>invoices<sup id="num_notis">{{ object_list|length }}</sup></h4>
+
+            {% for n in object_list %}
+                <div style="border-left: .5rem solid {{ n.get_color }} !important"
+                     class="card col-12 border-0 shadow-sm p-4 my-3 active">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <h6 class="card-title mb-1">{{ n.booking.name }}</h6>
+                        </div>
+
+                        <div class="col-sm-2 text-center">
+                            <small>
+                                Event date <br>{{ n.booking.selection_set.all.0.datetime_init|date:"d-m-Y" }}
+                            </small>
+                        </div>
+
+                        <div class="col-sm-2 text-center">
+                            <small>
+                                Payment Method<br>{{ n.get_payment_method }}
+                            </small>
+                        </div>
+
+                        <div class="col-sm-2 text-center">
+                            <small>
+                                Status<br>{{ n.get_booking_state }}
+                            </small>
+                        </div>
+
+                        <div class="col-sm-1 text-center">
+                            <small>
+                                Price<br>{{ n.price }}
+                            </small>
+                        </div>
+
+                        <div class="col-sm-3 text-center">
+                            <a type="button" href="{% url 'trainwell:booking-detail' n.booking.id %}"
+                               class="btn btn-primary text-white">Booking</a>
+                            <a type="button" href="{% url 'trainwell:invoice_pdf' n.id %}"
+                               class="btn btn-light"> PDF <i class="fas fa-file-pdf"></i> </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+        </div>
+    </section>
+
+{% endblock %}
+

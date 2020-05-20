@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body_block %}
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+
+    <div class="row">
+        {% include 'manager/rendiment_graph.html' %}
+        {% include 'manager/usage_graph.html' %}
+    </div>
+
+    <script src="{% static 'JS/graphs/rendiment_graph.js' %}"></script>
+    <script src="{% static 'JS/graphs/usage_graph.js' %}"></script>
+
+{% endblock %}

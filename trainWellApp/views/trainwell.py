@@ -2,7 +2,7 @@ import json
 from datetime import timedelta, date, datetime
 import holidays
 import pandas as pd
-
+from django.views.generic.base import View
 from formtools.wizard.views import NamedUrlSessionWizardView
 from isoweek import Week
 
@@ -17,8 +17,11 @@ from django.urls import reverse
 from django.views.generic import ListView, DetailView
 from django.conf import settings
 
-from trainWellApp.models import Booking, Planner, Selection, Place, Notification
-from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2, IncidenceForm
+from trainWellApp.models import Booking, Planner, Selection, Place, Notification, Invoice
+from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2
+from trainWellApp.tasks import setup_task_ispaid, cancel_task, setup_task_event_done, notpaid_manager, \
+    events_done_manager, setup_task_invoice
+from trainWellApp.utils import Render
 
 
 def index(request):
@@ -39,8 +42,12 @@ def signup(request):
         return signed
 
     if request.method == "POST":
+        print('Estas al signup')
         user_form = UserForm(request.POST)
         planner_form = PlannerForm(request.POST)
+
+        print(user_form.errors)
+        print(planner_form.errors)
 
         if user_form.is_valid() and planner_form.is_valid():
             is_staff = False
@@ -71,7 +78,13 @@ def signup(request):
             planner.user = user
             planner.save()
 
-        return redirect(reverse('index'))
+            return redirect(reverse('index'))
+
+        else:
+            user_form = UserForm(request.POST)
+            planner_form = PlannerForm(request.POST)
+            args = {'user_form': user_form, 'planner_form': planner_form}
+            return render(request, 'accounts/signup.html', args)
 
     else:
         user_form = UserForm()
@@ -104,6 +117,8 @@ def signin(request):
                 planner = Planner.objects.get(user=user)
                 if planner.is_staff is True:
                     return redirect(reverse('staff:dashboard'))
+                elif planner.is_gerent is True:
+                    return redirect(reverse('manager:graphs'))
                 else:
                     return redirect(reverse('trainwell:dashboard'))
 
@@ -198,10 +213,12 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
         # Create a notification for manager department.
         name = "New booking: " + booking.name
         description = booking.planner.user.username + " created new booking"
-        notification = Notification(name=name, description=description, booking=booking)
-        notification.save()
+        Notification(name=name, description=description, level=2, booking=booking).save()
 
-        # TODO: Redirect to communicate invoice.
+        setup_task_ispaid(booking)
+        setup_task_event_done(booking)
+        create_invoice(booking)
+
         return redirect(reverse('trainwell:dashboard'))
 
 
@@ -234,13 +251,78 @@ def bookingcancelation(request, pk):
         # Create a notification for manager department.
         name = "Canceled booking: " + booking.name
         description = booking.planner.user.username + " has canceled a booking"
-        notification = Notification(name=name, description=description, booking=booking)
-        notification.save()
+        Notification(name=name, description=description, level=2, booking=booking).save()
+
+        qs = Invoice.objects.filter(booking_id=booking.id)
+        if qs.exists():
+            invoice = qs.first()
+            state = invoice.booking_state
+
+            if state == 1:
+                event_date = booking.selection_set().all().first().datetime_init
+                days_to_event = (event_date - datetime.now()).days
+
+                # Booking canceled minimum 7 days in advance ('Cancelada pagada)
+                invoice.booking_state = 3 if days_to_event >= 7 else 5
+
+            else:
+                invoice.booking_state = 4
+
+            invoice.save()
+
+        cancel_task(notpaid_manager, booking.id)  # Cancel task associated to booking
+        cancel_task(events_done_manager, booking.id)  # Cancel task associated to booking
 
     else:
         return Http404
 
     return redirect(reverse('trainwell:dashboard'))
+
+
+def create_invoice(booking):
+    TAX = 0.21
+    price = 0
+
+    selections = booking.selection_set.all()
+
+    for s in selections:
+        place = Place.objects.get(id=s.place.id)
+        price = price + (float(place.price_hour) * ((100 - place.discount)/100))
+
+    price = float(price) * (1 + TAX)
+    invoice = Invoice(booking=booking, price=price,
+                      concept="Booking: " + booking.name,
+                      period_init=selections.first().datetime_init,
+                      period_end=selections.first().datetime_init,)
+
+    invoice.save()
+    setup_task_invoice(invoice)
+
+    return invoice
+
+
+class InvoicePdf(View):
+    model = Invoice
+    template_name = 'trainWellApp/invoice_pdf.html'
+
+    def get(self, request, *args, **kwargs):
+        invoice = get_object_or_404(Invoice, pk=self.kwargs.get('pk'))
+        selections = invoice.booking.selection_set.all()
+        places = {}
+        for s in selections:
+            value = places.get(s.place.name)
+            if value:
+                value[1] += 1
+            else:
+                places[s.place.name] = [s.place.id, 1, s.place.price_hour, s.place.discount,
+                                        s.place.price_hour*s.place.discount/100]
+
+        for k, v in places.items(): v += [round(v[1]*v[2], 2), round(v[1]*v[4], 2)]
+
+        return Render.render_pdf(self.template_name, {'invoice': invoice,
+                                                      'booking': invoice.booking,
+                                                      'places': places,
+                                                      'subtotal': round(float(invoice.price)/1.21, 2)})
 
 
 class Dashboard(ListView):

@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 
-from trainWellApp.models import Booking, Event, Planner, Selection, Incidence, Place
+from trainWellApp.models import Booking, Event, Planner, Selection, Incidence, Place, Invoice
 
 
 class UserForm(UserCreationForm):
@@ -16,30 +16,14 @@ class UserForm(UserCreationForm):
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2',)
 
-    def clean_password2(self):
-        error_messages = {
-            'password_mismatch': 'The two password fields did not match!',
-            'duplicated_email': 'A user exits with the same email',
-        }
-
-        password1 = self.cleaned_data.get("password1")
-        password2 = self.cleaned_data.get("password2")
-
-        if password1 and password2 and password1 != password2:
-            raise forms.ValidationError(
-                error_messages['password_mismatch'],
-                code='password_mismatch',
-            )
-
+    def clean_email(self):
         email = self.cleaned_data.get('email')
         if User.objects.filter(email=email).exists():
-            err = forms.ValidationError(
-                error_messages['duplicated_email'],
-                code='duplicated_email',
+            raise forms.ValidationError(
+                'A user exits with the same email',
+                code='password_mismatch',
             )
-            self.add_error('email', err)
-
-        return password2
+        return email
 
 
 class PlannerForm(ModelForm):
@@ -115,9 +99,16 @@ class IncidenceForm(ModelForm):
         model = Incidence
         fields = ['name', 'description', 'limit_date', 'disabled', 'places']
 
-        
+
 class PlaceForm(ModelForm):
     class Meta:
         model = Place
+
         fields = ['name', 'price_hour', 'available_from', 'available_until', 'description']
+        
+
+class InvoiceForm(ModelForm):
+    class Meta:
+        model = Invoice
+        fields = ['booking_state']
 

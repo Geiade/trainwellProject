@@ -1,8 +1,9 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load static %}
 
-{% block body_block %}
 
+{% block body_block %}
+    {% include "manager/manager_navbar.html" %}
     <section id="notifications_panel" class="container">
 
         <div class="row p-5">

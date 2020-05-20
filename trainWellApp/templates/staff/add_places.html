@@ -36,7 +36,8 @@
 
                     <div class="form-group" id="price">
                         <label class="font-weight-bold" for="price">Price Hour</label>
-                        <input name="{{ form.price_hour.html_name }}" type="number" min="0" step="0.01" class="form-control"
+                        <input name="{{ form.price_hour.html_name }}" type="number" min="0" step="0.01"
+                               class="form-control"
                                value="{{ form.price_hour.value }}" id="price">
 
                         {% if form.price_hour.errors %}
@@ -47,10 +48,11 @@
                     </div>
 
 
-                    <div class="form-group" id="from">
+                    <div class="form-group" id="available_from">
                         <label class="font-weight-bold" for="available_from">Available_from</label>
-                        <input type="date" name="{{ form.available_from.html_name }}" class="form-control"
-                               value="{{ form.available_from.value|date:"Y-m-d" }}" id="available_from">
+                        <input type="text" name="{{ form.available_from.html_name }}" class="form-control"
+                               value="{{ form.available_from.value|date:"Y-m-d H:m" }}" id="available_from">
+                        <small class="text-muted">Format: "YYYY-mm-dd HH:mm"</small>
 
                         {% if form.available_from.errors %}
                             {% for error in form.available_from.errors %}
@@ -59,10 +61,11 @@
                         {% endif %}
                     </div>
 
-                    <div class="form-group" id="until">
+                    <div class="form-group" id="available_until">
                         <label class="font-weight-bold" for="available_until">Available_until</label>
-                        <input type="date" name="{{ form.available_until.html_name }}" class="form-control"
-                               id="available_until" value="{{ form.available_until.value|date:"Y-m-d" }}">
+                        <input type="text" name="{{ form.available_until.html_name }}" class="form-control"
+                               id="available_until" value="{{ form.available_until.value|date:"Y-m-d H:m" }}">
+                        <small class="text-muted">Format: "YYYY-mm-dd HH:mm"</small>
 
                         {% if form.available_until.errors %}
                             {% for error in form.available_until.errors %}
@@ -75,7 +78,8 @@
                     <div class="row justify-content-center">
                         <div class="col col-md-5 text-center">
                             {% if edit %}
-                                <input value="Edit" type="submit" class="btn btn-secondary" href="{% url 'staff:places_list' %}"
+                                <input value="Edit" type="submit" class="btn btn-secondary"
+                                       href="{% url 'staff:places_list' %}"
                                        onclick="return confirm('Do you want to edit?')">
                             {% else %}
                                 <input type="submit" href="{% url 'staff:places_list' %}"
