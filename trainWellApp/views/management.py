@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.views.generic import ListView, UpdateView
 from django.views import View
 from rest_framework.views import APIView
-from trainWellApp.decorators import staff_required, gerent_required
+from trainWellApp.decorators import staff_required, gerent_required, gerentstaff_required
 from trainWellApp.forms import EventForm, IncidenceForm, PlaceForm, InvoiceForm
 from trainWellApp.mixins import StaffRequiredMixin, GerentRequiredMixin, BothStaffGerentRequiredMixin
 from trainWellApp.models import Selection, Incidence, Place, Event, Booking, Notification, Planner, Invoice
@@ -116,8 +116,7 @@ def deleteEvent(request, pk):
 
 
 
-@gerent_required
-@staff_required
+@gerentstaff_required
 def addPlace(request):
     if request.method == "POST":
         form = PlaceForm(request.POST)
