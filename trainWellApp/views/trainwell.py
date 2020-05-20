@@ -335,15 +335,6 @@ class Dashboard(ListView):
         return qs
 
 
-class CenterMapView(ListView):
-    model = Place
-    template_name = 'trainWellApp/center_map.html'
-
-    def get_queryset(self):
-        dummy = self.model.objects.first()
-        return self.model.objects.filter(is_deleted=False)
-
-
 def isajax_req(request):
     return request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 

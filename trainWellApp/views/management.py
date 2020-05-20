@@ -500,6 +500,15 @@ class InvoiceListView(GerentRequiredMixin, ListView):
         return self.model.objects.filter(is_deleted=False)
 
 
+class CenterMapView(ListView):
+    model = Place
+    template_name = 'trainWellApp/center_map.html'
+
+    def get_queryset(self):
+        dummy = self.model.objects.first()
+        return self.model.objects.filter(is_deleted=False)
+
+
 class MapCreateView(StaffRequiredMixin, CreateView):
     model = Map
     form_class = MapForm
@@ -521,3 +530,9 @@ class MapUpdateView(StaffRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse("staff:dashboard")
+
+
+class MapsListView(StaffRequiredMixin, ListView):
+    model = Map
+    template_name = 'staff/maps_list.html'
+
