@@ -1,0 +1,76 @@
+{% extends isajax|yesno:"ajax_base.html,base.html" %}
+{% load app_filters %}
+{% load static %}
+<img class="img-fluid" src="{{ object_list.items.0 }}" alt="...">
+
+{% block body_block %}
+    <section id="day_schedule" class="container-fluid">
+        <div id="header" class="row px-5 pt-5 pb-3">
+            <div class="col-auto pr-1">
+                <div class="btn-group" role="group">
+                    <button id="pw" type="button" class="btn btn-secondary btn-sm d-inline"
+                            onclick="swipeDay('{% url 'bookings_schedule' %}','{{ prev_day }}')">
+                        <i class="fas fa-chevron-left">
+                        </i>
+                    </button>
+                    <button id="nw" type="button" class="btn btn-secondary btn-sm d-inline"
+                            onclick="swipeDay('{% url 'bookings_schedule' %}','{{ next_day }}')">
+                        <i class="fas fa-chevron-right">
+                        </i>
+                    </button>
+                </div>
+                <button id="today" type="button" class="btn btn-secondary btn-sm mr-3"
+                        onclick="swipeDay('{% url 'bookings_schedule' %}','{% now "d/m/Y" %}')">Today
+                </button>
+            </div>
+            <h5 class="col-auto pl-1 v-middle">{{ day|date:"D, d F Y" }}</h5>
+        </div>
+
+        <div style="overflow-x: auto; min-height: 100vh" class="animated slideInRight">
+            <div class="row flex-nowrap m-5">
+                {% for h in hours %}
+                    {% now "H:00" as curr_hour %}
+                    {% if curr_hour == h %}
+                        <div style="border-left-style: solid; border-top-width: 1.5px; border-left-color: #e74a3b;"
+                             class="col-sm-2 "><small class="text-muted">{{ h }}</small></div>
+                    {% else %}
+                        <div class="col-sm-2 border-left"><small
+                                class="text-muted">{{ h }}</small></div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+
+            {% for k, v in  object_list.items %}
+                <div class="row flex-nowrap mx-5 mb-2" style="">
+                    {% for h in hours %}
+                        <div class="col-sm-2 p-2">
+                            {% for key, values in v.items %}
+                                {% if h in values %}
+                                    <span class="active text-white" content="{{ k.event.color }}"
+                                        data-html="true" data-toggle="popover" title="<b>{{ k.name }}</b>" data-trigger="hover">
+                                    <small>{{ key.name }}</small></span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+        </div>
+    </section>
+
+    <script id="popover_script" type="text/javascript">
+        var hours = [];
+
+        $(document).ready(function () {
+            $('[data-toggle="popover"]').popover();
+
+            $('.active').each(function () {
+                $(this).parent().css('background-color', $(this).attr("content"));
+            })
+
+        });
+    </script>
+{% endblock %}
+
