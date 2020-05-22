@@ -35,7 +35,6 @@ function getData_rendiment_graph() {
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
-            console.log(xhr.responseText)
             draw_chart_rendiment(xhr.responseText)
         } else if (xhr.readyState === 4) {
             console.log("error")
@@ -57,6 +56,8 @@ function draw_chart_rendiment(json_data) {
         keys.push(key);
         values.push(json_data[key])
     });
+
+    let stepSize = Math.max.apply(Math, values) / 5.0;
 
     const ctx_rendiment = document.getElementById('canvas_rendiment_graph').getContext('2d');
 
@@ -95,8 +96,10 @@ function draw_chart_rendiment(json_data) {
             scales: {
                 yAxes: [{
                     ticks: {
+                        min: 0,
+                        suggestedMax: Math.round(stepSize * 1.25 * 5.0),
                         beginAtZero: true,
-                        stepSize: 25,
+                        stepSize: Math.round(stepSize),
                     }
                 }]
             }

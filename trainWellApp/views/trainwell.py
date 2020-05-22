@@ -19,7 +19,8 @@ from django.conf import settings
 
 from trainWellApp.models import Booking, Planner, Selection, Place, Notification, Invoice
 from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2
-from trainWellApp.tasks import setup_task, cancel_task
+from trainWellApp.tasks import setup_task_ispaid, cancel_task, setup_task_event_done, notpaid_manager, \
+    events_done_manager, setup_task_invoice
 from trainWellApp.utils import Render
 
 
@@ -117,7 +118,7 @@ def signin(request):
                 if planner.is_staff is True:
                     return redirect(reverse('staff:dashboard'))
                 elif planner.is_gerent is True:
-                    return redirect(reverse('manager:graphs'))
+                    return redirect(reverse('manager:notifications'))
                 else:
                     return redirect(reverse('trainwell:dashboard'))
 
@@ -214,7 +215,8 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
         description = booking.planner.user.username + " created new booking"
         Notification(name=name, description=description, level=2, booking=booking).save()
 
-        setup_task(booking)
+        setup_task_ispaid(booking)
+        setup_task_event_done(booking)
         create_invoice(booking)
 
         return redirect(reverse('trainwell:dashboard'))
@@ -268,7 +270,8 @@ def bookingcancelation(request, pk):
 
             invoice.save()
 
-        cancel_task(booking.id)  # Cancel task associated to booking
+        cancel_task(notpaid_manager, booking.id)  # Cancel task associated to booking
+        cancel_task(events_done_manager, booking.id)  # Cancel task associated to booking
 
     else:
         return Http404
@@ -293,6 +296,7 @@ def create_invoice(booking):
                       period_end=selections.first().datetime_init,)
 
     invoice.save()
+    setup_task_invoice(invoice)
 
     return invoice
 
@@ -440,3 +444,63 @@ def _generate_range(fromm=datetime(2020, 1, 1, 9, 00), to=datetime(2020, 1, 1, 2
     # We consider default opening hours from 9h to 21h.
     return pd.date_range(fromm.strftime("%H:%M"), to.strftime("%H:%M"),
                          freq='H').strftime("%H:%M").tolist()
+
+
+class BookingScheduleView(ListView):
+    model = Selection
+    template_name = 'user/userschedule.html'
+
+    def get_queryset(self):
+        dailybookings = {}
+        day = self.get_day()
+        selection = self.model.objects.filter(datetime_init__day=day.day, datetime_init__month=day.month,
+                                              datetime_init__year=day.year, booking__is_deleted=False)
+        for s in selection:
+            if s.booking in dailybookings:
+                dailybookings[s.booking].append(s)
+            else:
+                dailybookings[s.booking] = [s]
+        return self.format_data(dailybookings)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        day = self.get_day()
+
+        query = Place.objects.filter(available_from__lt=day, available_until__gt=day)
+        if query.exists():
+            range_day = query.first()
+        else:
+            return context
+
+        context.update({'next_day': (day + timedelta(days=1)).strftime("%d/%m/%Y"),
+                        'prev_day': (day - timedelta(days=1)).strftime("%d/%m/%Y"),
+                        'day': day,
+                        'hours': _generate_range(range_day.available_from, range_day.available_until),
+                        'isajax': isajax_req(self.request)})
+
+        return context
+
+    def get_day(self):
+        ajax_data = self.request.GET.get('day')  # If ajax request, sends week.
+
+        if ajax_data:
+            day_list = ajax_data.split('/')
+            day = datetime(int(day_list[2]), int(day_list[1]), int(day_list[0]))
+        else:
+            day = datetime.now()
+
+        return day
+
+    @staticmethod
+    def format_data(bookings):
+        from collections import OrderedDict
+
+        """ Sort first selections by hours. Then sort by bookings """
+        [v.sort(key=lambda x: x.datetime_init) for k, v in bookings.items()]
+        bookings = OrderedDict(sorted(bookings.items(), key=lambda x: x[1][0].datetime_init))
+
+        for k, v in bookings.items():
+            d = {}
+            for e in v: d.setdefault(e.place, []).append(e.datetime_init.strftime("%H:%M"))
+            bookings[k] = d
+        return bookings

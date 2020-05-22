@@ -8,10 +8,18 @@ from django.urls import reverse
 from django.views.generic import ListView, UpdateView, CreateView
 from django.views import View
 from rest_framework.views import APIView
+
 from trainWellApp.decorators import staff_required, gerent_required
 from trainWellApp.forms import EventForm, IncidenceForm, PlaceForm, InvoiceForm, MapForm
 from trainWellApp.mixins import StaffRequiredMixin, GerentRequiredMixin
 from trainWellApp.models import Selection, Incidence, Place, Event, Booking, Notification, Planner, Invoice, Map
+
+from trainWellApp.decorators import staff_required, gerent_required, gerentstaff_required
+from trainWellApp.forms import EventForm, IncidenceForm, PlaceForm, InvoiceForm
+from trainWellApp.mixins import StaffRequiredMixin, GerentRequiredMixin, BothStaffGerentRequiredMixin
+from trainWellApp.models import Selection, Incidence, Place, Event, Booking, Notification, Planner, Invoice
+from trainWellApp.tasks import cancel_task, notpaid_manager
+
 from trainWellApp.views.trainwell import _generate_range, isajax_req
 
 
@@ -114,7 +122,8 @@ def deleteEvent(request, pk):
     return redirect(reverse('staff:events_list'))
 
 
-@staff_required
+
+@gerentstaff_required
 def addPlace(request):
     if request.method == "POST":
         form = PlaceForm(request.POST)
@@ -130,7 +139,7 @@ def addPlace(request):
     return render(request, 'staff/add_places.html', args)
 
 
-class PlacesListView(StaffRequiredMixin, ListView):
+class PlacesListView(BothStaffGerentRequiredMixin, ListView):
     model = Place
     template_name = 'staff/places_list.html'
 
@@ -142,7 +151,7 @@ class PlacesListView(StaffRequiredMixin, ListView):
         return self.model.objects.filter(is_deleted=False).order_by('available_until')
 
 
-class PlaceUpdateView(StaffRequiredMixin, UpdateView):
+class PlaceUpdateView(BothStaffGerentRequiredMixin, UpdateView):
     model = Place
     form_class = PlaceForm
     template_name = 'staff/add_places.html'
@@ -277,7 +286,7 @@ class BookingStateView(GerentRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
-        return self.model.objects.all().order_by('created')
+        return self.model.objects.filter(is_deleted=False).order_by('created')
 
 
 class BookingStateUpdateView(GerentRequiredMixin, UpdateView):
@@ -286,6 +295,11 @@ class BookingStateUpdateView(GerentRequiredMixin, UpdateView):
     template_name = 'manager/show_state.html'
 
     def get_success_url(self):
+        invoice = self.get_object()
+
+        if invoice and invoice.booking_state == 1:
+            cancel_task(notpaid_manager, invoice.booking.id)  # Cancel task associated to booking
+
         return reverse('manager:bookings_state_list')
 
 
