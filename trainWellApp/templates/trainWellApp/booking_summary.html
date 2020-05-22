@@ -1,5 +1,51 @@
 {% extends "base_wizard.html" %}
+{% load app_filters %}
 
 {% block form_if %}{% block form_else %}
-    HOLA MUNDO
+
+    <div class="row justify-content-center py-5">
+        <h4 class="font-weight-bold col col-md-6">Summary</h4>
+    </div>
+
+    <div class="row justify-content-center">
+        <h6 class="font-weight-bold col col-md-6">Fields:</h6>
+    </div>
+    {% for s in selections %}
+        <div class="row justify-content-center">
+            {% define s|get_value:"place" as curr %}
+            <h6 class="col col-md-3 py-1">{{ curr.name }} - {{ s|get_value:"datetime_init"|date:"H" }} h</h6>
+            <h6 class="col col-md-3 py-1 text-right">
+                {% if curr.discount %}
+                    <small>(discount {{ curr.discount }}%)</small>
+                {% endif %}
+                {{ curr.price_hour }} €
+            </h6>
+        </div>
+    {% endfor %}
+
+    <div class="row justify-content-center mt-3">
+        <h6 class="col col-md-3 border-bottom border-top py-3">Subtotal</h6>
+        <h6 class="col col-md-3 border-bottom border-top py-3 text-right">{{ subtotal }} €</h6>
+    </div>
+
+    <div class="row justify-content-center">
+        <h5 class="col col-md-3 border-bottom py-3"><b>Total</b></h5>
+        <h5 class="col col-md-3 border-bottom py-3 text-right"><b>{{ total }} €</b></h5>
+    </div>
+
+    <div class="row justify-content-center mt-5">
+        <div class="col col-md-6">
+            <div class="form-group" id="telf">
+                <label class="font-weight-bold" for="telf">Telephone Number</label>
+                <input name="{{ form.phone_number.html_name }}" type="tel" class="form-control" id="telf">
+                <small class="text-muted">*Optional: Introduce your phone number for any change.</small>
+
+                {% if form.phone_number.errors %}
+                    {% for error in form.phone_number.errors %}
+                        <small class="text-danger">{{ error|escape }}</small>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
 {% endblock %}{% endblock %}
