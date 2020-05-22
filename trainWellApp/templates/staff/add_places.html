@@ -34,18 +34,23 @@
                         {% endif %}
                     </div>
 
-                    <div class="form-group" id="price">
-                        <label class="font-weight-bold" for="price">Price Hour</label>
-                        <input name="{{ form.price_hour.html_name }}" type="number" min="0" step="0.01"
-                               class="form-control"
-                               value="{{ form.price_hour.value }}" id="price">
 
-                        {% if form.price_hour.errors %}
-                            {% for error in form.price_hour.errors %}
-                                <small class="text-danger">{{ error|escape }}</small>
-                            {% endfor %}
-                        {% endif %}
-                    </div>
+
+                    {% if user.planner.is_gerent %}
+                        <div class="form-group" id="price">
+                            <label class="font-weight-bold" for="price">Price Hour</label>
+                            <input name="{{ form.price_hour.html_name }}" type="number" min="0" step="0.01"
+                                   class="form-control"
+                                   value="{{ form.price_hour.value }}" id="price">
+
+                            {% if form.price_hour.errors %}
+                                {% for error in form.price_hour.errors %}
+                                    <small class="text-danger">{{ error|escape }}</small>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                    {% endif %}
 
 
                     <div class="form-group" id="available_from">

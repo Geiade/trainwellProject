@@ -35,3 +35,12 @@ def define(val=None):
 @register.filter
 def tolist(object):
     return list(object)
+
+
+@register.filter
+def concat_list(objects):
+    new_list = []
+    for curr in objects:
+        new_list += curr
+
+    return new_list

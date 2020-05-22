@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body_block %}
+    {% include "staff/staff_navbar.html" %}
+    <section class="container">
+
+        <div class="row px-5 pt-5">
+            <h4>Maps<sup id="num_in">{{ object_list|length }}</sup></h4>
+            <div class="btn-group ml-auto mb-4">
+                <a class="btn btn-secondary" href="{% url 'staff:generate_map' %}">Generate Map </a>
+                <a class="btn btn-secondary" href="{% url 'staff:add_map' %}">Add Map </a>
+            </div>
+        </div>
+
+        <div class="row px-5">
+            {% for map in object_list %}
+                <div class="card col-sm-3">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ map.name }}</h5>
+                        <div class="btn-group">
+                            <a href="{% url 'staff:edit_map' map.id %}" class="btn btn-primary">Edit</a>
+                            <a href="{{ map.image.url }}" class="btn btn-success">Link</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+{% endblock %}

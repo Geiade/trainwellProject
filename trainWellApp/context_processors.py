@@ -7,6 +7,9 @@ def notifications(request):
     user = request.user
     kwargs = {}
 
+    if "/admin/" in request.path:
+        return kwargs
+
     if not user.is_anonymous:
         if user.planner.is_gerent:
             qs = Notification.objects.filter(level=2, is_read=False, is_deleted=False)
