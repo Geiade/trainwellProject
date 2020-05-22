@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 
-from trainWellApp.models import Booking, Event, Planner, Selection, Incidence, Place, Invoice
+from trainWellApp.models import Booking, Event, Planner, Selection, Incidence, Place, Invoice, Map
 
 
 class UserForm(UserCreationForm):
@@ -111,4 +111,10 @@ class InvoiceForm(ModelForm):
     class Meta:
         model = Invoice
         fields = ['booking_state']
+
+
+class MapForm(ModelForm):
+    class Meta:
+        model = Map
+        fields = ['name', 'image']
 
