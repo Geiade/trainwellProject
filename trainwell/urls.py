@@ -30,5 +30,4 @@ urlpatterns = [
     path('accounts/signin/', signin, name="signin"),
     path('accounts/signup/', signup, name="signup"),
     path('accounts/signout/', signout, name="signout"),
-    path('trainwell/schedule/', BookingScheduleView.as_view(), name="bookings_schedule"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

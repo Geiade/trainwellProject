@@ -9,15 +9,10 @@ from django.views.generic import ListView, UpdateView, CreateView
 from django.views import View
 from rest_framework.views import APIView
 
-from trainWellApp.decorators import staff_required, gerent_required
-from trainWellApp.forms import EventForm, IncidenceForm, PlaceForm, InvoiceForm, MapForm
-from trainWellApp.mixins import StaffRequiredMixin, GerentRequiredMixin
-from trainWellApp.models import Selection, Incidence, Place, Event, Booking, Notification, Planner, Invoice, Map
-
 from trainWellApp.decorators import staff_required, gerent_required, gerentstaff_required
-from trainWellApp.forms import EventForm, IncidenceForm, PlaceForm, InvoiceForm
+from trainWellApp.forms import EventForm, IncidenceForm, PlaceForm, InvoiceForm, MapForm
 from trainWellApp.mixins import StaffRequiredMixin, GerentRequiredMixin, BothStaffGerentRequiredMixin
-from trainWellApp.models import Selection, Incidence, Place, Event, Booking, Notification, Planner, Invoice
+from trainWellApp.models import Selection, Incidence, Place, Event, Booking, Notification, Planner, Invoice, Map
 from trainWellApp.tasks import cancel_task, notpaid_manager
 
 from trainWellApp.views.trainwell import _generate_range, isajax_req
@@ -420,10 +415,8 @@ def notification_read(request, pk):
         notification.is_read = True
         notification.save()
 
-        if notification.level == 2:
-            return redirect(reverse('manager:notifications_list'))
-        else:
-            return redirect('/')
+        referer_url = request.headers.get('Referer')
+        return redirect(referer_url)
 
     else:
         return Http404
@@ -529,7 +522,7 @@ class MapCreateView(StaffRequiredMixin, CreateView):
     template_name = 'staff/add_map.html'
 
     def get_success_url(self):
-        return reverse("staff:dashboard")
+        return reverse("staff:maps_list")
 
 
 class MapUpdateView(StaffRequiredMixin, UpdateView):
@@ -543,7 +536,7 @@ class MapUpdateView(StaffRequiredMixin, UpdateView):
         return context
 
     def get_success_url(self):
-        return reverse("staff:dashboard")
+        return reverse("staff:maps_list")
 
 
 class MapsListView(StaffRequiredMixin, ListView):

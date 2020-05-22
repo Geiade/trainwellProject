@@ -118,7 +118,7 @@ def signin(request):
                 if planner.is_staff is True:
                     return redirect(reverse('staff:dashboard'))
                 elif planner.is_gerent is True:
-                    return redirect(reverse('manager:notifications'))
+                    return redirect(reverse('manager:notifications_list'))
                 else:
                     return redirect(reverse('trainwell:dashboard'))
 
