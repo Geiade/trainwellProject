@@ -44,12 +44,23 @@
             {% for k, v in  object_list.items %}
                 <div class="row flex-nowrap mx-5 mb-2" style="">
                     {% for h in hours %}
-                        <div class="col-sm-2 p-2">
+                        <div class="col-sm-2 p-3">
                             {% for key, values in v.items %}
+
                                 {% if h in values %}
-                                    <span class="active text-white" content="{{ k.event.color }}"
-                                        data-html="true" data-toggle="popover" title="<b>{{ k.name }}</b>" data-trigger="hover">
-                                    <small>{{ key.name }}</small></span>
+                                    {% define v.values|tolist|concat_list as curr %}
+                                    {% if h == curr.0 %}
+                                        <span class="active text-white" content="{{ k.event.color }}"
+                                              data-html="true" data-toggle="popover" title="<b>{{ k.name }}</b>"
+                                              data-trigger="hover"
+                                              data-content="<span class='badge badge-danger'>{{ k.event.name }}</span>">
+                                            <b>{{ k.name }}:</b> {{ key.name }}</span>
+                                    {% else %}
+                                        <span class="active text-white" content="{{ k.event.color }}"
+                                              data-html="true" data-toggle="popover" title="<b>{{ k.name }}</b>"
+                                              data-content="<span class='badge badge-danger'>{{ k.event.name }}</span>"
+                                              data-trigger="hover">{{ key.name }}</span>
+                                    {% endif %}
                                 {% endif %}
                             {% endfor %}
                         </div>

@@ -1,20 +1,18 @@
-<div class="col-12">
-    <div class="card col-5">
-        <div class="card-body">
+<div class="card col-sm-5 text-center">
+    <div class="card-body">
 
-            <h3 class="card-title"> Usage graph in % </h3>
+        <h3 class="card-title"> Usage graph in % </h3>
 
-            <div class="card-text">
-                <i class="fa fa-fw fa-info-circle" data-toggle="tooltip" title=" Usage graph "></i>
-                <label class="card-subtitle"> Date Initial </label>
-                <input type="date" id="date_init_usage" onchange="getData_usage_graph()">
-                <label class="card-subtitle"> Date Ending </label>
-                <input type="date" id="date_end_usage" onchange="getData_usage_graph()">
+        <div class="card-text">
+            <i class="fa fa-fw fa-info-circle" data-toggle="tooltip" title=" Usage graph "></i>
+            <label class="card-subtitle"> Date Initial </label>
+            <input type="date" id="date_init_usage" onchange="getData_usage_graph()">
+            <label class="card-subtitle"> Date Ending </label>
+            <input type="date" id="date_end_usage" onchange="getData_usage_graph()">
 
-                <canvas id="canvas_usage_graph"></canvas>
-                <p id="error_usage_graph"></p>
-            </div>
-
+            <canvas id="canvas_usage_graph"></canvas>
+            <p id="error_usage_graph"></p>
         </div>
+
     </div>
 </div>
