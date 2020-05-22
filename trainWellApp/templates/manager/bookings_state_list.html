@@ -33,12 +33,17 @@
                         <div class="col-sm-2 text-center">
                             <small class="text-muted">State<br>{{ invoice.get_booking_state_display }} </small>
                         </div>
+                        {% if invoice.booking_state == 1 %}
+                            <div class="col-sm-2 ">
+                                <button class="btn btn-primary" disabled><i class="far fa-edit"></i></button>
+                            </div>
+                        {% else %}
+                            <div class="col-sm-2 ">
+                                <a type="button" href="{% url "manager:bookings_state_update" invoice.booking.id %}"
+                                   class="btn btn-primary"><i class="far fa-edit"></i></a>
+                            </div>
+                        {% endif %}
 
-                        <div class="col-sm-2 ">
-                            <a type="button" href="{% url "manager:bookings_state_update" invoice.id %}"
-                               class="btn btn-primary"><i class="far fa-edit" ></i></a>
-
-                        </div>
 
                     </div>
                 </div>

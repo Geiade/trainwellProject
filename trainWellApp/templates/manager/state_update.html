@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load app_filters %}
+{% load i18n %}
+{% block body_block %}
+
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col col-md-5 p-3">
+
+                <h4 class="font-weight-bold py-3">Booking State</h4>
+                <form id="form" method="post">
+                    <label class="font-weight-bold" for="state">State</label>
+
+                    <select class="selectpicker form-control" name="booking_state" id="state">
+                        <option style="display: none">--Select State--</option>
+                        {% for p in form.booking_state %}
+                            <option style="display:none">{{ p }}</option>
+                        {% endfor %}
+                    </select>
+
+                    {% if form.booking_state.errors %}
+                        {% for error in form.booking_state.errors %}
+                            <small class="text-danger">{{ error|escape }}</small>
+                        {% endfor %}
+                    {% endif %}
+
+
+                    <div class="my-5 text-center">
+                        <input value="Edit" type="submit" class="btn btn-secondary text-center"
+                               href="{% url 'manager:bookings_state_list' %}"
+                               onclick="return confirm('If you change to state <<pagada>>, will not be modifiable')"></div>
+                    {% csrf_token %}
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}
