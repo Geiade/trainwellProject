@@ -118,8 +118,8 @@ def deleteEvent(request, pk):
 
 
 
-@gerentstaff_required
-def addPlace(request):
+@staff_required
+def addPlace1(request):
     if request.method == "POST":
         form = PlaceForm(request.POST)
 
@@ -134,7 +134,7 @@ def addPlace(request):
     return render(request, 'staff/add_places.html', args)
 
 
-class PlacesListView(BothStaffGerentRequiredMixin, ListView):
+class PlacesListView1(StaffRequiredMixin, ListView):
     model = Place
     template_name = 'staff/places_list.html'
 
@@ -146,7 +146,7 @@ class PlacesListView(BothStaffGerentRequiredMixin, ListView):
         return self.model.objects.filter(is_deleted=False).order_by('available_until')
 
 
-class PlaceUpdateView(BothStaffGerentRequiredMixin, UpdateView):
+class PlaceUpdateView1(StaffRequiredMixin, UpdateView):
     model = Place
     form_class = PlaceForm
     template_name = 'staff/add_places.html'
@@ -159,6 +159,48 @@ class PlaceUpdateView(BothStaffGerentRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('staff:places_list')
+
+@gerent_required
+def addPlace2(request):
+    if request.method == "POST":
+        form = PlaceForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('manager:places_list'))
+
+    else:
+        form = PlaceForm()
+
+    args = {'form': form}
+    return render(request, 'manager/add_place.html', args)
+
+
+class PlacesListView2(GerentRequiredMixin, ListView):
+    model = Place
+    template_name = 'manager/places_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def get_queryset(self):
+        return self.model.objects.filter(is_deleted=False).order_by('available_until')
+
+
+class PlaceUpdateView2(GerentRequiredMixin, UpdateView):
+    model = Place
+    form_class = PlaceForm
+    template_name = 'manager/add_place.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({'edit': True})
+
+        return context
+
+    def get_success_url(self):
+        return reverse('manager:places_list')
 
 
 @staff_required
@@ -422,7 +464,7 @@ def notification_read(request, pk):
         return Http404
 
 
-class Graphs(View):
+class Graphs(GerentRequiredMixin, View):
     template_name = "manager/graphs.html"
 
     def get(self, request):

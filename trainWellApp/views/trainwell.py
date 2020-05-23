@@ -17,6 +17,7 @@ from django.urls import reverse
 from django.views.generic import ListView, DetailView
 from django.conf import settings
 
+from trainWellApp.decorators import gerentstaff_required, gerent_required
 from trainWellApp.models import Booking, Planner, Selection, Place, Notification, Invoice
 from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2
 from trainWellApp.tasks import setup_task_ispaid, cancel_task, setup_task_event_done, notpaid_manager, \
@@ -238,7 +239,7 @@ class BookingDetail(DetailView):
         context.update({'selections': selections})
         return context
 
-
+@gerentstaff_required
 def bookingcancelation(request, pk):
     # Make booking deleted and turn availability on
 
@@ -278,7 +279,7 @@ def bookingcancelation(request, pk):
 
     return redirect(reverse('trainwell:dashboard'))
 
-
+@gerent_required
 def create_invoice(booking):
     TAX = 0.21
     price = 0
