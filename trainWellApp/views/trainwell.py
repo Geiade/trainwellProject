@@ -42,12 +42,8 @@ def signup(request):
         return signed
 
     if request.method == "POST":
-        print('Estas al signup')
         user_form = UserForm(request.POST)
         planner_form = PlannerForm(request.POST)
-
-        print(user_form.errors)
-        print(planner_form.errors)
 
         if user_form.is_valid() and planner_form.is_valid():
             is_staff = False

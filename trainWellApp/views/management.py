@@ -117,11 +117,10 @@ def deleteEvent(request, pk):
     return redirect(reverse('staff:events_list'))
 
 
-
 @gerentstaff_required
 def addPlace(request):
     if request.method == "POST":
-        form = PlaceForm(request.POST)
+        form = PlaceForm(request.POST, request.FILES)
 
         if form.is_valid():
             form.save()
@@ -542,4 +541,3 @@ class MapUpdateView(StaffRequiredMixin, UpdateView):
 class MapsListView(StaffRequiredMixin, ListView):
     model = Map
     template_name = 'staff/maps_list.html'
-

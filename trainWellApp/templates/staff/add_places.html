@@ -3,7 +3,7 @@
 {% load app_filters %}
 {% load i18n %}
 {% block body_block %}
-    <form id="form" method="post">{% csrf_token %}
+    <form id="form" method="post" enctype="multipart/form-data">{% csrf_token %}
         <div class="container p-3">
             <div class="row justify-content-center">
                 <div class="col col-md-5 p-3">
@@ -78,6 +78,9 @@
                             {% endfor %}
                         {% endif %}
                     </div>
+
+
+                    {{ form.image }}
 
 
                     <div class="row justify-content-center">
