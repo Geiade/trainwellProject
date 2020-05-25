@@ -23,7 +23,7 @@ urlpatterns = [
     path('delete_place/<int:pk>/', deletePlace, name="delete_place"),
     path('add_map/', MapCreateView.as_view(), name="add_map"),
     path('edit_map/<int:pk>', MapUpdateView.as_view(), name="edit_map"),
+    path('delete_map/<int:pk>', deleteMap, name="delete_map"),
     path('maps/', MapsListView.as_view(), name="maps_list"),
     path('generate_map/', CenterMapView.as_view(), name='generate_map'),
-
 ]
