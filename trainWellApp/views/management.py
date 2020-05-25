@@ -1,20 +1,19 @@
-from datetime import timedelta, datetime, date
 import json
+from datetime import timedelta, datetime, date
 
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse, Http404, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.views.generic import ListView, UpdateView, CreateView
 from django.views import View
+from django.views.generic import ListView, UpdateView, CreateView
 from rest_framework.views import APIView
 
-from trainWellApp.decorators import staff_required, gerent_required, gerentstaff_required
+from trainWellApp.decorators import staff_required, gerentstaff_required
 from trainWellApp.forms import EventForm, IncidenceForm, PlaceForm, InvoiceForm, MapForm
 from trainWellApp.mixins import StaffRequiredMixin, GerentRequiredMixin, BothStaffGerentRequiredMixin
 from trainWellApp.models import Selection, Incidence, Place, Event, Booking, Notification, Planner, Invoice, Map
 from trainWellApp.tasks import cancel_task, notpaid_manager
-
 from trainWellApp.views.trainwell import _generate_range, isajax_req
 
 
@@ -511,7 +510,6 @@ class CenterMapView(ListView):
     template_name = 'trainWellApp/center_map.html'
 
     def get_queryset(self):
-        dummy = self.model.objects.first()
         return self.model.objects.filter(is_deleted=False)
 
 
@@ -522,6 +520,17 @@ class MapCreateView(StaffRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse("staff:maps_list")
+
+
+@staff_required
+def deleteMap(request, pk):
+    query = Map.objects.filter(pk=pk)
+    if query.exists():
+        map = query.first()
+        map.is_deleted = True
+        map.save()
+
+    return redirect(reverse('staff:maps_list'))
 
 
 class MapUpdateView(StaffRequiredMixin, UpdateView):
@@ -541,3 +550,6 @@ class MapUpdateView(StaffRequiredMixin, UpdateView):
 class MapsListView(StaffRequiredMixin, ListView):
     model = Map
     template_name = 'staff/maps_list.html'
+
+    def get_queryset(self):
+        return self.model.objects.filter(is_deleted=False)
