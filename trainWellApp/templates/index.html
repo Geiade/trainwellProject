@@ -59,7 +59,18 @@
                     <br>Fitness, Football, Bastketball, Tenis, Paddle, Hockey,<br>Handball and much more.
                 </h6>
                 {% if user.is_authenticated %}
-                    <a href="{% url 'trainwell:dashboard' %}" class="btn btn-warning rounded-pill">Dashboard</a>
+                    {% if user.planner.is_staff and user.planner.is_gerent %}
+                        <a href="{% url 'staff:dashboard' %}" class="btn btn-warning rounded-pill">Staff Dashboard</a>
+                        <a href="{% url 'manager:dashboard' %}" class="btn btn-warning rounded-pill">Manager Dashboard</a>
+
+                    {% elif user.planner.is_staff %}
+                        <a href="{% url 'staff:dashboard' %}" class="btn btn-warning rounded-pill">Dashboard</a>
+                    {% elif user.planner.is_gerent %}
+                        <a href="{% url 'manager:dashboard' %}" class="btn btn-warning rounded-pill">Dashboard</a>
+                    {% else %}
+                        <a href="{% url 'trainwell:dashboard' %}" class="btn btn-warning rounded-pill">Dashboard</a>
+
+                    {% endif %}
                 {% endif %}
 
             </div>

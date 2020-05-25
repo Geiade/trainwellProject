@@ -159,20 +159,6 @@ class PlaceUpdateView1(StaffRequiredMixin, UpdateView):
         return reverse('staff:places_list')
 
 
-@gerent_required
-def addPlace2(request):
-    if request.method == "POST":
-        form = GerentPlaceForm(request.POST)
-
-        if form.is_valid():
-            form.save()
-            return redirect(reverse('manager:places_list'))
-
-    else:
-        form = StaffForm()
-
-    args = {'form': form}
-    return render(request, 'manager/add_place.html', args)
 
 
 class PlacesListView2(GerentRequiredMixin, ListView):

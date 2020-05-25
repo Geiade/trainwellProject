@@ -12,7 +12,7 @@
                     <div class="form-group" id="name">
                         <label class="font-weight-bold" for="name">Place Name</label>
                         <input name="{{ form.name.html_name }}" type="text" class="form-control"
-                               value="{{ form.name.value }}" id="name">
+                               value="{{ form.name.value }}" id="name" readonly>
 
                         {% if form.name.errors %}
                             {% for error in form.name.errors %}
@@ -25,7 +25,7 @@
                     <div class="form-group" id="descr">
                         <label class="font-weight-bold" for="descr">Description</label>
                         <input name="{{ form.description.html_name }}" type="text" class="form-control"
-                               value="{{ form.description.value }}" id="descr">
+                               value="{{ form.description.value }}" id="descr" readonly>
 
                         {% if form.description.errors %}
                             {% for error in form.description.errors %}
@@ -38,7 +38,7 @@
                     <div class="form-group" id="available_from">
                         <label class="font-weight-bold" for="available_from">Available_from</label>
                         <input type="text" name="{{ form.available_from.html_name }}" class="form-control"
-                               value="{{ form.available_from.value|date:"Y-m-d H:m" }}" id="available_from">
+                               value="{{ form.available_from.value|date:"Y-m-d H:m" }}" id="available_from" readonly>
                         <small class="text-muted">Format: "YYYY-mm-dd HH:mm"</small>
 
                         {% if form.available_from.errors %}
@@ -51,7 +51,7 @@
                     <div class="form-group" id="available_until">
                         <label class="font-weight-bold" for="available_until">Available_until</label>
                         <input type="text" name="{{ form.available_until.html_name }}" class="form-control"
-                               id="available_until" value="{{ form.available_until.value|date:"Y-m-d H:m" }}">
+                               id="available_until" value="{{ form.available_until.value|date:"Y-m-d H:m" }}" readonly>
                         <small class="text-muted">Format: "YYYY-mm-dd HH:mm"</small>
 
                         {% if form.available_until.errors %}
