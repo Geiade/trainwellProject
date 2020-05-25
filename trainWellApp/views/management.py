@@ -119,7 +119,7 @@ def deleteEvent(request, pk):
 @gerentstaff_required
 def addPlace(request):
     if request.method == "POST":
-        form = PlaceForm(request.POST)
+        form = PlaceForm(request.POST, request.FILES)
 
         if form.is_valid():
             form.save()
