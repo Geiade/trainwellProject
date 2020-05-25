@@ -22,10 +22,36 @@ from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, Boo
 from trainWellApp.tasks import setup_task_ispaid, cancel_task, setup_task_event_done, notpaid_manager, \
     events_done_manager, setup_task_invoice
 from trainWellApp.utils import Render
+from trainwell.settings import MEDIA_URL
 
 
 def index(request):
-    return render(request, 'index.html')
+    media_url = MEDIA_URL + '/tw_images/'
+    context = {'events': [('Football', 'Football field with natural grass. Regulatory measures',
+                           '#00C851', media_url + 'grass.jpg'),
+                          ('Paddle', 'Enjoy our nine paddle courts, 7 glass paddle courts, 2 wall courts',
+                           '#4285F4', media_url + 'paddle.jpg'),
+                          ('Basketball', 'Indoor basketball and mini-basketball court',
+                           '#ffa726', media_url + 'basketball.jpg'),
+                          ('Indoor Football', 'Huge pavilion with 1040 spectators capacity or indoor field',
+                           '#8d6e63', media_url + 'futsal.jpg'),
+                          ('Handball', 'Indoor handball court',
+                           '#0277bd', media_url + 'handball.jpg'),
+                          ('Athletics', 'Huge athletic track with 300m surrounding football field',
+                           '#bf360c', media_url + 'athletics.jpg'),
+                          ('Fitness', 'Exercise you in our three fitness room',
+                           '#9575cd', media_url + 'fitness.jpg'),
+                          ('Swimming', 'Indoor swiming pool',
+                           '#90caf9', media_url + 'swimming_pool.jpg'),
+                          ('Hockey', 'Indoor field for hockey',
+                           '#b3e5fc', media_url + 'hockey.jpg'),
+                          ('Skating', 'Indoor field for skating',
+                           '#795548', media_url + 'skating.jpg'),
+                          ('Rhythmic Gymnastics', 'Huge pavillion with 1040 spectators capacity',
+                           '#ff7043', media_url + 'gymnastics.jpg')
+                          ]}
+
+    return render(request, 'index.html', context=context)
 
 
 def is_signed(request):
@@ -287,13 +313,13 @@ def create_invoice(booking):
 
     for s in selections:
         place = Place.objects.get(id=s.place.id)
-        price = price + (float(place.price_hour) * ((100 - place.discount)/100))
+        price = price + (float(place.price_hour) * ((100 - place.discount) / 100))
 
     price = float(price) * (1 + TAX)
     invoice = Invoice(booking=booking, price=price,
                       concept="Booking: " + booking.name,
                       period_init=selections.first().datetime_init,
-                      period_end=selections.first().datetime_init,)
+                      period_end=selections.first().datetime_init, )
 
     invoice.save()
     setup_task_invoice(invoice)
@@ -315,14 +341,14 @@ class InvoicePdf(View):
                 value[1] += 1
             else:
                 places[s.place.name] = [s.place.id, 1, s.place.price_hour, s.place.discount,
-                                        s.place.price_hour*s.place.discount/100]
+                                        s.place.price_hour * s.place.discount / 100]
 
-        for k, v in places.items(): v += [round(v[1]*v[2], 2), round(v[1]*v[4], 2)]
+        for k, v in places.items(): v += [round(v[1] * v[2], 2), round(v[1] * v[4], 2)]
 
         return Render.render_pdf(self.template_name, {'invoice': invoice,
                                                       'booking': invoice.booking,
                                                       'places': places,
-                                                      'subtotal': round(float(invoice.price)/1.21, 2)})
+                                                      'subtotal': round(float(invoice.price) / 1.21, 2)})
 
 
 class Dashboard(ListView):
