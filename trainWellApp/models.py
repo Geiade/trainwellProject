@@ -43,6 +43,10 @@ class Map(models.Model):
     name = models.CharField(max_length=30)
     image = models.ImageField(upload_to="maps/", default="place_images/default.png", blank=True, null=True)
 
+    created = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+
     def __str__(self):
         return self.name
 

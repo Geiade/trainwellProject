@@ -48,7 +48,7 @@ class BookingForm1(ModelForm):
 
     class Meta:
         model = Booking
-        fields = ['name', 'phone_number', 'event', 'planner']
+        fields = ['name', 'event', 'planner']
 
 
 class BookingForm2(ModelForm):
@@ -57,6 +57,15 @@ class BookingForm2(ModelForm):
     class Meta:
         model = Selection
         fields = ['booking', 'place', 'datetime_init']
+
+
+class BookingForm3(ModelForm):
+    phone_number = forms.CharField(required=False)
+
+    class Meta:
+        model = Booking
+        fields = ['phone_number']
+
 
 
 class EventForm(ModelForm):
@@ -103,8 +112,7 @@ class IncidenceForm(ModelForm):
 class PlaceForm(ModelForm):
     class Meta:
         model = Place
-
-        fields = ['name', 'price_hour', 'available_from', 'available_until', 'description']
+        fields = ['name', 'price_hour', 'available_from', 'available_until', 'description', 'image']
         
 
 class InvoiceForm(ModelForm):

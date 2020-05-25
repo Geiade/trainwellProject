@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body_block %}
+
+    {% include "manager/manager_navbar.html" %}
+    <section class="container">
+
+        <div class="row p-5">
+
+            <h4>Places<sup id="num_in">{{ object_list|length }}</sup></h4>
+
+
+            {% for place in object_list %}
+                <div style="border-radius: 25px;"
+                     class="card col-12 border-0 shadow-sm p-4 my-3 inpg">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <h6 class="card-title mb-1">{{ place.name }}</h6>
+
+                            <p class="card-text text-muted" data-toggle="popover" data-trigger="hover"
+                               data-title="Description" data-content="{{ place.description }}">
+                                {{ place.description | truncatechars:30 }}
+                            </p>
+
+                        </div>
+
+                        <div class="col-sm-2 text-center">
+                            <small class="text-muted">Price per hour<br>{{ place.price_hour }}€</small>
+                        </div>
+                        <div class="col-sm-2 text-center">
+                            <small class="text-muted">Available from<br>{{ place.available_from|date:"Y-m-d H:m" }}</small>
+                        </div>
+                        <div class="col-sm-2 text-center">
+                            <small class="text-muted">Available until<br>{{ place.available_until|date:"Y-m-d H:m"  }} </small>
+                        </div>
+
+                        <div class="col-sm-2 ">
+                            <a type="button" href="{% url "manager:edit_place" place.id %}"
+                               class="btn btn-primary"><i class="far fa-edit"></i></a>
+
+                        </div>
+
+
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+    </section>
+{% endblock %}

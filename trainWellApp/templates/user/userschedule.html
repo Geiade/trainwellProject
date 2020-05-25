@@ -51,15 +51,16 @@
                                     {% define v.values|tolist|concat_list as curr %}
                                     {% if h == curr.0 %}
                                         <span class="active text-white" content="{{ k.event.color }}"
-                                              data-html="true" data-toggle="popover" title="<b>{{ k.name }}</b>"
+                                              data-html="true" data-toggle="popover" title="<b>{{ k.event.name }}</b>"
                                               data-trigger="hover"
-                                              data-content="<span class='badge badge-danger'>{{ k.event.name }}</span>">
+                                              data-content="{{ key.name }}:{{ key.description }}">
                                             <b>{{ k.name }}:</b> {{ key.name }}</span>
                                     {% else %}
                                         <span class="active text-white" content="{{ k.event.color }}"
-                                              data-html="true" data-toggle="popover" title="<b>{{ k.name }}</b>"
-                                              data-content="<span class='badge badge-danger'>{{ k.event.name }}</span>"
-                                              data-trigger="hover">{{ key.name }}</span>
+                                              data-html="true" data-toggle="popover" title="<b>{{ k.event.name }}</b>"
+                                              data-trigger="hover"
+                                              data-content="{{ key.name }}:{{ key.description }}">
+                                            {{ key.name }}</span>
                                     {% endif %}
                                 {% endif %}
                             {% endfor %}

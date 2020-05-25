@@ -1,20 +1,19 @@
-from datetime import timedelta, datetime, date
 import json
+from datetime import timedelta, datetime, date
 
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse, Http404, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.views.generic import ListView, UpdateView, CreateView
 from django.views import View
+from django.views.generic import ListView, UpdateView, CreateView
 from rest_framework.views import APIView
 
-from trainWellApp.decorators import staff_required, gerent_required, gerentstaff_required
+from trainWellApp.decorators import staff_required, gerent_required
 from trainWellApp.forms import EventForm, IncidenceForm, PlaceForm, InvoiceForm, MapForm
-from trainWellApp.mixins import StaffRequiredMixin, GerentRequiredMixin, BothStaffGerentRequiredMixin
+from trainWellApp.mixins import StaffRequiredMixin, GerentRequiredMixin
 from trainWellApp.models import Selection, Incidence, Place, Event, Booking, Notification, Planner, Invoice, Map
 from trainWellApp.tasks import cancel_task, notpaid_manager
-
 from trainWellApp.views.trainwell import _generate_range, isajax_req
 
 
@@ -118,10 +117,10 @@ def deleteEvent(request, pk):
 
 
 
-@gerentstaff_required
-def addPlace(request):
+@staff_required
+def addPlace1(request):
     if request.method == "POST":
-        form = PlaceForm(request.POST)
+        form = PlaceForm(request.POST, request.FILES)
 
         if form.is_valid():
             form.save()
@@ -134,7 +133,7 @@ def addPlace(request):
     return render(request, 'staff/add_places.html', args)
 
 
-class PlacesListView(BothStaffGerentRequiredMixin, ListView):
+class PlacesListView1(StaffRequiredMixin, ListView):
     model = Place
     template_name = 'staff/places_list.html'
 
@@ -146,7 +145,7 @@ class PlacesListView(BothStaffGerentRequiredMixin, ListView):
         return self.model.objects.filter(is_deleted=False).order_by('available_until')
 
 
-class PlaceUpdateView(BothStaffGerentRequiredMixin, UpdateView):
+class PlaceUpdateView1(StaffRequiredMixin, UpdateView):
     model = Place
     form_class = PlaceForm
     template_name = 'staff/add_places.html'
@@ -159,6 +158,48 @@ class PlaceUpdateView(BothStaffGerentRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('staff:places_list')
+
+@gerent_required
+def addPlace2(request):
+    if request.method == "POST":
+        form = PlaceForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('manager:places_list'))
+
+    else:
+        form = PlaceForm()
+
+    args = {'form': form}
+    return render(request, 'manager/add_place.html', args)
+
+
+class PlacesListView2(GerentRequiredMixin, ListView):
+    model = Place
+    template_name = 'manager/places_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def get_queryset(self):
+        return self.model.objects.filter(is_deleted=False).order_by('available_until')
+
+
+class PlaceUpdateView2(GerentRequiredMixin, UpdateView):
+    model = Place
+    form_class = PlaceForm
+    template_name = 'manager/add_place.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({'edit': True})
+
+        return context
+
+    def get_success_url(self):
+        return reverse('manager:places_list')
 
 
 @staff_required
@@ -422,7 +463,7 @@ def notification_read(request, pk):
         return Http404
 
 
-class Graphs(View):
+class Graphs(GerentRequiredMixin, View):
     template_name = "manager/graphs.html"
 
     def get(self, request):
@@ -512,7 +553,6 @@ class CenterMapView(ListView):
     template_name = 'trainWellApp/center_map.html'
 
     def get_queryset(self):
-        dummy = self.model.objects.first()
         return self.model.objects.filter(is_deleted=False)
 
 
@@ -523,6 +563,17 @@ class MapCreateView(StaffRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse("staff:maps_list")
+
+
+@staff_required
+def deleteMap(request, pk):
+    query = Map.objects.filter(pk=pk)
+    if query.exists():
+        map = query.first()
+        map.is_deleted = True
+        map.save()
+
+    return redirect(reverse('staff:maps_list'))
 
 
 class MapUpdateView(StaffRequiredMixin, UpdateView):
@@ -543,3 +594,5 @@ class MapsListView(StaffRequiredMixin, ListView):
     model = Map
     template_name = 'staff/maps_list.html'
 
+    def get_queryset(self):
+        return self.model.objects.filter(is_deleted=False)

@@ -1,5 +1,6 @@
 import json
 from datetime import timedelta, date, datetime
+
 import holidays
 import pandas as pd
 from django.views.generic.base import View
@@ -12,13 +13,17 @@ from django.http import Http404
 from django.contrib.auth import login as do_login
 from django.contrib.auth import logout as do_logout
 from django.contrib.auth.forms import AuthenticationForm
+from django.db import transaction
+from django.forms import formset_factory
+from django.http import Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views.generic import ListView, DetailView
 from django.conf import settings
 
+from trainWellApp.decorators import gerent_required
+from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2, BookingForm3
 from trainWellApp.models import Booking, Planner, Selection, Place, Notification, Invoice
-from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2
 from trainWellApp.tasks import setup_task_ispaid, cancel_task, setup_task_event_done, notpaid_manager, \
     events_done_manager, setup_task_invoice
 from trainWellApp.utils import Render
@@ -68,12 +73,8 @@ def signup(request):
         return signed
 
     if request.method == "POST":
-        print('Estas al signup')
         user_form = UserForm(request.POST)
         planner_form = PlannerForm(request.POST)
-
-        print(user_form.errors)
-        print(planner_form.errors)
 
         if user_form.is_valid() and planner_form.is_valid():
             is_staff = False
@@ -161,9 +162,10 @@ def signout(request):
 
 # WizardView data
 SelectionFormSet = formset_factory(BookingForm2, extra=15)
-BOOK_FORMS = [("0", BookingForm1), ("1", SelectionFormSet)]
+BOOK_FORMS = [("0", BookingForm1), ("1", SelectionFormSet), ("2", BookingForm3)]
 BOOK_TEMPLATES = {"0": 'trainWellApp/add_book.html',
-                  "1": 'trainWellApp/availability.html'}
+                  "1": 'trainWellApp/availability.html',
+                  "2": 'trainWellApp/booking_summary.html'}
 
 
 class BookingFormWizardView(NamedUrlSessionWizardView):
@@ -197,6 +199,15 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
                             'public_days': _get_public_days(week),
                             'isajax': isajax_req(self.request)})
 
+        if self.steps.current == "2":
+            data = [e for e in self.get_cleaned_data_for_step('1') if e != {}]
+            places = [d.get('place') for d in data if d.get('place')]
+            price = get_price(places)
+
+            context.update({'selections': data,
+                            'subtotal': round(price / 1.21, 2),
+                            'total': round(price, 2)})
+
         return context
 
     def get_form_step_data(self, form):
@@ -224,10 +235,12 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
 
     def done(self, form_list, **kwargs):
         booking = None
-
-        for i, form in enumerate(form_list):
+        for i, form in enumerate(list(form_list)[:-1]):
             if i == 0:
-                booking = form.save()
+                booking = form.save(commit=False)
+                phone = (list(form_list)[-1]).cleaned_data.get('phone_number')
+                if phone: booking.phone_number = phone
+                booking.save()
                 continue
 
             for selection in form:
@@ -265,6 +278,7 @@ class BookingDetail(DetailView):
         return context
 
 
+@gerent_required
 def bookingcancelation(request, pk):
     # Make booking deleted and turn availability on
 
@@ -304,18 +318,11 @@ def bookingcancelation(request, pk):
 
     return redirect(reverse('trainwell:dashboard'))
 
-
+@gerent_required
 def create_invoice(booking):
-    TAX = 0.21
-    price = 0
-
     selections = booking.selection_set.all()
-
-    for s in selections:
-        place = Place.objects.get(id=s.place.id)
-        price = price + (float(place.price_hour) * ((100 - place.discount) / 100))
-
-    price = float(price) * (1 + TAX)
+    places = [s.place for s in selections]
+    price = get_price(places)
     invoice = Invoice(booking=booking, price=price,
                       concept="Booking: " + booking.name,
                       period_init=selections.first().datetime_init,
@@ -325,6 +332,19 @@ def create_invoice(booking):
     setup_task_invoice(invoice)
 
     return invoice
+
+
+def get_price(places):
+    TAX = 0.21
+    price = 0
+
+    for place in places:
+        # place = Place.objects.get(id=s.place.id)
+        price = price + (float(place.price_hour) * ((100 - place.discount) / 100))
+
+    price = float(price) * (1 + TAX)
+
+    return price
 
 
 class InvoicePdf(View):
