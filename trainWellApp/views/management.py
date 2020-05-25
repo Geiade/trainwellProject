@@ -10,7 +10,7 @@ from django.views.generic import ListView, UpdateView, CreateView
 from rest_framework.views import APIView
 
 from trainWellApp.decorators import staff_required, gerent_required
-from trainWellApp.forms import EventForm, IncidenceForm, PlaceForm, InvoiceForm, MapForm
+from trainWellApp.forms import EventForm, IncidenceForm, StaffForm, InvoiceForm, MapForm, GerentPlaceForm
 from trainWellApp.mixins import StaffRequiredMixin, GerentRequiredMixin
 from trainWellApp.models import Selection, Incidence, Place, Event, Booking, Notification, Planner, Invoice, Map
 from trainWellApp.tasks import cancel_task, notpaid_manager
@@ -120,14 +120,13 @@ def deleteEvent(request, pk):
 @staff_required
 def addPlace1(request):
     if request.method == "POST":
-        form = PlaceForm(request.POST, request.FILES)
+        form = StaffForm(request.POST, request.FILES)
 
         if form.is_valid():
             form.save()
             return redirect(reverse('staff:places_list'))
-
     else:
-        form = PlaceForm()
+        form = StaffForm()
 
     args = {'form': form}
     return render(request, 'staff/add_places.html', args)
@@ -147,7 +146,7 @@ class PlacesListView1(StaffRequiredMixin, ListView):
 
 class PlaceUpdateView1(StaffRequiredMixin, UpdateView):
     model = Place
-    form_class = PlaceForm
+    form_class = StaffForm
     template_name = 'staff/add_places.html'
 
     def get_context_data(self, **kwargs):
@@ -159,17 +158,18 @@ class PlaceUpdateView1(StaffRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse('staff:places_list')
 
+
 @gerent_required
 def addPlace2(request):
     if request.method == "POST":
-        form = PlaceForm(request.POST)
+        form = GerentPlaceForm(request.POST)
 
         if form.is_valid():
             form.save()
             return redirect(reverse('manager:places_list'))
 
     else:
-        form = PlaceForm()
+        form = StaffForm()
 
     args = {'form': form}
     return render(request, 'manager/add_place.html', args)
@@ -189,7 +189,7 @@ class PlacesListView2(GerentRequiredMixin, ListView):
 
 class PlaceUpdateView2(GerentRequiredMixin, UpdateView):
     model = Place
-    form_class = PlaceForm
+    form_class = GerentPlaceForm
     template_name = 'manager/add_place.html'
 
     def get_context_data(self, **kwargs):

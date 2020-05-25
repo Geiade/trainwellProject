@@ -23,7 +23,7 @@ class Planner(models.Model):
 
 class Place(models.Model):
     name = models.CharField(max_length=30)
-    price_hour = models.DecimalField(max_digits=8, decimal_places=2)
+    price_hour = models.DecimalField(max_digits=8, decimal_places=2, default=0)
     discount = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0),
                                                                   MaxValueValidator(100)])
     available_from = models.DateTimeField()

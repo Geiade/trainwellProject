@@ -109,11 +109,18 @@ class IncidenceForm(ModelForm):
         fields = ['name', 'description', 'limit_date', 'disabled', 'places']
 
 
-class PlaceForm(ModelForm):
+class StaffForm(ModelForm):
+
+    class Meta:
+        model = Place
+        fields = ['name', 'available_from', 'available_until', 'description', 'image']
+
+
+class GerentPlaceForm(ModelForm):
     class Meta:
         model = Place
         fields = ['name', 'price_hour', 'available_from', 'available_until', 'description', 'image']
-        
+
 
 class InvoiceForm(ModelForm):
     class Meta:
