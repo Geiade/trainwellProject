@@ -30,7 +30,11 @@ function getAffectedByEvent(url, created) {
     let values = buildForm(form)
     let are_included = false
 
-    if (values['places'] != undefined) are_included = places.every(x => values['places'].includes(x))
+    if (values['places'] !== undefined){
+        are_included = places.every(x => values['places'].includes(x))
+    }else{
+        form.submit();
+    }
 
     if (are_included === true) {
         form.submit();

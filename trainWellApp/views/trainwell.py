@@ -19,7 +19,7 @@ from django.conf import settings
 
 from trainWellApp.decorators import gerentstaff_required, gerent_required
 from trainWellApp.models import Booking, Planner, Selection, Place, Notification, Invoice
-from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2
+from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2, BookingForm3
 from trainWellApp.tasks import setup_task_ispaid, cancel_task, setup_task_event_done, notpaid_manager, \
     events_done_manager, setup_task_invoice
 from trainWellApp.utils import Render
@@ -43,12 +43,8 @@ def signup(request):
         return signed
 
     if request.method == "POST":
-        print('Estas al signup')
         user_form = UserForm(request.POST)
         planner_form = PlannerForm(request.POST)
-
-        print(user_form.errors)
-        print(planner_form.errors)
 
         if user_form.is_valid() and planner_form.is_valid():
             is_staff = False
@@ -136,9 +132,10 @@ def signout(request):
 
 # WizardView data
 SelectionFormSet = formset_factory(BookingForm2, extra=15)
-BOOK_FORMS = [("0", BookingForm1), ("1", SelectionFormSet)]
+BOOK_FORMS = [("0", BookingForm1), ("1", SelectionFormSet), ("2", BookingForm3)]
 BOOK_TEMPLATES = {"0": 'trainWellApp/add_book.html',
-                  "1": 'trainWellApp/availability.html'}
+                  "1": 'trainWellApp/availability.html',
+                  "2": 'trainWellApp/booking_summary.html'}
 
 
 class BookingFormWizardView(NamedUrlSessionWizardView):
@@ -172,6 +169,15 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
                             'public_days': _get_public_days(week),
                             'isajax': isajax_req(self.request)})
 
+        if self.steps.current == "2":
+            data = [e for e in self.get_cleaned_data_for_step('1') if e != {}]
+            places = [d.get('place') for d in data if d.get('place')]
+            price = get_price(places)
+
+            context.update({'selections': data,
+                            'subtotal': round(price / 1.21, 2),
+                            'total': round(price, 2)})
+
         return context
 
     def get_form_step_data(self, form):
@@ -199,12 +205,13 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
 
     def done(self, form_list, **kwargs):
         booking = None
-
-        for i, form in enumerate(form_list):
+        for i, form in enumerate(list(form_list)[:-1]):
             if i == 0:
-                booking = form.save()
+                booking = form.save(commit=False)
+                phone = (list(form_list)[-1]).cleaned_data.get('phone_number')
+                if phone: booking.phone_number = phone
+                booking.save()
                 continue
-
             for selection in form:
                 if selection.cleaned_data:
                     instance = selection.save(commit=False)
@@ -281,25 +288,31 @@ def bookingcancelation(request, pk):
 
 @gerent_required
 def create_invoice(booking):
-    TAX = 0.21
-    price = 0
-
     selections = booking.selection_set.all()
-
-    for s in selections:
-        place = Place.objects.get(id=s.place.id)
-        price = price + (float(place.price_hour) * ((100 - place.discount)/100))
-
-    price = float(price) * (1 + TAX)
+    places = [s.place for s in selections]
+    price = get_price(places)
     invoice = Invoice(booking=booking, price=price,
                       concept="Booking: " + booking.name,
                       period_init=selections.first().datetime_init,
-                      period_end=selections.first().datetime_init,)
+                      period_end=selections.first().datetime_init, )
 
     invoice.save()
     setup_task_invoice(invoice)
 
     return invoice
+
+
+def get_price(places):
+    TAX = 0.21
+    price = 0
+
+    for place in places:
+        # place = Place.objects.get(id=s.place.id)
+        price = price + (float(place.price_hour) * ((100 - place.discount) / 100))
+
+    price = float(price) * (1 + TAX)
+
+    return price
 
 
 class InvoicePdf(View):
@@ -316,14 +329,14 @@ class InvoicePdf(View):
                 value[1] += 1
             else:
                 places[s.place.name] = [s.place.id, 1, s.place.price_hour, s.place.discount,
-                                        s.place.price_hour*s.place.discount/100]
+                                        s.place.price_hour * s.place.discount / 100]
 
-        for k, v in places.items(): v += [round(v[1]*v[2], 2), round(v[1]*v[4], 2)]
+        for k, v in places.items(): v += [round(v[1] * v[2], 2), round(v[1] * v[4], 2)]
 
         return Render.render_pdf(self.template_name, {'invoice': invoice,
                                                       'booking': invoice.booking,
                                                       'places': places,
-                                                      'subtotal': round(float(invoice.price)/1.21, 2)})
+                                                      'subtotal': round(float(invoice.price) / 1.21, 2)})
 
 
 class Dashboard(ListView):

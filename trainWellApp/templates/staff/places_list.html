@@ -16,24 +16,42 @@
                 <div style="border-radius: 25px;"
                      class="card col-12 border-0 shadow-sm p-4 my-3 inpg">
                     <div class="row">
-                        <div class="col-sm-4">
-                            <h6 class="card-title mb-1">{{ place.name }}</h6>
 
-                            <p class="card-text text-muted" data-toggle="popover" data-trigger="hover"
-                               data-title="Description" data-content="{{ place.description }}">
-                                {{ place.description | truncatechars:30 }}
-                            </p>
+                        {% if place.image == "place_images/default.png" %}
+                            <div class="col-sm-4">
+                                <h6 class="card-title mb-1">{{ place.name }}</h6>
 
-                        </div>
+                                <p class="card-text text-muted" data-toggle="popover" data-trigger="hover"
+                                   data-title="Description" data-content="{{ place.description }}">
+                                    {{ place.description | truncatechars:30 }}
+                                </p>
+                            </div>
+
+                        {% else %}
+                            <div class="col-sm-2">
+                                <h6 class="card-title mb-1">{{ place.name }}</h6>
+
+                                <p class="card-text text-muted" data-toggle="popover" data-trigger="hover"
+                                   data-title="Description" data-content="{{ place.description }}">
+                                    {{ place.description | truncatechars:30 }}
+                                </p>
+                            </div>
+
+                            <div class="col-sm-2">
+                                <img style="width: 50%" src="/media/{{ place.image }}">
+                            </div>
+                        {% endif %}
 
                         <div class="col-sm-2 text-center">
                             <small class="text-muted">Price per hour<br>{{ place.price_hour }}€</small>
                         </div>
                         <div class="col-sm-2 text-center">
-                            <small class="text-muted">Available from<br>{{ place.available_from|date:"Y-m-d H:m" }}</small>
+                            <small class="text-muted">Available from<br>{{ place.available_from|date:"Y-m-d H:m" }}
+                            </small>
                         </div>
                         <div class="col-sm-2 text-center">
-                            <small class="text-muted">Available until<br>{{ place.available_until|date:"Y-m-d H:m"  }} </small>
+                            <small class="text-muted">Available until<br>{{ place.available_until|date:"Y-m-d H:m" }}
+                            </small>
                         </div>
 
                         <div class="col-sm-2 ">
@@ -50,7 +68,7 @@
                     </div>
                 </div>
             {% endfor %}
-            </div>
+        </div>
         </div>
     </section>
 {% endblock %}
