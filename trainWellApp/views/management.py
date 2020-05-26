@@ -1,6 +1,7 @@
 import json
 from datetime import timedelta, datetime, date
 
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse, Http404, HttpResponseBadRequest
 from django.shortcuts import render, redirect
@@ -9,7 +10,7 @@ from django.views import View
 from django.views.generic import ListView, UpdateView, CreateView
 from rest_framework.views import APIView
 
-from trainWellApp.decorators import staff_required, gerent_required
+from trainWellApp.decorators import staff_required
 from trainWellApp.forms import EventForm, IncidenceForm, StaffForm, InvoiceForm, MapForm, GerentPlaceForm
 from trainWellApp.mixins import StaffRequiredMixin, GerentRequiredMixin
 from trainWellApp.models import Selection, Incidence, Place, Event, Booking, Notification, Planner, Invoice, Map
@@ -157,8 +158,6 @@ class PlaceUpdateView1(StaffRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('staff:places_list')
-
-
 
 
 class PlacesListView2(GerentRequiredMixin, ListView):
@@ -434,6 +433,7 @@ class NotificationsListView(GerentRequiredMixin, ListView):
 
 
 # TO-DO @ajax_required
+@login_required
 def notification_read(request, pk):
     qs = Notification.objects.filter(pk=pk)
 
@@ -534,7 +534,7 @@ class InvoiceListView(GerentRequiredMixin, ListView):
         return self.model.objects.filter(is_deleted=False)
 
 
-class CenterMapView(ListView):
+class CenterMapView(StaffRequiredMixin, ListView):
     model = Place
     template_name = 'trainWellApp/center_map.html'
 

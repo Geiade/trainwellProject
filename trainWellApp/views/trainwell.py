@@ -3,13 +3,12 @@ from datetime import timedelta, date, datetime
 
 import holidays
 import pandas as pd
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.base import View
 from formtools.wizard.views import NamedUrlSessionWizardView
 from isoweek import Week
 
-from django.db import transaction
-from django.forms import formset_factory
-from django.http import Http404
 from django.contrib.auth import login as do_login
 from django.contrib.auth import logout as do_logout
 from django.contrib.auth.forms import AuthenticationForm
@@ -21,7 +20,6 @@ from django.urls import reverse
 from django.views.generic import ListView, DetailView
 from django.conf import settings
 
-from trainWellApp.decorators import gerent_required
 from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2, BookingForm3
 from trainWellApp.models import Booking, Planner, Selection, Place, Notification, Invoice
 from trainWellApp.tasks import setup_task_ispaid, cancel_task, setup_task_event_done, notpaid_manager, \
@@ -168,7 +166,7 @@ BOOK_TEMPLATES = {"0": 'trainWellApp/add_book.html',
                   "2": 'trainWellApp/booking_summary.html'}
 
 
-class BookingFormWizardView(NamedUrlSessionWizardView):
+class BookingFormWizardView(LoginRequiredMixin, NamedUrlSessionWizardView):
 
     def get_template_names(self):
         return [BOOK_TEMPLATES[self.steps.current]]
@@ -261,7 +259,7 @@ class BookingFormWizardView(NamedUrlSessionWizardView):
         return redirect(reverse('trainwell:dashboard'))
 
 
-class BookingDetail(DetailView):
+class BookingDetail(LoginRequiredMixin, DetailView):
     model = Booking
 
     def get_context_data(self, **kwargs):
@@ -278,7 +276,7 @@ class BookingDetail(DetailView):
         return context
 
 
-@gerent_required
+@login_required
 def bookingcancelation(request, pk):
     # Make booking deleted and turn availability on
 
@@ -318,7 +316,7 @@ def bookingcancelation(request, pk):
 
     return redirect(reverse('trainwell:dashboard'))
 
-@gerent_required
+
 def create_invoice(booking):
     selections = booking.selection_set.all()
     places = [s.place for s in selections]
@@ -347,7 +345,7 @@ def get_price(places):
     return price
 
 
-class InvoicePdf(View):
+class InvoicePdf(LoginRequiredMixin, View):
     model = Invoice
     template_name = 'trainWellApp/invoice_pdf.html'
 
@@ -371,7 +369,7 @@ class InvoicePdf(View):
                                                       'subtotal': round(float(invoice.price) / 1.21, 2)})
 
 
-class Dashboard(ListView):
+class Dashboard(LoginRequiredMixin, ListView):
     model = Booking
     PAGINATE_BY = 20
     template_name = 'trainWellApp/dashboard.html'
