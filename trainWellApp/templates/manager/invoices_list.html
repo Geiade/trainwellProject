@@ -18,19 +18,13 @@
                             <h6 class="card-title mb-1">{{ n.booking.name }}</h6>
                         </div>
 
-                        <div class="col-sm-2 text-center">
+                        <div class="col-sm-3 text-center">
                             <small>
                                 Event date <br>{{ n.booking.selection_set.all.0.datetime_init|date:"d-m-Y" }}
                             </small>
                         </div>
 
-                        <div class="col-sm-2 text-center">
-                            <small>
-                                Payment Method<br>{{ n.get_payment_method }}
-                            </small>
-                        </div>
-
-                        <div class="col-sm-2 text-center">
+                        <div class="col-sm-3 text-center">
                             <small>
                                 Status<br>{{ n.get_booking_state }}
                             </small>

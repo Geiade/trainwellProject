@@ -99,12 +99,9 @@ class Invoice(models.Model):
     BOOKING_STATES = ((1, 'Pagada'), (2, 'Impagada'), (3, 'Cancelada pagada'),
                       (4, 'Cancelada impagada'), (5, 'Cancelada fora de termini'))
 
-    PAYMENT_METHODS = ((1, 'Credit card'), (2, 'Cash'), (3, 'Bank Transfer'), (4, 'Bank check'))
-
     booking = models.OneToOneField(Booking, blank=True, null=True, on_delete=models.PROTECT)
     price = models.DecimalField(max_digits=8, decimal_places=2)
     concept = models.CharField(max_length=250)
-    payment_method = models.PositiveIntegerField(choices=PAYMENT_METHODS, default=PAYMENT_METHODS[1][0])
     period_init = models.DateTimeField()
     period_end = models.DateTimeField()
     booking_state = models.PositiveIntegerField(choices=BOOKING_STATES, default=BOOKING_STATES[1][0])
