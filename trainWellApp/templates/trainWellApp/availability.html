@@ -7,7 +7,6 @@
 {% block additional %}
 
     <section id="schedule" class="container-fluid">
-
         <div class="row p-5">
 
             <div class="col">
@@ -34,7 +33,7 @@
 
             <div class="col text-right">
                 <button id="info" type="button" class="btn btn-secondary btn-sm" data-toggle="popover"
-                title="Help" data-content="Drag the mouse over the different hours while holding it down.
+                        title="Help" data-content="Drag the mouse over the different hours while holding it down.
                 For multiple selection hold down Ctrl key and drag the mouse over different elements.">
                     Help <i class="far fa-question-circle"></i>
                 </button>
@@ -43,35 +42,25 @@
 
         </div>
 
-        {% now "d/m/Y" as today%}
+        {% now "d/m/Y" as today %}
 
         <div class="row text-center px-5 animated">
             {% for day in weekdays %}
 
-                {% define day|date:"d/m/Y" as curr%}
+                {% define day|date:"d/m/Y" as curr %}
 
-                {% if today == curr %}
-
-                    <div id="{{ day|date:"d/m/Y" }}" class="col border-bottom text-dark p-3">
-                        {{ day|date:"D" }}
-                        <h5 class="text-white mt-2"><b style="background: #f6c23e" class="rounded-circle p-2">{{ day|date:"d" }}</b></h5>
-                        {% if public_days|get_value:day %}
-                            <small class="badge badge-pill badge-success">{{ public_days|get_value:day }}</small>
-                        {% endif %}
-                    </div>
-
-                {% else %}
-
-                    <div id="{{ day }}" class="col border-bottom text-dark p-3">
+                <div id="{{ day }}" class="col border-bottom text-dark p-3">
                     {{ day|date:"D" }}
                     <h5 class="bold mt-2"><b>{{ day|date:"d" }}</b></h5>
                     {% if public_days|get_value:day %}
                         <small class="badge badge-pill badge-success">{{ public_days|get_value:day }}</small>
+                    {% elif out|get_value:day %}
+                        <small class="badge badge-pill badge-danger" data-toggle="popover" data-trigger="hover"
+                               title="Fields out of service" data-content="{{ out|get_value:day }}">Out of service<br>
+                        </small>
                     {% endif %}
-
                 </div>
 
-                {% endif %}
 
             {% endfor %}
         </div>
@@ -118,7 +107,7 @@
                 <div class="modal-content p-3">
 
                     <div class="modal-header">
-                        <h5 class="modal-title"> </h5>
+                        <h5 class="modal-title"></h5>
                     </div>
 
                     <div class="modal-body">
@@ -148,10 +137,11 @@
 
     <script id="week_avail" type="text/javascript">
         // Global var to access in availability script
-        var avail = {{ week_avail|safe }}
+        var avail =
+        {{ week_avail|safe }}
     </script>
 
-    <script type="text/javascript" src="{% static 'JS/getAvailability.js' %}"> </script>
+    <script type="text/javascript" src="{% static 'JS/getAvailability.js' %}"></script>
 
 
 {% endblock %}

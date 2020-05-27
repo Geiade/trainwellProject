@@ -21,7 +21,7 @@ from django.views.generic import ListView, DetailView
 from django.conf import settings
 
 from trainWellApp.forms import OwnAuthenticationForm, PlannerForm, UserForm, BookingForm1, BookingForm2, BookingForm3
-from trainWellApp.models import Booking, Planner, Selection, Place, Notification, Invoice
+from trainWellApp.models import Booking, Planner, Selection, Place, Notification, Invoice, Incidence
 from trainWellApp.tasks import setup_task_ispaid, cancel_task, setup_task_event_done, notpaid_manager, \
     events_done_manager, setup_task_invoice
 from trainWellApp.utils import Render
@@ -186,12 +186,13 @@ class BookingFormWizardView(LoginRequiredMixin, NamedUrlSessionWizardView):
             else:
                 week = _get_week(datee)
 
-            week_avail, open_hours = _get_availability(event, week, datee)
+            week_avail, open_hours, out = _get_availability(event, week, datee)
             weekdays = week.days()
 
             context.update({'week_avail': week_avail,
                             'weekdays': weekdays,
                             'hours': open_hours,
+                            'out': out,
                             'today_plus7': (datetime.now() + timedelta(days=7)).strftime("%d/%m/%Y"),
                             'next_week': (weekdays[0] + timedelta(days=7)).strftime("%d/%m/%Y"),
                             'previous_week': (weekdays[0] - timedelta(days=7)).strftime("%d/%m/%Y"),
@@ -397,7 +398,7 @@ def _get_availability(event, week, datee):
 
     weekdays = week.days()
     complete_week = 7 * len(all_places)
-    week_avail, open_hours = {}, []
+    week_avail, out, open_hours = {}, {}, []
 
     # Get holidays, booked_dates and open hours for day.
     public_days = _get_public_days(week)
@@ -414,13 +415,18 @@ def _get_availability(event, week, datee):
                 open_hours.append(tuple(ranges.get(rng)))
                 curr_rng = ranges.get(rng).copy()
 
-        print("COMPARISON", d, datee.date(), d < datee.date())
         if d in public_days.keys() or d < datee.date():
             [week_avail.update({d.strftime("%d/%m/%Y") + ',' + f.name: []}) for f in all_places]
             continue
 
         for f in all_places:
             key = d.strftime("%d/%m/%Y") + ',' + f.name + ',' + str(f.id)  # To serialize as JSON
+
+            if _is_outofservice(d, f):
+                week_avail[key] = []
+                out.setdefault(d, []).append(f.name)
+                continue
+
             week_avail[key], booked_hours = curr_rng, []
 
             for h in curr_rng:
@@ -432,7 +438,7 @@ def _get_availability(event, week, datee):
 
         if len(week_avail) is complete_week: break
 
-    return json.dumps(week_avail), open_hours
+    return json.dumps(week_avail), open_hours, out
 
 
 def _get_week_bookings(week):
@@ -482,6 +488,10 @@ def _generate_range(fromm=datetime(2020, 1, 1, 9, 00), to=datetime(2020, 1, 1, 2
     # We consider default opening hours from 9h to 21h.
     return pd.date_range(fromm.strftime("%H:%M"), to.strftime("%H:%M"),
                          freq='H').strftime("%H:%M").tolist()
+
+
+def _is_outofservice(day, place):
+    return Incidence.objects.filter(limit_date__gte=day, places__in=[place], is_deleted=False).exists()
 
 
 class BookingScheduleView(ListView):
