@@ -176,22 +176,23 @@ class BookingFormWizardView(LoginRequiredMixin, NamedUrlSessionWizardView):
 
         if self.steps.current == "1":
             event = self.get_cleaned_data_for_step('0')['event']
-            # TODO, bug, event=none, when cancel add booking or accessing by url
+            datee = datetime.now() + timedelta(days=7) # Minimum date
 
             ajax_data = self.request.GET.get('week')  # If ajax request, sends week.
             if ajax_data:
                 day_list = ajax_data.split('/')
-                week = _get_week(date(int(day_list[2]), int(day_list[1]), int(day_list[0])))
+                week = _get_week(datetime(int(day_list[2]), int(day_list[1]), int(day_list[0])))
 
             else:
-                week = _get_week(datetime.now())
+                week = _get_week(datee)
 
-            week_avail, open_hours = _get_availability(event, week)
+            week_avail, open_hours = _get_availability(event, week, datee)
             weekdays = week.days()
 
             context.update({'week_avail': week_avail,
                             'weekdays': weekdays,
                             'hours': open_hours,
+                            'today_plus7': (datetime.now() + timedelta(days=7)).strftime("%d/%m/%Y"),
                             'next_week': (weekdays[0] + timedelta(days=7)).strftime("%d/%m/%Y"),
                             'previous_week': (weekdays[0] - timedelta(days=7)).strftime("%d/%m/%Y"),
                             'public_days': _get_public_days(week),
@@ -387,7 +388,7 @@ def isajax_req(request):
     return request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
 
-def _get_availability(event, week):
+def _get_availability(event, week, datee):
     if event is None:
         return json.dumps({}), [], _get_public_days(week)
 
@@ -413,17 +414,10 @@ def _get_availability(event, week):
                 open_hours.append(tuple(ranges.get(rng)))
                 curr_rng = ranges.get(rng).copy()
 
-        # No availability for holidays and weekdays lower today.
-        now = datetime.now()
-        hour_plus2 = (now + timedelta(hours=2)).replace(minute=00)
-        if d in public_days.keys() or d < hour_plus2.date():
+        print("COMPARISON", d, datee.date(), d < datee.date())
+        if d in public_days.keys() or d < datee.date():
             [week_avail.update({d.strftime("%d/%m/%Y") + ',' + f.name: []}) for f in all_places]
             continue
-
-        # Can book from now + 2 hours minimum.
-        if d == now.date():
-            _tonow = _generate_range(datetime(2020, 1, 1, int(curr_rng.copy().pop(0).split(":")[0]), 00), hour_plus2)
-            if _tonow: curr_rng = list(set(curr_rng) - set(_tonow))
 
         for f in all_places:
             key = d.strftime("%d/%m/%Y") + ',' + f.name + ',' + str(f.id)  # To serialize as JSON

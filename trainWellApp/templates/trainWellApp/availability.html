@@ -6,7 +6,7 @@
 
 {% block additional %}
 
-    <section id="schedule" class="container-fluid d-none d-lg-block">
+    <section id="schedule" class="container-fluid">
 
         <div class="row p-5">
 
@@ -22,7 +22,7 @@
                     </button>
                 </div>
                 <button id="today" type="button" class="btn btn-secondary btn-sm mr-3"
-                        onclick="swipeWeek('{% url 'trainwell:book_step' wizard.steps.current %}','{% now "d/m/Y" %}')">
+                        onclick="swipeWeek('{% url 'trainwell:book_step' wizard.steps.current %}','{{ today_plus7 }}')">
                     Today
                 </button>
                 {% if weekdays.0|date:"F" == weekdays.6|date:"F" %}
@@ -81,7 +81,7 @@
 
             {% for list_hours,day in hours|zip:weekdays %}
 
-                <div id="selectable-content{{ forloop.counter0 }}" class="col">
+                <div id="selectable-content{{ forloop.counter0 }}" class="col-sm-12 col-md">
 
                     {% for hour in list_hours %}
 
