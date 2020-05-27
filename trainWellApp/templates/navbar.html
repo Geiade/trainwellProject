@@ -3,10 +3,10 @@
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse px-5" id="twNavBar">
-        <a class="navbar-brand font-weight-bold" href="{% url 'index' %}">TrainingWell
-            <a class="btn-sm btn-warning text-dark"
-               href="{% url 'trainwell:bookings_schedule' %}">Schedule</a>
-        </a>
+        <a class="navbar-brand font-weight-bold" href="{% url 'index' %}">TrainingWell</a>
+        <a class="btn btn-sm btn-warning"
+           href="{% url 'trainwell:bookings_schedule' %}">Schedule</a>
+
 
         <ul class="navbar-nav ml-auto">
             {% if user.is_authenticated %}

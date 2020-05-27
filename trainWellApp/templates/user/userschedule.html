@@ -4,6 +4,13 @@
 <img class="img-fluid" src="{{ object_list.items.0 }}" alt="...">
 
 {% block body_block %}
+    <style>
+        .popover-body {
+            height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
     <section id="day_schedule" class="container-fluid">
         <div id="header" class="row px-5 pt-5 pb-3">
             <div class="col-auto pr-1">
@@ -46,20 +53,19 @@
                     {% for h in hours %}
                         <div class="col-sm-2 p-3">
                             {% for key, values in v.items %}
-
                                 {% if h in values %}
                                     {% define v.values|tolist|concat_list as curr %}
                                     {% if h == curr.0 %}
                                         <span class="active text-white" content="{{ k.event.color }}"
                                               data-html="true" data-toggle="popover" title="<b>{{ k.event.name }}</b>"
-                                              data-trigger="hover"
-                                              data-content="Pista {{ key.name }}: {{ key.description }}">
+                                              data-content="Pista {{ key.name }}:<img src='{{ MEDIA_URL }}{{ key.image.url }}'
+                                              class='img-fluid mb-3'<br>{{ key.description }}">
                                             <b>{{ k.name }}:</b> {{ key.name }}</span>
                                     {% else %}
                                         <span class="active text-white" content="{{ k.event.color }}"
                                               data-html="true" data-toggle="popover" title="<b>{{ k.event.name }}</b>"
-                                              data-trigger="hover"
-                                              data-content="Pista {{ key.name }}: {{ key.description }}">
+                                              data-content="Pista {{ key.name }}:<img src='{{ MEDIA_URL }}{{ key.image.url }}'
+                                              class='img-fluid mb-3'<br>{{ key.description }}">
                                             {{ key.name }}</span>
                                     {% endif %}
                                 {% endif %}
