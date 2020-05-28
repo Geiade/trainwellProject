@@ -31,6 +31,8 @@
                 </button>
             </div>
             <h5 class="col-auto pl-1 v-middle">{{ day|date:"D, d F Y" }}</h5>
+            <a class="ml-auto btn btn-sm btn-secondary"
+               href="{% url 'trainwell:book' %}">Add Booking</a>
         </div>
 
         <div style="overflow-x: auto; min-height: 100vh" class="animated slideInRight">
@@ -58,13 +60,15 @@
                                     {% if h == curr.0 %}
                                         <span class="active text-white" content="{{ k.event.color }}"
                                               data-html="true" data-toggle="popover" title="<b>{{ k.event.name }}</b>"
-                                              data-content="Pista {{ key.name }}:<img src='{{ MEDIA_URL }}{{ key.image.url }}'
+                                              data-content="Pista {{ key.name }}:<img src='
+                                                      {{ MEDIA_URL }}{{ key.image.url }}'
                                               class='img-fluid mb-3'<br>{{ key.description }}">
                                             <b>{{ k.name }}:</b> {{ key.name }}</span>
                                     {% else %}
                                         <span class="active text-white" content="{{ k.event.color }}"
                                               data-html="true" data-toggle="popover" title="<b>{{ k.event.name }}</b>"
-                                              data-content="Pista {{ key.name }}:<img src='{{ MEDIA_URL }}{{ key.image.url }}'
+                                              data-content="Pista {{ key.name }}:<img src='
+                                                      {{ MEDIA_URL }}{{ key.image.url }}'
                                               class='img-fluid mb-3'<br>{{ key.description }}">
                                             {{ key.name }}</span>
                                     {% endif %}
