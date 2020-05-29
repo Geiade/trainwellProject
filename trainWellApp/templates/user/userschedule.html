@@ -60,14 +60,14 @@
                                     {% if h == curr.0 %}
                                         <span class="active text-white" content="{{ k.event.color }}"
                                               data-html="true" data-toggle="popover" title="<b>{{ k.event.name }}</b>"
-                                              data-content="Pista {{ key.name }}:<img src='
+                                              tabindex="-1" data-trigger="focus" data-content="Pista {{ key.name }}:<img src='
                                                       {{ MEDIA_URL }}{{ key.image.url }}'
                                               class='img-fluid mb-3'<br>{{ key.description }}">
                                             <b>{{ k.name }}:</b> {{ key.name }}</span>
                                     {% else %}
                                         <span class="active text-white" content="{{ k.event.color }}"
                                               data-html="true" data-toggle="popover" title="<b>{{ k.event.name }}</b>"
-                                              data-content="Pista {{ key.name }}:<img src='
+                                              tabindex="-1" data-trigger="focus" data-content="Pista {{ key.name }}:<img src='
                                                       {{ MEDIA_URL }}{{ key.image.url }}'
                                               class='img-fluid mb-3'<br>{{ key.description }}">
                                             {{ key.name }}</span>
