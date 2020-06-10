@@ -417,7 +417,6 @@ def affected_bookings_asjson(request):
 @staff_required
 def _get_affected_bookings(request, init, end, places):
     selection = Selection.objects.filter(datetime_init__range=[init, end],
-                                         booking__planner__user_id=request.user.id,
                                          place_id__in=places,
                                          booking__is_deleted=False)
     bookinglist = {}

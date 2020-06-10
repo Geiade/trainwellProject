@@ -16,6 +16,7 @@ function getAffected(url, created) {
                     "X-Requested-With": "XMLHttpRequest"
                 },
                 success: function (data) {
+                    console.log(data)
                     formatAlertBox(form, data)
                 }
             }

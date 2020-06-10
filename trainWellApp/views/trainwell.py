@@ -491,7 +491,8 @@ def _generate_range(fromm=datetime(2020, 1, 1, 9, 00), to=datetime(2020, 1, 1, 2
 
 
 def _is_outofservice(day, place):
-    return Incidence.objects.filter(limit_date__gte=day, places__in=[place], is_deleted=False).exists()
+    return Incidence.objects.filter(limit_date__gte=day, places__in=[place],
+                                    done=False, is_deleted=False).exists()
 
 
 class BookingScheduleView(ListView):
