@@ -299,7 +299,7 @@ def bookingcancelation(request, pk):
             state = invoice.booking_state
 
             if state == 1:
-                event_date = booking.selection_set().all().first().datetime_init
+                event_date = booking.selection_set.all().first().datetime_init
                 days_to_event = (event_date - datetime.now()).days
 
                 # Booking canceled minimum 7 days in advance ('Cancelada pagada)

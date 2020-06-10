@@ -304,10 +304,25 @@ class BookingStateView(GerentRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context.update({'paid': self.get_queryset1(),
+                        'notpaid': self.get_queryset2(),
+                        'cancelled': self.get_queryset3()})
         return context
 
     def get_queryset(self):
-        return self.model.objects.filter(is_deleted=False).order_by('created')
+        return self.model.objects.filter(booking__is_deleted=False, is_deleted=False).order_by('created')
+
+    def get_queryset1(self):
+        return self.model.objects.filter(booking_state=1, booking__is_deleted=False,
+                                         is_deleted=False).order_by('created')
+
+    def get_queryset2(self):
+        return self.model.objects.filter(booking_state=2, booking__is_deleted=False,
+                                         is_deleted=False).order_by('created')
+
+    def get_queryset3(self):
+        return self.model.objects.filter(booking_state__in=[3, 4, 5], booking__is_deleted=True,
+                                         is_deleted=False).order_by('created')
 
 
 class BookingStateUpdateView(GerentRequiredMixin, UpdateView):

@@ -5,14 +5,26 @@
 
     {% include "manager/manager_navbar.html" %}
     <section class="container">
-
         <div class="row p-5">
 
-            <h4>Bookings<sup id="num_in">{{ object_list|length }}</sup></h4>
-
+            <h4>Bookings<sup id="num_books">{{ object_list|length }}</sup></h4>
+            <div class="btn-group ml-auto mb-4" role="group">
+                <button type="button" onclick="swipeBookings(0,{{ object_list|length }})"
+                        class="btn border btn-light text-secondary">All
+                </button>
+                <button type="button" onclick="swipeBookings(1,{{ paid|length }})"
+                        class="btn border btn-light text-secondary">Paid
+                </button>
+                <button type="button" onclick="swipeBookings(2,{{ notpaid|length }})"
+                        class="btn border btn-light text-secondary">Not Paid
+                </button>
+                <button type="button" onclick="swipeBookings(3,{{ cancelled|length }})"
+                        class="btn border btn-light text-secondary">Cancelled
+                </button>
+            </div>
             {% for invoice in object_list %}
                 <div style="border-left: .5rem solid {{ invoice.booking.event.color }} !important"
-                     class="card col-12 border-0 shadow-sm p-4 my-3 inpg">
+                     class="card col-12 border-0 shadow-sm p-4 my-3 inpg all">
                     <div class="row">
                         <div class="col-sm-4">
                             <h6 class="card-title mb-1">{{ invoice.booking.name }}</h6>
@@ -28,19 +40,19 @@
                             <small class="text-muted">Planner<br>{{ invoice.booking.planner }}</small>
                         </div>
                         <div class="col-sm-2 text-center">
-                            <small class="text-muted">Telephone number<br>{{ invoice.booking.phone_number}}</small>
+                            <small class="text-muted">Telephone number<br>{{ invoice.booking.phone_number }}</small>
                         </div>
                         <div class="col-sm-2 text-center">
                             <small class="text-muted">State<br>{{ invoice.get_booking_state_display }} </small>
                         </div>
-                        {% if invoice.booking_state == 1 %}
-                            <div class="col-sm-2 ">
-                                <button class="btn btn-primary" disabled><i class="far fa-edit"></i></button>
-                            </div>
-                        {% else %}
+                        {% if invoice.booking_state == 2 %}
                             <div class="col-sm-2 ">
                                 <a type="button" href="{% url "manager:bookings_state_update" invoice.id %}"
                                    class="btn btn-primary"><i class="far fa-edit"></i></a>
+                            </div>
+                        {% else %}
+                            <div class="col-sm-2 ">
+                                <button class="btn btn-primary" disabled><i class="far fa-edit"></i></button>
                             </div>
                         {% endif %}
 
@@ -48,7 +60,104 @@
                     </div>
                 </div>
             {% endfor %}
-            </div>
+
+            {% for invoice in paid %}
+                <div style=" display: none; border-left: .5rem solid {{ invoice.booking.event.color }} !important"
+                     class="card col-12 border-0 shadow-sm p-4 my-3 paid">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <h6 class="card-title mb-1">{{ invoice.booking.name }}</h6>
+
+                            <p class="card-text text-muted" data-toggle="popover" data-trigger="hover"
+                               data-title="Event" data-content="{{ invoice.booking.event }}">
+                                {{ invoice.booking.event }}
+                            </p>
+
+                        </div>
+
+                        <div class="col-sm-2 text-center">
+                            <small class="text-muted">Planner<br>{{ invoice.booking.planner }}</small>
+                        </div>
+                        <div class="col-sm-2 text-center">
+                            <small class="text-muted">Telephone number<br>{{ invoice.booking.phone_number }}</small>
+                        </div>
+                        <div class="col-sm-2 text-center">
+                            <small class="text-muted">State<br>{{ invoice.get_booking_state_display }} </small>
+                        </div>
+                        <div class="col-sm-2 ">
+                            <button class="btn btn-primary" disabled><i class="far fa-edit"></i></button>
+                        </div>
+
+
+                    </div>
+                </div>
+            {% endfor %}
+
+            {% for invoice in notpaid %}
+                <div style=" display: none; border-left: .5rem solid {{ invoice.booking.event.color }} !important"
+                     class="card col-12 border-0 shadow-sm p-4 my-3 notpaid">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <h6 class="card-title mb-1">{{ invoice.booking.name }}</h6>
+
+                            <p class="card-text text-muted" data-toggle="popover" data-trigger="hover"
+                               data-title="Event" data-content="{{ invoice.booking.event }}">
+                                {{ invoice.booking.event }}
+                            </p>
+
+                        </div>
+
+                        <div class="col-sm-2 text-center">
+                            <small class="text-muted">Planner<br>{{ invoice.booking.planner }}</small>
+                        </div>
+                        <div class="col-sm-2 text-center">
+                            <small class="text-muted">Telephone number<br>{{ invoice.booking.phone_number }}</small>
+                        </div>
+                        <div class="col-sm-2 text-center">
+                            <small class="text-muted">State<br>{{ invoice.get_booking_state_display }} </small>
+                        </div>
+
+                        <div class="col-sm-2 ">
+                            <a type="button" href="{% url "manager:bookings_state_update" invoice.id %}"
+                               class="btn btn-primary"><i class="far fa-edit"></i></a>
+                        </div>
+
+
+                    </div>
+                </div>
+            {% endfor %}
+
+            {% for invoice in cancelled %}
+                <div style=" display: none; border-left: .5rem solid {{ invoice.booking.event.color }} !important"
+                     class="card col-12 border-0 shadow-sm p-4 my-3 cancelled">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <h6 class="card-title mb-1">{{ invoice.booking.name }}</h6>
+
+                            <p class="card-text text-muted" data-toggle="popover" data-trigger="hover"
+                               data-title="Event" data-content="{{ invoice.booking.event }}">
+                                {{ invoice.booking.event }}
+                            </p>
+
+                        </div>
+
+                        <div class="col-sm-2 text-center">
+                            <small class="text-muted">Planner<br>{{ invoice.booking.planner }}</small>
+                        </div>
+                        <div class="col-sm-2 text-center">
+                            <small class="text-muted">Telephone number<br>{{ invoice.booking.phone_number }}</small>
+                        </div>
+                        <div class="col-sm-2 text-center">
+                            <small class="text-muted">State<br>{{ invoice.get_booking_state_display }} </small>
+                        </div>
+                        <div class="col-sm-2 ">
+                            <button class="btn btn-primary" disabled><i class="far fa-edit"></i></button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
     </section>
+
+    <script type="text/javascript" src="{% static "JS/swipeBookings.js" %}"></script>
 {% endblock %}
